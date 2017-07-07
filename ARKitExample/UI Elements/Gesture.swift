@@ -181,7 +181,7 @@ class SingleFingerGesture: Gesture {
 		
 		// The user has touched the virtual object.
 		for result in results {
-			if VirtualObject.isNodePartOfVirtualObject(result.node) {
+			if Picture.isNodePartOfPicture(result.node) {
 				objectHit = true
 			}
 		}
@@ -233,7 +233,7 @@ class SingleFingerGesture: Gesture {
 				
 				let results: [SCNHitTestResult] = sceneView.hitTest(point, options: hitTestOptions)
 				for result in results {
-					if VirtualObject.isNodePartOfVirtualObject(result.node) {
+					if Picture.isNodePartOfPicture(result.node) {
 						successFulHits += 1
 						break
 					}
@@ -322,7 +322,7 @@ class TwoFingerGesture: Gesture {
 		hitTestResults.append(contentsOf: sceneView.hitTest(dp8, options: hitTestOptions))
 		hitTestResults.append(contentsOf: sceneView.hitTest(mp, options: hitTestOptions))
 		for result in hitTestResults {
-			if VirtualObject.isNodePartOfVirtualObject(result.node) {
+			if Picture.isNodePartOfPicture(result.node) {
 				firstTouchWasOnObject = true
 				break
 			}

@@ -512,11 +512,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		// Load the content asynchronously.
 		DispatchQueue.global().async {
 			self.isLoadingObject = true
-			let object = VirtualObject.availableObjects[index]
+            // hard coded
+			let object = Picture.init(fileName: "sample", width: 0.2, height: 0.2)
 			object.viewController = self
 			self.picture = object
 			
-			object.loadModel()
+			object.load()
 			
 			DispatchQueue.main.async {
 				// Immediately place the object in 3D space.
@@ -530,10 +531,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 				spinner.removeFromSuperview()
 				
 				// Update the icon of the add object button
-				let buttonImage = UIImage.composeButtonImage(from: object.thumbImage)
-				let pressedButtonImage = UIImage.composeButtonImage(from: object.thumbImage, alpha: 0.3)
-				self.addObjectButton.setImage(buttonImage, for: [])
-				self.addObjectButton.setImage(pressedButtonImage, for: [.highlighted])
+//                let buttonImage = UIImage.composeButtonImage(from: object.thumbImage)
+//                let pressedButtonImage = UIImage.composeButtonImage(from: object.thumbImage, alpha: 0.3)
+//                self.addObjectButton.setImage(buttonImage, for: [])
+//                self.addObjectButton.setImage(pressedButtonImage, for: [.highlighted])
 				self.isLoadingObject = false
 			}
 		}
@@ -546,8 +547,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		textManager.cancelScheduledMessage(forType: .contentPlacement)
 		
 		let rowHeight = 45
-		let popoverSize = CGSize(width: 250, height: rowHeight * VirtualObject.availableObjects.count)
-		
+//        let popoverSize = CGSize(width: 250, height: rowHeight * VirtualObject.availableObjects.count)
+        let popoverSize = CGSize(width: 250, height: rowHeight * 1)
 		let objectViewController = VirtualObjectSelectionViewController(size: popoverSize)
 		objectViewController.delegate = self
 		objectViewController.modalPresentationStyle = .popover

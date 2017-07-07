@@ -57,7 +57,8 @@ class VirtualObjectSelectionViewController: UIViewController, UITableViewDataSou
 	
 	// MARK: - UITableViewDataSource
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return VirtualObject.availableObjects.count
+//        return VirtualObject.availableObjects.count
+        return 1
 	}
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -82,14 +83,14 @@ class VirtualObjectSelectionViewController: UIViewController, UITableViewDataSou
 		}
 		
 		// Fill up the cell with data from the object.
-		let object = VirtualObject.availableObjects[indexPath.row]
-		var thumbnailImage = object.thumbImage!
-		if let invertedImage = thumbnailImage.inverted() {
-			thumbnailImage = invertedImage
-		}
-		label.text = object.title
-		icon.image = thumbnailImage
-		
+//        let object = VirtualObject.availableObjects[indexPath.row]
+//        var thumbnailImage = object.thumbImage!
+//        if let invertedImage = thumbnailImage.inverted() {
+//            thumbnailImage = invertedImage
+//        }
+		label.text = "Andrew Zhou"
+//        icon.image = thumbnailImage
+        
 		return cell
 	}
 	
