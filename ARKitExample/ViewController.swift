@@ -260,7 +260,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
 	// MARK: - Picture Manipulation
 	
-	func displayVirtualObjectTransform() {
+    func displayVirtualObjectTransform() {
 		
 		guard let object = picture, let cameraTransform = session.currentFrame?.camera.transform else {
 			return
