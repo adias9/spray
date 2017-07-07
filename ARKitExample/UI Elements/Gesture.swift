@@ -19,14 +19,14 @@ class Gesture {
 	
 	var currentTouches = Set<UITouch>()
 	let sceneView: ARSCNView
-	let virtualObject: VirtualObject
+	let picture: Picture
 	
 	var refreshTimer: Timer?
 	
-	init(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ virtualObject: VirtualObject) {
+	init(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ picture: Picture) {
 		currentTouches = touches
 		self.sceneView = sceneView
-		self.virtualObject = virtualObject
+		self.picture = picture
 		
 		// Refresh the current gesture at 60 Hz - This ensures smooth updates even when no
 		// new touch events are incoming (but the camera might have moved).
@@ -35,11 +35,11 @@ class Gesture {
 		})
 	}
 	
-	static func startGestureFromTouches(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ virtualObject: VirtualObject) -> Gesture? {
+	static func startGestureFromTouches(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ picture: Picture) -> Gesture? {
 		if touches.count == 1 {
-			return SingleFingerGesture(touches, sceneView, virtualObject)
+			return SingleFingerGesture(touches, sceneView, picture)
 		} else if touches.count == 2 {
-			return TwoFingerGesture(touches, sceneView, virtualObject)
+			return TwoFingerGesture(touches, sceneView, picture)
 		} else {
 			return nil
 		}
@@ -77,7 +77,7 @@ class Gesture {
 				singleFingerGesture.finishGesture()
 				singleFingerGesture.refreshTimer?.invalidate()
 				singleFingerGesture.refreshTimer = nil
-				return Gesture.startGestureFromTouches(currentTouches, sceneView, virtualObject)
+				return Gesture.startGestureFromTouches(currentTouches, sceneView, picture)
 			}
 		} else if let twoFingerGesture = self as? TwoFingerGesture {
 			
@@ -111,8 +111,8 @@ class SingleFingerGesture: Gesture {
 	var firstTouchWasOnObject = false
 	var dragOffset = CGPoint()
 	
-	override init(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ virtualObject: VirtualObject) {
-		super.init(touches, sceneView, virtualObject)
+	override init(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ picture: Picture) {
+		super.init(touches, sceneView, picture)
 		
 		let touch = currentTouches[currentTouches.index(currentTouches.startIndex, offsetBy: 0)]
 		initialTouchLocation = touch.location(in: sceneView)
@@ -124,7 +124,7 @@ class SingleFingerGesture: Gesture {
 		hitTestOptions[SCNHitTestOption.boundingBoxOnly] = true
 		let results: [SCNHitTestResult] = sceneView.hitTest(initialTouchLocation, options: hitTestOptions)
 		for result in results {
-			if VirtualObject.isNodePartOfVirtualObject(result.node) {
+			if Picture.isNodePartOfPicture(result.node) {
 				firstTouchWasOnObject = true
 				break
 			}
@@ -142,7 +142,7 @@ class SingleFingerGesture: Gesture {
 			if distanceFromStartLocation >= translationThreshold {
 				translationThresholdPassed = true
 				
-				let currentObjectLocation = CGPoint(sceneView.projectPoint(virtualObject.position))
+				let currentObjectLocation = CGPoint(sceneView.projectPoint(picture.position))
 				dragOffset = latestTouchLocation - currentObjectLocation
 			}
 		}
@@ -152,7 +152,7 @@ class SingleFingerGesture: Gesture {
 			
 			let offsetPos = latestTouchLocation - dragOffset
 			
-			virtualObject.translateBasedOnScreenPos(offsetPos, instantly:false, infinitePlane:true)
+			picture.translateBasedOnScreenPos(offsetPos, instantly:false, infinitePlane:true)
 			hasMovedObject = true
 		}
 	}
@@ -194,7 +194,7 @@ class SingleFingerGesture: Gesture {
 			// Teleport the object to whereever the user touched the screen - as long as the
 			// drag threshold has not been reached.
 			if !translationThresholdPassed {
-				virtualObject.translateBasedOnScreenPos(latestTouchLocation, instantly:true, infinitePlane:false)
+				picture.translateBasedOnScreenPos(latestTouchLocation, instantly:true, infinitePlane:false)
 			}
 		}
 	}
@@ -272,8 +272,8 @@ class TwoFingerGesture: Gesture {
 	var baseDistanceBetweenFingers: CGFloat = 0
 	var objectBaseScale: CGFloat = 1.0
 
-	override init(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ virtualObject: VirtualObject) {
-		super.init(touches, sceneView, virtualObject)
+	override init(_ touches: Set<UITouch>, _ sceneView: ARSCNView, _ picture: Picture) {
+		super.init(touches, sceneView, picture)
 		
 		firstTouch = currentTouches[currentTouches.index(currentTouches.startIndex, offsetBy: 0)]
 		secondTouch = currentTouches[currentTouches.index(currentTouches.startIndex, offsetBy: 1)]
@@ -284,7 +284,7 @@ class TwoFingerGesture: Gesture {
 		let mp = (loc1 + loc2) / 2
 		initialMidPoint = mp
 		
-		objectBaseScale = CGFloat(virtualObject.scale.x)
+		objectBaseScale = CGFloat(picture.scale.x)
 		
 		// Check if any of the two fingers or their midpoint is touching the object.
 		// Based on that, translation, rotation and scale will be enabled or disabled.
@@ -339,7 +339,7 @@ class TwoFingerGesture: Gesture {
 		
 		let midPointToLoc1 = loc2ToLoc1 / 2
 		initialFingerAngle = atan2(Float(midPointToLoc1.x), Float(midPointToLoc1.y))
-		initialObjectAngle = virtualObject.eulerAngles.y
+		initialObjectAngle = picture.eulerAngles.y
 	}
 	
 	func updateGesture() {
@@ -394,14 +394,14 @@ class TwoFingerGesture: Gesture {
             if distanceFromStartLocation >= threshold {
                 translationThresholdPassed = true
 
-                let currentObjectLocation = CGPoint(sceneView.projectPoint(virtualObject.position))
+                let currentObjectLocation = CGPoint(sceneView.projectPoint(picture.position))
                 dragOffset = midpoint - currentObjectLocation
             }
         }
 
         if translationThresholdPassed {
             let offsetPos = midpoint - dragOffset
-            virtualObject.translateBasedOnScreenPos(offsetPos, instantly: false, infinitePlane: true)
+            picture.translateBasedOnScreenPos(offsetPos, instantly: false, infinitePlane: true)
         }
     }
 
@@ -436,7 +436,7 @@ class TwoFingerGesture: Gesture {
             // For looking down on the object (99% of all use cases), we need to subtract the angle.
             // To make rotation also work correctly when looking from below the object one would have to
             // flip the sign of the angle depending on whether the object is above or below the camera...
-            virtualObject.eulerAngles.y = initialObjectAngle - currentAngleToInitialFingerAngle
+            picture.eulerAngles.y = initialObjectAngle - currentAngleToInitialFingerAngle
         }
     }
 
@@ -470,9 +470,9 @@ class TwoFingerGesture: Gesture {
                  newScale = 1.0 // Snap scale to 100% when getting close.
                  }*/
 
-                virtualObject.scale = SCNVector3Uniform(newScale)
+                picture.scale = SCNVector3Uniform(newScale)
 
-                if let nodeWhichReactsToScale = virtualObject.reactsToScale() {
+                if let nodeWhichReactsToScale = picture.reactsToScale() {
                     nodeWhichReactsToScale.reactToScale()
                 }
             }

@@ -221,7 +221,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	var currentGesture: Gesture?
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let object = virtualObject else {
+		guard let object = picture else {
 			return
 		}
 		
@@ -235,7 +235,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if virtualObject == nil {
+		if picture == nil {
 			return
 		}
 		currentGesture = currentGesture?.updateGestureFromTouches(touches, .touchMoved)
@@ -243,7 +243,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if virtualObject == nil {
+		if picture == nil {
 			chooseObject(addObjectButton)
 			return
 		}
@@ -252,17 +252,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	}
 	
 	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if virtualObject == nil {
+		if picture == nil {
 			return
 		}
 		currentGesture = currentGesture?.updateGestureFromTouches(touches, .touchCancelled)
 	}
 	
-	// MARK: - Virtual Object Manipulation
+	// MARK: - Picture Manipulation
 	
 	func displayVirtualObjectTransform() {
 		
-		guard let object = virtualObject, let cameraTransform = session.currentFrame?.camera.transform else {
+		guard let object = picture, let cameraTransform = session.currentFrame?.camera.transform else {
 			return
 		}
 		
@@ -288,7 +288,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		guard let newPosition = pos else {
 			textManager.showMessage("CANNOT PLACE OBJECT\nTry moving left or right.")
 			// Reset the content selection in the menu only if the content has not yet been initially placed.
-			if virtualObject == nil {
+			if picture == nil {
 				resetVirtualObject()
 			}
 			return
@@ -377,7 +377,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
     func setNewVirtualObjectPosition(_ pos: SCNVector3) {
 	
-		guard let object = virtualObject, let cameraTransform = session.currentFrame?.camera.transform else {
+		guard let object = picture, let cameraTransform = session.currentFrame?.camera.transform else {
 			return
 		}
 		
@@ -397,9 +397,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
 	func resetVirtualObject() {
-		virtualObject?.unloadModel()
-		virtualObject?.removeFromParentNode()
-		virtualObject = nil
+		picture?.unload()
+		picture?.removeFromParentNode()
+		picture = nil
 		
 		addObjectButton.setImage(#imageLiteral(resourceName: "add"), for: [])
 		addObjectButton.setImage(#imageLiteral(resourceName: "addPressed"), for: [.highlighted])
@@ -409,7 +409,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	}
 	
 	func updateVirtualObjectPosition(_ pos: SCNVector3, _ filterPosition: Bool) {
-		guard let object = virtualObject else {
+		guard let object = picture else {
 			return
 		}
 		
@@ -446,7 +446,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 	
 	func checkIfObjectShouldMoveOntoPlane(anchor: ARPlaneAnchor) {
-		guard let object = virtualObject, let planeAnchorNode = sceneView.node(for: anchor) else {
+		guard let object = picture, let planeAnchorNode = sceneView.node(for: anchor) else {
 			return
 		}
 		
@@ -484,7 +484,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
     // MARK: - Virtual Object Loading
 	
-	var virtualObject: VirtualObject?
+	var picture: Picture?
 	var isLoadingObject: Bool = false {
 		didSet {
 			DispatchQueue.main.async {
@@ -514,7 +514,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 			self.isLoadingObject = true
 			let object = VirtualObject.availableObjects[index]
 			object.viewController = self
-			self.virtualObject = object
+			self.picture = object
 			
 			object.loadModel()
 			
@@ -584,7 +584,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		
 		textManager.cancelScheduledMessage(forType: .planeEstimation)
 		textManager.showMessage("SURFACE DETECTED")
-		if virtualObject == nil {
+		if picture == nil {
 			textManager.scheduleMessage("TAP + TO PLACE AN OBJECT", inSeconds: 7.5, messageType: .contentPlacement)
 		}
 	}
@@ -634,8 +634,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
 	func updateFocusSquare() {
 		guard let screenCenter = screenCenter else { return }
-		
-		if virtualObject != nil && sceneView.isNode(virtualObject!, insideFrustumOf: sceneView.pointOfView!) {
+  
+//        if virtualObject != nil && sceneView.isNode(virtualObject!, insideFrustumOf: sceneView.pointOfView!) {
+        if picture != nil && sceneView.isNode(picture!, insideFrustumOf: sceneView.pointOfView!) {
 			focusSquare?.hide()
 		} else {
 			focusSquare?.unhide()
