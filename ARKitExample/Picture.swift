@@ -10,13 +10,14 @@ import Foundation
 import ARKit
 import SceneKit
 
-class Picture: SCNNode {
+class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var fileName: String = ""
     var width: CGFloat = 0.2
     var height: CGFloat = 0.2
     var sceneView: ARSCNView?
     var modelLoaded: Bool = false
+    var image: UIImage?
     
     var viewController: ViewController?
     
@@ -40,21 +41,83 @@ class Picture: SCNNode {
     
     func load(){
         // Create an image plane using a pre-selected picture
-        let picture = UIImage(named: fileName)
+        importImageFromGallery()
+        print("here1")
+        //        guard let picture = image else{
+        //            print("found error")
+        //            return
+        //        }
+        //        print("here2")
+        //        // Change size of image here
+        //        // ViewController.sceneView.bounds.width / 7000
+        //        let imagePlane = SCNPlane(width: width,height: height)
+        //        imagePlane.firstMaterial?.diffuse.contents = picture
+        //        imagePlane.firstMaterial?.lightingModel = .constant
+        //        print("here3")
+        //
+        //        // Create wrapper node for image
+        //        let wrapperNode = SCNNode()
+        //        wrapperNode.geometry = imagePlane
+        //        print("here4")
+        //        // Change rotation and orientation
+        //        wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
+        //        guard let currentFrame = viewController?.session.currentFrame else {
+        //            return
+        //        }
+        //        wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
+        //        // Add as child node
+        //        self.addChildNode(wrapperNode)
+        //
+        //        modelLoaded = true
+    }
+    
+    func importImageFromGallery(){
+        let image = UIImagePickerController()
+        image.delegate = self
         
+        image.sourceType = UIImagePickerControllerSourceType.photoLibrary
+        
+        image.allowsEditing = true
+        self.viewController?.present(image, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        print("here")
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage{
+            self.image = image
+        } else {
+            // check if displaying error message correctly
+            viewController?.textManager.showMessage("No Image Found!!")
+            return
+        }
+        print("here2")
         // Change size of image here
         // ViewController.sceneView.bounds.width / 7000
         let imagePlane = SCNPlane(width: width,height: height)
-        imagePlane.firstMaterial?.diffuse.contents = picture
+        imagePlane.firstMaterial?.diffuse.contents = image
         imagePlane.firstMaterial?.lightingModel = .constant
+        print("here3")
         
-        // create wrapper node for image
+        // Create wrapper node for image
         let wrapperNode = SCNNode()
         wrapperNode.geometry = imagePlane
+        print("here4")
+        // Change rotation and orientation
+        wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
+        guard let currentFrame = viewController?.session.currentFrame else {
+            return
+        }
+        print("here5")
+        wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
+        // Add as child node
         self.addChildNode(wrapperNode)
         
         modelLoaded = true
+        print("here6")
+        
+        self.viewController?.dismiss(animated: true, completion: nil)
     }
+    
     
     func unload(){
         for child in self.childNodes {
@@ -91,13 +154,13 @@ extension Picture {
         return false
     }
     
-//    static let availableObjects: [VirtualObject] = [
-//        Candle(),
-//        Cup(),
-//        Vase(),
-//        Lamp(),
-//        Chair()
-//    ]
+    //    static let availableObjects: [VirtualObject] = [
+    //        Candle(),
+    //        Cup(),
+    //        Vase(),
+    //        Lamp(),
+    //        Chair()
+    //    ]
 }
 
 // MARK: - Protocols for Pictures
@@ -120,4 +183,5 @@ extension SCNNode {
         return nil
     }
 }
+
 
