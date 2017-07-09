@@ -10,13 +10,17 @@ import Foundation
 import SceneKit
 import UIKit
 import Photos
+import FirebaseAuth
 
 class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate, VirtualObjectSelectionViewControllerDelegate {
+    
+    // The handler for the auth state listener, to allow cancelling later.
+    var handle: AuthStateDidChangeListenerHandle?
 	
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         Setting.registerDefaults()
         setupScene()
         setupDebug()
@@ -24,6 +28,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		setupFocusSquare()
 		updateSettings()
 		resetVirtualObject()
+        handleUserSignIn()
     }
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -35,11 +40,59 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		// Start the ARSession.
 		restartPlaneDetection()
 	}
+    
+    override func viewWillAppear(_ animated: Bool) {
+        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            // ...
+        }
+    }
 	
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
+        
+        Auth.auth().removeStateDidChangeListener(handle!)
+        
 		session.pause()
 	}
+    
+    // MARK: - User SignIn
+    func handleUserSignIn() {
+        // Sign in User with Firebase Auth
+        if Auth.auth().currentUser != nil {
+            print("User is already logged in anonymously with uid:" + Auth.auth().currentUser!.uid)
+        } else {
+            Auth.auth().signInAnonymously() { (user, error) in
+                if error != nil {
+                    print("This is the error msg:")
+                    print(error!)
+                    print("Here ends the error msg.")
+                    return
+                }
+                
+                // let isAnonymous = user!.isAnonymous  // true
+                // let uid = user!.uid
+                
+                if user!.isAnonymous {
+                    print("User has logged in anonymously with uid:" + user!.uid)
+                }
+                
+            }
+            
+            
+            // Code to set the user's displayName
+            //            let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+            //            let displayName = "adias"
+            //            changeRequest?.displayName = displayName
+            //            changeRequest?.commitChanges { (error) in
+            //                if error != nil {
+            //                    print(error!)
+            //                    return
+            //                }
+            //                 print("The user's displayName has been added")
+            //            }
+        }
+    }
+    
 	
     // MARK: - ARKit / ARSCNView
     let session = ARSession()

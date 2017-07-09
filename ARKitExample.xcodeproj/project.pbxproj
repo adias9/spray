@@ -20,6 +20,7 @@
 		39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9581E9C6B1F003FCA0C /* Utilities.swift */; };
 		39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */; };
 		39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */; };
+		B9E1B72F1F12E56300192472 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9E1B72E1F12E56300192472 /* GoogleService-Info.plist */; };
 		C40FE5291EC239F100732B01 /* Candle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40FE5231EC239F100732B01 /* Candle.swift */; };
 		C40FE52A1EC239F100732B01 /* Chair.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40FE5241EC239F100732B01 /* Chair.swift */; };
 		C40FE52B1EC239F100732B01 /* Cup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40FE5251EC239F100732B01 /* Cup.swift */; };
@@ -50,6 +51,7 @@
 		39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		50EC380C8D93A20A990EC791 /* Pods_ARKitExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ARKitExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10A77718BD8C96B203D87AA /* Pods-ARKitExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.release.xcconfig"; sourceTree = "<group>"; };
+		B9E1B72E1F12E56300192472 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C1836A816B747F167F2A348C /* Pods-ARKitExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.debug.xcconfig"; sourceTree = "<group>"; };
 		C40FE5231EC239F100732B01 /* Candle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Candle.swift; path = "ARKitExample/Virtual Objects/Candle.swift"; sourceTree = SOURCE_ROOT; };
 		C40FE5241EC239F100732B01 /* Chair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Chair.swift; path = "ARKitExample/Virtual Objects/Chair.swift"; sourceTree = SOURCE_ROOT; };
@@ -132,6 +134,7 @@
 				3929C49E1E89EE4400E00B60 /* Models.scnassets */,
 				3929C4921E89EC2C00E00B60 /* Assets.xcassets */,
 				3929C4971E89EC2C00E00B60 /* Info.plist */,
+				B9E1B72E1F12E56300192472 /* GoogleService-Info.plist */,
 				3929C48F1E89EC2C00E00B60 /* Main.storyboard */,
 				39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */,
 			);
@@ -233,6 +236,7 @@
 			files = (
 				3929C49F1E89EE4400E00B60 /* Models.scnassets in Resources */,
 				39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */,
+				B9E1B72F1F12E56300192472 /* GoogleService-Info.plist in Resources */,
 				3929C4931E89EC2C00E00B60 /* Assets.xcassets in Resources */,
 				3929C4911E89EC2C00E00B60 /* Main.storyboard in Resources */,
 			);

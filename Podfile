@@ -7,4 +7,7 @@ target 'ARKitExample' do
 
   # Pods for ARKitExample
   pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Database'
+
 end
