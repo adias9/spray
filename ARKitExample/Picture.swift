@@ -9,6 +9,9 @@
 import Foundation
 import ARKit
 import SceneKit
+import FirebaseAuth
+import FirebaseDatabase
+import FirebaseStorage
 
 class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -116,6 +119,50 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         print("here6")
         
         self.viewController?.dismiss(animated: true, completion: nil)
+        
+        // MARK: Andreas's Code
+        
+        var data = Data()
+        data = UIImageJPEGRepresentation(image!, 0.8)!
+        
+        var databaseRef: DatabaseReference!
+        databaseRef = Database.database().reference()
+        
+        let storageRef = Storage.storage().reference()
+        
+        let metaData = StorageMetadata()
+        metaData.contentType = "image/jpg"
+        
+        let userID = Auth.auth().currentUser!.uid
+        let picID = databaseRef.child("/pictures/\(userID)/").childByAutoId().key
+        
+        let picturesRef = storageRef.child("/pictures/\(userID)/\(picID)")
+        
+        let uploadTask = picturesRef.putData(data, metadata: metaData) { (metadata, error) in
+            if let error = error {
+                // Uh-oh, an error occurred!
+                print(error)
+                return
+            } else {
+                // Metadata contains file metadata such as size, content-type, and download URL.
+                let downloadURL = metadata!.downloadURL()!.absoluteString
+                // format date type to string
+                let date = metadata!.timeCreated!
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                dateFormatter.locale = Locale(identifier: "en_US")
+                let timeCreated = dateFormatter.string(from:date as Date)
+                
+                //store downloadURL at database
+                let picture = ["downloadURL": downloadURL, "timeCreated": timeCreated]
+                //            “location”:
+                let childUpdates: [String: Any] = ["/pictures/\(userID)/\(picID)": picture, "/users/\(userID)/lastPicture": picID]
+                databaseRef.updateChildValues(childUpdates)
+            }
+        }
+        
+        //-------------
+        
     }
     
     
