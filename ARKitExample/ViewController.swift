@@ -45,14 +45,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
     // MARK: - ARKit / ARSCNView
     let session = ARSession()
-	var sessionConfig: ARSessionConfiguration = ARWorldTrackingSessionConfiguration()
+    var sessionConfig = ARWorldTrackingSessionConfiguration()
+    
+    
 	var use3DOFTracking = false {
 		didSet {
 			if use3DOFTracking {
-				sessionConfig = ARSessionConfiguration()
+                sessionConfig = ARSessionConfiguration() as! ARWorldTrackingSessionConfiguration
 			}
 			sessionConfig.isLightEstimationEnabled = UserDefaults.standard.bool(for: .ambientLightEstimation)
-			session.run(sessionConfig)
+//            sessionConfig.worldAlignment = .gravityAndHeading
+            sessionConfig.worldAlignment = ARSessionConfiguration.WorldAlignment.gravityAndHeading
+            session.run(sessionConfig)
+            
 		}
 	}
 	var use3DOFTrackingFallback = false
@@ -112,6 +117,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         DispatchQueue.main.async {
+              print("suppp!@#*#**")
+            print(anchor.transform.columns.0)
+            print(anchor.transform.columns.1)
+            print(anchor.transform.columns.2)
+            print(anchor.transform.columns.3)
             if let planeAnchor = anchor as? ARPlaneAnchor {
 				self.addPlane(node: node, anchor: planeAnchor)
                 self.checkIfObjectShouldMoveOntoPlane(anchor: planeAnchor)
@@ -121,6 +131,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         DispatchQueue.main.async {
+            print("anchor:")
+            print(anchor.transform.columns.1)
+            print("root:")
+            print(self.sceneView.scene.rootNode.eulerAngles)
+            
             if let planeAnchor = anchor as? ARPlaneAnchor {
                 self.updatePlane(anchor: planeAnchor)
                 self.checkIfObjectShouldMoveOntoPlane(anchor: planeAnchor)
@@ -890,7 +905,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var rootLocation: CLLocation?
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         userLocation = locations[0]
-        
+        print(userLocation!)
         // Calculate root node location
 //        guard let cameraTransform = session.currentFrame?.camera.transform else {
 //            return
@@ -907,10 +922,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func setupLocationManager(){
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestAlwaysAuthorization()
+        locationManager.requestWhenInUseAuthorization()
+        //later use locationManager.requestAlwaysAuthorization() if needed
         locationManager.startUpdatingLocation()
         // figure out when to stopUpdatingLocation() to preserve battery
         // For now, not startUpdatingHeading() - orientation of picture is fixed, matches camera orientation
+    }
+    
+    // Retrieve images placed in environement
+    func renderImagesAtLocation(location: Location){
+        guard let camera = session.currentFrame?.camera else {
+            return
+        }
+        
+        var oldCam = SCNNode()
+        var dist = userLocation!.distance(from: location.cameraLocation())
+        
         
     }
 }
