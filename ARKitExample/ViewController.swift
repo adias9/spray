@@ -10,8 +10,9 @@ import Foundation
 import SceneKit
 import UIKit
 import Photos
+import CoreLocation
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate, VirtualObjectSelectionViewControllerDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate, VirtualObjectSelectionViewControllerDelegate, CLLocationManagerDelegate {
 	
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -22,6 +23,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         setupDebug()
         setupUIControls()
 		setupFocusSquare()
+        setupLocationManager()
 		updateSettings()
 		resetVirtualObject()
     }
@@ -63,7 +65,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         sceneView.session = session
 		sceneView.antialiasingMode = .multisampling4X
 		sceneView.automaticallyUpdatesLighting = false
-		
 		sceneView.preferredFramesPerSecond = 60
 		sceneView.contentScaleFactor = 1.3
 		//sceneView.showsStatistics = true
@@ -249,6 +250,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		}
 		
 		currentGesture = currentGesture?.updateGestureFromTouches(touches, .touchEnded)
+        
+        // update Location Object
+        // create Location Object for picture
+        guard let cameraTransform = self.session.currentFrame?.camera.transform, let camLocation = self.userLocation, let object = self.picture else {
+            return
+        }
+        self.objLocation?.updateLocation(picture: object, cameraLocation: camLocation, cameraTransform: cameraTransform)
+        print("update Location")
+        print(self.objLocation!.cameraLocation())
 	}
 	
 	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -497,7 +507,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	}
 	
 	@IBOutlet weak var addObjectButton: UIButton!
-	
+    
+    var objLocation: Location?
 	func loadVirtualObject(at index: Int) {
 		resetVirtualObject()
 		
@@ -516,8 +527,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 			let object = Picture.init(fileName: "sample", width: 0.2, height: 0.2)
 			object.viewController = self
 			self.picture = object
-			
 			object.load()
+            
+            
+            // create Location Object for picture
+            guard let cameraTransform = self.session.currentFrame?.camera.transform, let camLocation = self.userLocation else {
+                return
+            }
+            self.objLocation = Location.init(picture: object, cameraLocation: camLocation, cameraTransform: cameraTransform)
+            print("create Location")
+            print(self.objLocation!.cameraLocation())
 			
 			DispatchQueue.main.async {
 				// Immediately place the object in 3D space.
@@ -864,4 +883,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
 		updateSettings()
 	}
+    
+    // MARK: - Location Manager and Delegate
+    let locationManager = CLLocationManager()
+    var userLocation: CLLocation?
+    var rootLocation: CLLocation?
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        userLocation = locations[0]
+        
+        // Calculate root node location
+//        guard let cameraTransform = session.currentFrame?.camera.transform else {
+//            return
+//        }
+//
+//        let cameraPos = SCNVector3.positionFromTransform(cameraTransform)
+//        let root = sceneView.scene.rootNode
+//        let vectorToRoot = root.position - cameraPos
+        
+//        let distanceToRoot = vectorToRoot.length()
+    }
+    
+    // setupLocationManager()
+    func setupLocationManager(){
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
+        // figure out when to stopUpdatingLocation() to preserve battery
+        // For now, not startUpdatingHeading() - orientation of picture is fixed, matches camera orientation
+        
+    }
 }

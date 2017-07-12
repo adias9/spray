@@ -44,34 +44,37 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
     
     func load(){
         // Create an image plane using a pre-selected picture
-        importImageFromGallery()
-        print("here1")
-        //        guard let picture = image else{
-        //            print("found error")
-        //            return
-        //        }
-        //        print("here2")
-        //        // Change size of image here
-        //        // ViewController.sceneView.bounds.width / 7000
-        //        let imagePlane = SCNPlane(width: width,height: height)
-        //        imagePlane.firstMaterial?.diffuse.contents = picture
-        //        imagePlane.firstMaterial?.lightingModel = .constant
-        //        print("here3")
-        //
-        //        // Create wrapper node for image
-        //        let wrapperNode = SCNNode()
-        //        wrapperNode.geometry = imagePlane
-        //        print("here4")
-        //        // Change rotation and orientation
-        //        wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
-        //        guard let currentFrame = viewController?.session.currentFrame else {
-        //            return
-        //        }
-        //        wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
-        //        // Add as child node
-        //        self.addChildNode(wrapperNode)
-        //
-        //        modelLoaded = true
+        // *** uncomment below code for choosing picture ***
+//        importImageFromGallery()
+//                guard let picture = image else{
+//                    print("found error")
+//                    return
+//                }
+        
+        // *** comment out the line below later - its hard coded
+        let picture = UIImage(named: "sample")
+                print("here2")
+                // Change size of image here
+                // ViewController.sceneView.bounds.width / 7000
+                let imagePlane = SCNPlane(width: width,height: height)
+                imagePlane.firstMaterial?.diffuse.contents = picture
+                imagePlane.firstMaterial?.lightingModel = .constant
+                print("here3")
+        
+                // Create wrapper node for image
+                let wrapperNode = SCNNode()
+                wrapperNode.geometry = imagePlane
+                print("here4")
+                // Change rotation and orientation
+                wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
+                guard let currentFrame = viewController?.session.currentFrame else {
+                    return
+                }
+                wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
+                // Add as child node
+                self.addChildNode(wrapperNode)
+        
+                modelLoaded = true
     }
     
     func importImageFromGallery(){
@@ -93,30 +96,29 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
             viewController?.textManager.showMessage("No Image Found!!")
             return
         }
-        print("here2")
+        
         // Change size of image here
         // ViewController.sceneView.bounds.width / 7000
         let imagePlane = SCNPlane(width: width,height: height)
         imagePlane.firstMaterial?.diffuse.contents = image
         imagePlane.firstMaterial?.lightingModel = .constant
-        print("here3")
         
         // Create wrapper node for image
         let wrapperNode = SCNNode()
         wrapperNode.geometry = imagePlane
-        print("here4")
+        
         // Change rotation and orientation
         wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
         guard let currentFrame = viewController?.session.currentFrame else {
             return
         }
-        print("here5")
         wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
+        
         // Add as child node
         self.addChildNode(wrapperNode)
         
         modelLoaded = true
-        print("here6")
+        
         
         self.viewController?.dismiss(animated: true, completion: nil)
         
@@ -135,7 +137,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         
         let userID = Auth.auth().currentUser!.uid
         let picID = databaseRef.child("/pictures/\(userID)/").childByAutoId().key
-        
+
         let picturesRef = storageRef.child("/pictures/\(userID)/\(picID)")
         
         let uploadTask = picturesRef.putData(data, metadata: metaData) { (metadata, error) in

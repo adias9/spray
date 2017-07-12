@@ -88,7 +88,7 @@ class VirtualObjectSelectionViewController: UIViewController, UITableViewDataSou
 //        if let invertedImage = thumbnailImage.inverted() {
 //            thumbnailImage = invertedImage
 //        }
-		label.text = "Andrew Zhou"
+		label.text = "Place Image"
 //        icon.image = thumbnailImage
         
 		return cell
