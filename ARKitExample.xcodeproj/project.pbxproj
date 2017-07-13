@@ -13,7 +13,6 @@
 		3929C4931E89EC2C00E00B60 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3929C4921E89EC2C00E00B60 /* Assets.xcassets */; };
 		3929C49F1E89EE4400E00B60 /* Models.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 3929C49E1E89EE4400E00B60 /* Models.scnassets */; };
 		392BB82C1EA19A7C00FBBAC8 /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392BB82B1EA19A7C00FBBAC8 /* Plane.swift */; };
-		3987BEDC1E9E057F00167FAC /* Gesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3987BEDB1E9E057F00167FAC /* Gesture.swift */; };
 		39C0B9511E9C63CB003FCA0C /* HitTestVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9501E9C63CB003FCA0C /* HitTestVisualization.swift */; };
 		39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */; };
 		39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9581E9C6B1F003FCA0C /* Utilities.swift */; };
@@ -24,8 +23,6 @@
 		6A6159361F105E7200715603 /* Picture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6159351F105E7200715603 /* Picture.swift */; };
 		6A6159AE1F1540B800715603 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A6159AD1F1540AC00715603 /* CoreLocation.framework */; };
 		C41366B91EB80DD400EC054A /* TextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41366B81EB80DD400EC054A /* TextManager.swift */; };
-		C42A71BD1E9C0AF200944367 /* FocusSquare.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A71BC1E9C0AF200944367 /* FocusSquare.swift */; };
-		C490DAC41E9AB63400210960 /* VirtualObjectSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C490DAC31E9AB63400210960 /* VirtualObjectSelectionViewController.swift */; };
 		C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,7 +36,6 @@
 		3929C4971E89EC2C00E00B60 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3929C49E1E89EE4400E00B60 /* Models.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Models.scnassets; sourceTree = "<group>"; };
 		392BB82B1EA19A7C00FBBAC8 /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plane.swift; sourceTree = "<group>"; };
-		3987BEDB1E9E057F00167FAC /* Gesture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gesture.swift; sourceTree = "<group>"; };
 		39C0B9501E9C63CB003FCA0C /* HitTestVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HitTestVisualization.swift; sourceTree = "<group>"; };
 		39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		39C0B9581E9C6B1F003FCA0C /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -51,8 +47,6 @@
 		6A6159AD1F1540AC00715603 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.debug.xcconfig"; sourceTree = "<group>"; };
 		C41366B81EB80DD400EC054A /* TextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextManager.swift; sourceTree = "<group>"; };
-		C42A71BC1E9C0AF200944367 /* FocusSquare.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FocusSquare.swift; sourceTree = "<group>"; };
-		C490DAC31E9AB63400210960 /* VirtualObjectSelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualObjectSelectionViewController.swift; sourceTree = "<group>"; };
 		C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARCameraTrackingState.swift; sourceTree = "<group>"; };
 		C7F76951F8992F473202F831 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		D6297B48C7926B95F793A435 /* Pods-ARKitExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.release.xcconfig"; sourceTree = "<group>"; };
@@ -74,8 +68,6 @@
 		113B64D01ECA81CA0071CBD1 /* UI Elements */ = {
 			isa = PBXGroup;
 			children = (
-				C42A71BC1E9C0AF200944367 /* FocusSquare.swift */,
-				3987BEDB1E9E057F00167FAC /* Gesture.swift */,
 				392BB82B1EA19A7C00FBBAC8 /* Plane.swift */,
 				39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */,
 				39C0B9501E9C63CB003FCA0C /* HitTestVisualization.swift */,
@@ -113,7 +105,6 @@
 				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
 				113B64D01ECA81CA0071CBD1 /* UI Elements */,
 				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
-				C490DAC31E9AB63400210960 /* VirtualObjectSelectionViewController.swift */,
 				C41366B81EB80DD400EC054A /* TextManager.swift */,
 				C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */,
 				39C0B9581E9C6B1F003FCA0C /* Utilities.swift */,
@@ -290,12 +281,9 @@
 				C41366B91EB80DD400EC054A /* TextManager.swift in Sources */,
 				39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */,
 				392BB82C1EA19A7C00FBBAC8 /* Plane.swift in Sources */,
-				3987BEDC1E9E057F00167FAC /* Gesture.swift in Sources */,
 				6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */,
 				39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */,
 				39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */,
-				C490DAC41E9AB63400210960 /* VirtualObjectSelectionViewController.swift in Sources */,
-				C42A71BD1E9C0AF200944367 /* FocusSquare.swift in Sources */,
 				6A6159361F105E7200715603 /* Picture.swift in Sources */,
 				3929C48C1E89EC2C00E00B60 /* AppDelegate.swift in Sources */,
 				C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */,

@@ -17,7 +17,6 @@ class Plane: SCNNode {
 	
 	var debugVisualization: PlaneDebugVisualization?
 	
-	var focusSquare: FocusSquare?
 	
 	init(_ anchor: ARPlaneAnchor, _ showDebugVisualization: Bool) {
 		self.anchor = anchor

@@ -16,7 +16,7 @@ import FirebaseStorage
 class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var fileName: String = ""
-    var width: CGFloat = 0.2
+    var width: CGFloat = 0.12
     var height: CGFloat = 0.2
     var sceneView: ARSCNView?
     var modelLoaded: Bool = false
@@ -37,7 +37,6 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         self.height = height
     }
     
-    // do not know what this is, but I think I need to add this
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -53,28 +52,41 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         
         // *** comment out the line below later - its hard coded
         let picture = UIImage(named: "sample")
-                print("here2")
-                // Change size of image here
-                // ViewController.sceneView.bounds.width / 7000
-                let imagePlane = SCNPlane(width: width,height: height)
-                imagePlane.firstMaterial?.diffuse.contents = picture
-                imagePlane.firstMaterial?.lightingModel = .constant
-                print("here3")
+        // Change size of image here
+        // ViewController.sceneView.bounds.width / 7000
+        let imagePlane = SCNPlane(width: width,height: height)
+        imagePlane.firstMaterial?.diffuse.contents = picture
+        imagePlane.firstMaterial?.lightingModel = .constant
         
-                // Create wrapper node for image
-                let wrapperNode = SCNNode()
-                wrapperNode.geometry = imagePlane
-                print("here4")
-                // Change rotation and orientation
-                wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
-                guard let currentFrame = viewController?.session.currentFrame else {
-                    return
-                }
-                wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
-                // Add as child node
-                self.addChildNode(wrapperNode)
+        // Create wrapper node for image
+        let wrapperNode = SCNNode(geometry: imagePlane)
         
-                modelLoaded = true
+        guard let currentFrame = viewController?.session.currentFrame else {
+            return
+        }
+//                // Change rotation and orientation - uncommnet lines below to place on plane
+//                wrapperNode.rotation = SCNVector4.init(1, 0, 0, CGFloat.pi * 3/2)
+//                wrapperNode.simdEulerAngles.y = currentFrame.camera.eulerAngles.y
+        var translation = matrix_identity_float4x4
+        translation.columns.3.z = -0.1
+//        var translation = SCNMatrix4MakeTranslation(0.0, 0.0, -0.1)
+        wrapperNode.simdTransform = matrix_multiply(currentFrame.camera.transform, translation)
+//        wrapperNode.simdTransform = currentFrame.camera.transform
+//        wrapperNode.rotation = SCNVector4.init(0, 1, 0, CGFloat.pi * 3/2)
+        
+        // this code does not work
+        let cameraPos = SCNVector3.positionFromTransform(currentFrame.camera.transform)
+//        currentFrame.camera.transform
+//        wrapperNode.position = cameraPos
+//        wrapperNode.simdEulerAngles.x = currentFrame.camera.eulerAngles.x
+//        wrapperNode.simdEulerAngles.z = currentFrame.camera.eulerAngles.z
+//        wrapperNode.position.z = cameraPos.z - 0.1
+        
+        
+        // Add as child node
+        self.addChildNode(wrapperNode)
+        
+//                modelLoaded = true
     }
     
     func importImageFromGallery(){
@@ -117,7 +129,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         // Add as child node
         self.addChildNode(wrapperNode)
         
-        modelLoaded = true
+//        modelLoaded = true
         
         
         self.viewController?.dismiss(animated: true, completion: nil)
@@ -173,7 +185,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
             child.removeFromParentNode()
         }
         
-        modelLoaded = false
+//        modelLoaded = false
     }
     
     func translateBasedOnScreenPos(_ pos: CGPoint, instantly: Bool, infinitePlane: Bool) {
