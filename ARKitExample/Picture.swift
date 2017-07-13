@@ -194,9 +194,9 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
             return
         }
         
-        let result = controller.worldPositionFromScreenPosition(pos, objectPos: self.position, infinitePlane: infinitePlane)
+//        let result = controller.worldPositionFromScreenPosition(pos, objectPos: self.position, infinitePlane: infinitePlane)
         
-        controller.moveVirtualObjectToPosition(result.position, instantly, !result.hitAPlane)
+//        controller.moveVirtualObjectToPosition(result.position, instantly, !result.hitAPlane)
     }
     
 }
