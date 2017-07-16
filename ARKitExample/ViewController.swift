@@ -12,7 +12,7 @@ import UIKit
 import Photos
 import CoreLocation
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, ImagePickerViewControllerDelegate {
 	
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -31,18 +31,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             #selector(self.handleTap(gestureRecognize:)))
         view.addGestureRecognizer(tapGesture)
     }
-    var element: SCNNode?
+    
+    var obj: UIImage?
     @objc
     func handleTap(gestureRecognize: UITapGestureRecognizer){
         guard let currentFrame = sceneView.session.currentFrame else{
             return
         }
+        if(obj == nil){
+            obj = UIImage(named: "sample")
+        }
         
-        let obj = UIImage(named: "sample")
         let imagePlane = SCNPlane(width: sceneView.bounds.width / 6000, height: sceneView.bounds.height / 6000)
         imagePlane.firstMaterial?.diffuse.contents = obj
         imagePlane.firstMaterial?.lightingModel = .constant
-        var wrapperNode = SCNNode(geometry: imagePlane)
+        let wrapperNode = SCNNode(geometry: imagePlane)
         
         var translation = matrix_identity_float4x4
         translation.columns.3.z = -0.1
@@ -55,9 +58,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
         
-//        element = wrapperNode
+        // TODO: combine the back with the front. add both nodes as child of a picture node, then add the picture node as chid of root
+        // TODO: potentially explore using cubes instead. play with the dimensions to make it look like a two sided picture. currently side view disappears
+        // TODO: currently the back side is smaller because it was place further. FIX THIS!
+        let wrapperNodeBack = SCNNode(geometry: imagePlane)
+        var rotationBack = matrix_identity_float4x4
+        rotationBack.columns.0.x = Float(cos(CGFloat.pi))
+        rotationBack.columns.2.y = Float(sin(CGFloat.pi))
+        rotationBack.columns.0.z = Float(-sin(CGFloat.pi))
+        rotationBack.columns.2.z = Float(cos(CGFloat.pi))
+        wrapperNodeBack.simdTransform = matrix_multiply(matrix_multiply(wrapperNode.simdTransform, translation), rotationBack)
         
         sceneView.scene.rootNode.addChildNode(wrapperNode)
+        sceneView.scene.rootNode.addChildNode(wrapperNodeBack)
+        print(";)")
     }
     
 	override func viewDidAppear(_ animated: Bool) {
@@ -424,11 +438,24 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 //        objectViewController.popoverPresentationController?.sourceView = button
 //        objectViewController.popoverPresentationController?.sourceRect = button.bounds
         
+        let imagePickerVC = ImagePickerViewController()
+        imagePickerVC.delegate = self
+        imagePickerVC.modalPresentationStyle = .popover
+        imagePickerVC.popoverPresentationController?.delegate = self
+        self.present(imagePickerVC, animated: true, completion: nil)
         
-        
-        
-        
+        imagePickerVC.popoverPresentationController?.sourceView = button
+        imagePickerVC.popoverPresentationController?.sourceRect = button.bounds
     }
+    func imagePickerViewController(_: ImagePickerViewController, didSelectImage image: UIImage) {
+        obj = image
+        print(obj?.size)
+        print("----------------------------------------------------------------------------------------------------------------!!")
+    }
+    func imagePickerViewControllerDidCancel(_: ImagePickerViewController){
+          print("----------------------------------------------------------------------------------------------------------------!!")
+    }
+    
     
     // MARK: - Plane Detection
 	
