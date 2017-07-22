@@ -10,8 +10,20 @@ import Foundation
 import SceneKit
 import UIKit
 import Photos
+import CoreLocation
+import Firebase
+import FirebaseAuth
+import FirebaseDatabase
+import FirebaseStorage
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate, VirtualObjectSelectionViewControllerDelegate {
+
+class ViewController: UIViewController, ARSCNViewDelegate, CLLocationManagerDelegate, UIPopoverPresentationControllerDelegate, VirtualObjectSelectionViewControllerDelegate {
+    
+    var locationManager = CLLocationManager()
+    var rootNodeLocation = CLLocation()
+    var currentLocation = CLLocation()
+    var currentSessionID : String = ""
+    var handle: AuthStateDidChangeListenerHandle?
 	
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -24,6 +36,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		setupFocusSquare()
 		updateSettings()
 		resetVirtualObject()
+        setupLocationSettings()
     }
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -31,15 +44,342 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		
 		// Prevent the screen from being dimmed after a while.
 		UIApplication.shared.isIdleTimerDisabled = true
-		
+  
 		// Start the ARSession.
 		restartPlaneDetection()
 	}
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+        }
+    }
 	
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
+        
 		session.pause()
+        
+        // Remove Auth Listener for User Sign in State
+        Auth.auth().removeStateDidChangeListener(handle!)
+        
+        // Save a Session on Exiting
+//        saveDBSession()
 	}
+    
+    // MARK: - Firebase Initialization
+    func setupFirebase() {
+        // Sign in User with Firebase Auth
+        print("User Auth")
+        if Auth.auth().currentUser != nil {
+            print("User is already logged in anonymously with uid:" + Auth.auth().currentUser!.uid)
+        } else {
+            do {
+                try Auth.auth().signOut();
+                print("signed out")
+            } catch {
+                print("Error signing out")
+            }
+            Auth.auth().signInAnonymously() { (user, error) in
+                if error != nil {
+                    print("This is the error msg:")
+                    print(error!)
+                    print("Here ends the error msg.")
+                    return
+                }
+    
+                if user!.isAnonymous {
+                    print("User has logged in anonymously with uid:" + user!.uid)
+                }
+            }
+    
+    
+        // Code to set the user's displayName
+        //            let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+        //            let displayName = "adias"
+        //            changeRequest?.displayName = displayName
+        //            changeRequest?.commitChanges { (error) in
+        //                if error != nil {
+        //                    print(error!)
+        //                    return
+        //                }
+        //                 print("The user's displayName has been added")
+        //            }
+        }
+        
+        print("getcurrentLocation in setupFirebase: \(currentLocation)")
+        print("getrootNodeLocation in setupFirebase: \(currentLocation)")
+        
+        
+        // Initialize Firebase Database
+        let databaseRef = Database.database().reference()
+        
+        // Add root node to Nodes
+        let rootID = databaseRef.childByAutoId().key
+        let dbNode = ["distance": 0.0]
+        databaseRef.child("nodes/\(rootID)").setValue(dbNode)
+        
+        // Format Date into String
+        let rootTime = rootNodeLocation.timestamp
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+        dateFormatter.locale = Locale(identifier: "en_US")
+        let timestamp = dateFormatter.string(from:rootTime as Date)
+        
+        // Add session to Sessions
+        let dbSession: [String: Any] = [
+            "completed": false,
+            "latitude": rootNodeLocation.coordinate.latitude,
+            "longitude": rootNodeLocation.coordinate.longitude,
+            "altitude": rootNodeLocation.altitude,
+            "horizontalAccuracy": rootNodeLocation.horizontalAccuracy,
+            "verticalAccuracy": rootNodeLocation.verticalAccuracy,
+            "timestamp": timestamp,
+            "radius":  0.0,
+            "users": [Auth.auth().currentUser!.uid],
+            "root_name": rootID,
+            "nodes": [rootID]
+        ]
+        currentSessionID = databaseRef.child("sessions").childByAutoId().key
+        databaseRef.child("sessions/\(currentSessionID)/").setValue(dbSession)
+    }
+    
+    // MARK: - Save DBSession on Closing of App
+    func saveDBSession() {
+        let currScene = URL.init(fileURLWithPath: "tempfile")
+        let output = self.sceneView.scene.write(to: currScene, options: nil, delegate: nil, progressHandler: nil)
+        
+        if (output) {
+            
+        } else {
+                print("There was an error")
+        }
+        
+        // Save File to Firebase Cloud Storage (UNFINISHED CODE)
+        let localFile = URL(fileURLWithPath: "tempfile")
+        
+        //-----Added Code (updates database session value with url for session file)
+        
+        var databaseRef: DatabaseReference!
+        databaseRef = Database.database().reference()
+        
+        let storageRef = Storage.storage().reference()
+        
+        let metaData = StorageMetadata()
+        metaData.contentType = "application/scn"
+        
+        let userID = Auth.auth().currentUser!.uid
+        let sessionID = databaseRef.child("/sessions/").childByAutoId().key
+        
+        let picturesRef = storageRef.child("/sessions/\(sessionID)")
+        
+        picturesRef.putFile(from: localFile, metadata: metaData) { (metadata, error) in
+            if let error = error {
+                // Uh-oh, an error occurred!
+                print(error)
+                return
+            } else {
+                // Metadata contains file metadata such as size, content-type, and download URL.
+                let downloadURL = metadata!.downloadURL()!.absoluteString
+                // format date type to string
+                let date = metadata!.timeCreated!
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                dateFormatter.locale = Locale(identifier: "en_US")
+                let timestamp = dateFormatter.string(from:date as Date)
+                
+                //store downloadURL at database
+                let sessionFile : [String: Any] = ["completed": true, "url": downloadURL, "timestamp": timestamp]
+                let childUpdates: [String: Any] = ["/sessions/\(sessionID)": sessionFile, "/users/\(userID)/lastSession": sessionID]
+                databaseRef.updateChildValues(childUpdates)
+            }
+        }
+        
+        
+        //---------
+        
+        // Delete "localFile" file from Local Mem
+        let fileManager = FileManager.default
+        let documentsUrl =  FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first! as NSURL
+        
+        do {
+            let documentUrl = documentsUrl
+            let fileNames = try fileManager.contentsOfDirectory(atPath: "\(documentUrl)")
+            print("all files in cache: \(fileNames)")
+            
+            try fileManager.removeItem(at: localFile)
+            
+            let files = try fileManager.contentsOfDirectory(atPath: "\(documentUrl)")
+            print("all files in cache after deleting scnfile: \(files)")
+        } catch {
+            print("Could not clear temp folder: \(error)")
+        }
+    }
+    
+    
+    // MARK: - Populate Nearby Areas with Existent Nodes
+    private func getRadiansFrom(degrees: Double) -> Double {
+        return degrees * .pi / 180
+    }
+    
+    private func getSCNVectorComponentsBetween(currLocation: CLLocation, prevLocation: CLLocation) -> (Double, Double, Double) {
+        let lat1 = self.getRadiansFrom(degrees: currLocation.coordinate.latitude)
+        let lon1 = self.getRadiansFrom(degrees: currLocation.coordinate.longitude)
+        
+        let lat2 = self.getRadiansFrom(degrees: prevLocation.coordinate.latitude)
+        let lon2 = self.getRadiansFrom(degrees: prevLocation.coordinate.longitude)
+        
+        let dLon = lon2 - lon1
+        
+        let z = sin(dLon) * cos(lat2)
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+        
+        let y = currLocation.altitude - prevLocation.altitude
+        
+        return (x, y, z)
+    }
+    
+    // Since I did not use cloning here I'm not sure that the original stays intact for multiple usage.
+    func addPrevNodesToScene() {
+        let databaseRef = Database.database().reference()
+        let storageRef = Storage.storage()
+        let sessionsRef = databaseRef.child("/sessions/")
+        
+        sessionsRef.observe(.value, with: { (snapshot) in
+            if snapshot.exists() {
+                let enumerator = snapshot.children
+                while let dbSession = enumerator.nextObject() as? DataSnapshot {
+                    let sessDict = dbSession.valueInExportFormat() as! NSDictionary
+                    
+                    var dbCompleted : Bool = false
+                    var dbLatitude : Double = 0.0
+                    var dbLongitude : Double = 0.0
+                    var dbAltitude : Double = 0.0
+                    var dbHorizontalAccuracy : Double = 0.0
+                    var dbVerticalAccuracy : Double = 0.0
+                    var dbTimestamp : Date = Date.distantPast
+                    var dbRadius : Double = 0.0
+                    var dbUrl : String = "www.example.com"
+                    var rootNode : String = "root"
+                    for (key, value) in sessDict {
+                        if (key as? String == "completed") {
+                            dbCompleted = value as! Bool
+                        } else if (key as? String == "latitude") {
+                            dbLatitude = value as! Double
+                        } else if (key as? String == "longtitude") {
+                            dbLongitude = value as! Double
+                        } else if (key as? String == "altitude") {
+                            dbAltitude = value as! Double
+                        } else if (key as? String == "horizontalAccuracy") {
+                            dbHorizontalAccuracy = value as! Double
+                        } else if (key as? String == "verticalAccuracy") {
+                            dbVerticalAccuracy = value as! Double
+                        } else if (key as? String == "timestamp") {
+                            dbTimestamp = value as! Date
+                        } else if (key as? String == "radius") {
+                            dbRadius = value as! Double
+                        } else if (key as? String == "url") {
+                            dbUrl = value as! String
+                        } else if (key as? String == "nodes") {
+                            let nodeList = value as! Set<String>
+                            rootNode = nodeList.first!
+                        } else {
+                            
+                        }
+                    }
+                    // Check if session is completed before checking it
+                    if dbCompleted {
+                        let prevSessionCoordinates = CLLocationCoordinate2D.init(latitude: dbLatitude, longitude: dbLongitude)
+                        let prevSessionLocation = CLLocation.init(coordinate: prevSessionCoordinates, altitude: dbAltitude, horizontalAccuracy: dbHorizontalAccuracy, verticalAccuracy: dbVerticalAccuracy, timestamp: dbTimestamp)
+                        
+                        // Add Posted Scene if within 20 meters from furthest node of a previous scene
+                        
+                        if (self.currentLocation.distance(from: prevSessionLocation) <= (dbRadius + 20)) {
+                            let prevSceneFileRef = storageRef.reference(forURL: dbUrl)
+                            // Create local filesystem URL
+                            let localURL = URL(string: "tempfile2")!
+                            
+                            // Download to the local filesystem
+                            prevSceneFileRef.write(toFile: localURL) { url, error in
+                                if let error = error {
+                                    print("Error occured in file download: \(error)")
+                                } else {
+                                    do {
+                                        let prevSessionScene = try SCNScene(url: url!, options: nil)
+                                        let childNode = prevSessionScene.rootNode.childNode(withName: rootNode, recursively: true)!
+                                        
+                                        let components = self.getSCNVectorComponentsBetween(currLocation: self.currentLocation, prevLocation: prevSessionLocation)
+                                        let childPosition = SCNVector3(components.0, components.1, components.2)
+                                        childNode.position = childPosition
+                                        
+                                        self.sceneView.scene.rootNode.addChildNode(childNode)
+                                        // Potentially have to add pictures and transforms back to children here, idk whats in a scene file
+                                    } catch {
+                                        print(error)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                print("Error in retrieving data")
+            }
+        })
+    }
+    
+    // MARK: - Location Functions
+    func setupLocationSettings() {
+        locationManager.requestWhenInUseAuthorization()
+        let authorizationStatus = CLLocationManager.authorizationStatus()
+        if authorizationStatus != CLAuthorizationStatus.authorizedWhenInUse && authorizationStatus != CLAuthorizationStatus.authorizedAlways {
+            // User has not authorized access to location information.
+            return
+        }
+        // Do not start services that aren't available.
+        if !CLLocationManager.locationServicesEnabled() {
+            // Location services is not available.
+            return
+        }
+        // Configure and start the service.
+        
+        locationManager.delegate = self;
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.pausesLocationUpdatesAutomatically = true
+        locationManager.activityType = CLActivityType.fitness
+        
+        //Start getting User Location
+        locationManager.startUpdatingLocation()
+        print("getcurrentLocation in location settings: \(currentLocation)")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        // check if it is accurate within 5 meters
+        if (locations[locations.count-1].horizontalAccuracy < 0 || locations[locations.count-1].horizontalAccuracy > 100) {
+            return;
+        }
+        let interval : TimeInterval = locations[locations.count-1].timestamp.timeIntervalSinceNow;
+        //check against absolute value of the interval and if it was at most 29 seconds ago
+        if (abs(interval)<30) {
+            currentLocation = locations[locations.count-1] as CLLocation
+            print("getcurrentLocation in locationmanager: \(currentLocation)")
+            
+            if rootNodeLocation.coordinate.latitude == 0 && rootNodeLocation.coordinate.longitude == 0 {
+                rootNodeLocation = locations[locations.count-1] as CLLocation
+                // Setup the firebase
+                setupFirebase()
+                // Start checking for Nodes
+                //        addPrevNodesToScene()
+            }
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Error while updating location:" + error.localizedDescription)
+    }
+    
 	
     // MARK: - ARKit / ARSCNView
     let session = ARSession()

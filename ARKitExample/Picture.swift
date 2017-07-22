@@ -122,6 +122,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         
         // MARK: Andreas's Code
         
+        // Save Node and Pictures to Database
         var data = Data()
         data = UIImageJPEGRepresentation(image!, 0.8)!
         
@@ -134,9 +135,11 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
         metaData.contentType = "image/jpg"
         
         let userID = Auth.auth().currentUser!.uid
-        let picID = databaseRef.child("/pictures/\(userID)/").childByAutoId().key
+        let sessionID = viewController!.currentSessionID
+        let picID = databaseRef.child("/pictures/").childByAutoId().key
+        let nodeID = databaseRef.child("/nodes/").childByAutoId().key
         
-        let picturesRef = storageRef.child("/pictures/\(userID)/\(picID)")
+        let picturesRef = storageRef.child("/pictures/\(picID)")
         
         let uploadTask = picturesRef.putData(data, metadata: metaData) { (metadata, error) in
             if let error = error {
@@ -151,13 +154,36 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 dateFormatter.locale = Locale(identifier: "en_US")
-                let timeCreated = dateFormatter.string(from:date as Date)
+                let timestamp = dateFormatter.string(from:date as Date)
+                // check if node distance is new radius
+                let newDistance = 5.0
+//                CHANGE THIS TO THE ACTUAL NODE'S DISTANCE BASED ON VARIABLE NAME
+//                    object.position.length()
+                
+                let sessionsRef = databaseRef.child("/sessions/\(sessionID)")
+                sessionsRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                    let currSession = snapshot.valueInExportFormat() as! NSDictionary
+                    
+                    var currRadius : Double = 0.0
+                    for (key, value) in currSession {
+                        if (key as? String == "radius") {
+                            currRadius = value as! Double
+                        }
+                    }
+                    
+                    if newDistance > currRadius {
+                        let sessionChildUpdates: [String: Any] = ["/sessions/\(sessionID)/radius": newDistance]
+                        databaseRef.updateChildValues(sessionChildUpdates)
+                    }
+                })
                 
                 //store downloadURL at database
-                let picture = ["downloadURL": downloadURL, "timeCreated": timeCreated]
-                //            “location”:
-                let childUpdates: [String: Any] = ["/pictures/\(userID)/\(picID)": picture, "/users/\(userID)/lastPicture": picID]
-                databaseRef.updateChildValues(childUpdates)
+                let picture: [String: Any] = ["url": downloadURL, "timestamp": timestamp, "users": [userID], "nodes": [nodeID]]
+                let picChildUpdates: [String: Any] = ["/pictures/\(picID)": picture, "/users/\(userID)/lastPicture": picID]
+                databaseRef.updateChildValues(picChildUpdates)
+                let node : [String : Any] = ["distance": newDistance, "timestamp": timestamp, "pictures": [picID]]
+                let nodeChildUpdates: [String: Any] = ["/nodes/\(nodeID)": node, "/sessions/\(sessionID)/nodes/": nodeID]
+                databaseRef.updateChildValues(nodeChildUpdates)
             }
         }
         
