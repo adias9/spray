@@ -173,6 +173,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
                 let childUpdates: [String: Any] = ["/pictures/\(userID)/\(picID)": picture, "/users/\(userID)/lastPicture": picID]
                 databaseRef.updateChildValues(childUpdates)
             }
+    
         }
         
         //-------------

@@ -8,12 +8,19 @@ Main view controller for the AR experience.
 import ARKit
 import Foundation
 import SceneKit
+import SpriteKit
 import UIKit
 import Photos
 import CoreLocation
+import MobileCoreServices
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate {
-	
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    var picture: UIImage?
+    var gif: SKScene?
+    var contentIsPicture: Bool = true
+    var lastNodeInserted: SCNNode?
+    
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,34 +38,105 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             #selector(self.handleTap(gestureRecognize:)))
         view.addGestureRecognizer(tapGesture)
     }
-    var element: SCNNode?
+    
+    
     @objc
     func handleTap(gestureRecognize: UITapGestureRecognizer){
+        if (contentIsPicture) { // picture
+            guard let content = picture else {
+                self.textManager.showMessage("Input is invalid!")
+                return
+            }
+            createImageNode(image: content)
+        } else { // gif
+            guard let content = gif else {
+                self.textManager.showMessage("Input is invalid!")
+                return
+            }
+            createGifNode(gif: content)
+        }
+         // ------------------------------------------------------------------------------------------------------
+//        let layer = CALayer.init()
+//        layer.frame = CGRect(x: 0, y: 0, width: CGFloat(25), height: CGFloat(25))
+//        // animation layer
+//        layer.contents = images
+////        layer.contentsGravity = kCAGravityResizeAspectFill
+//        let animation = CAKeyframeAnimation(keyPath: "contents")
+//        animation.values = images
+//        animation.repeatCount = .greatestFiniteMagnitude
+//        animation.duration = 2
+//        layer.add(animation, forKey: "key frame animation"
+//        // empty layer
+//        let backLayer = CALayer()
+//        backLayer.frame = CGRect.init(origin: layer.frame.origin, size: layer.frame.size)
+//        backLayer.addSublayer(layer)
+        // ------------------------------------------------------------------------------------------------------
+    }
+    
+    func createImageNode(image: UIImage) {
         guard let currentFrame = sceneView.session.currentFrame else{
             return
         }
         
-        let obj = UIImage(named: "sample")
-        let imagePlane = SCNPlane(width: sceneView.bounds.width / 6000, height: sceneView.bounds.height / 6000)
-        imagePlane.firstMaterial?.diffuse.contents = obj
+        // Image Plane
+        let imagePlane = SCNPlane(width: self.sceneView.bounds.height / 3000, height: self.sceneView.bounds.height / 3000)
         imagePlane.firstMaterial?.lightingModel = .constant
-        var wrapperNode = SCNNode(geometry: imagePlane)
+        imagePlane.firstMaterial?.diffuse.contents = image.fixOrientation()
+        imagePlane.firstMaterial?.isDoubleSided = true
+        imagePlane.cornerRadius = self.sceneView.bounds.height / (3000 * 10)
         
+        
+        // Node transform
+        let wrapperNode = SCNNode(geometry: imagePlane)
+        // 10 cm in front of camera
         var translation = matrix_identity_float4x4
         translation.columns.3.z = -0.1
-        
+        // Rotate to correct orientation
         var rotation = matrix_identity_float4x4
         rotation.columns.0.x = Float(cos(CGFloat.pi * -3/2))
         rotation.columns.0.y = Float(sin(CGFloat.pi * -3/2))
         rotation.columns.1.x = Float(-sin(CGFloat.pi * -3/2))
         rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
-        
         wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
         
-//        element = wrapperNode
-        
-        sceneView.scene.rootNode.addChildNode(wrapperNode)
+        // For redo purposes
+        lastNodeInserted = wrapperNode
+        self.sceneView.scene.rootNode.addChildNode(wrapperNode)
     }
+    
+    func createGifNode(gif: SKScene) {
+        guard let currentFrame = sceneView.session.currentFrame else{
+            return
+        }
+        // Image Plane
+        let imagePlane = SCNPlane(width: self.sceneView.bounds.height / 3000, height: self.sceneView.bounds.height / 3000)
+        imagePlane.firstMaterial?.lightingModel = .constant
+        imagePlane.firstMaterial?.diffuse.contents = gif
+        // Flip gif horizontally
+        imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
+        imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
+        imagePlane.firstMaterial?.isDoubleSided = true
+        imagePlane.cornerRadius = self.sceneView.bounds.height / (3000 * 10)
+
+        
+        // Node transform
+        let wrapperNode = SCNNode(geometry: imagePlane)
+        // 10 cm in front of camera
+        var translation = matrix_identity_float4x4
+        translation.columns.3.z = -0.1
+        // Rotate to correct orientation
+        var rotation = matrix_identity_float4x4
+        rotation.columns.0.x = Float(cos(CGFloat.pi * -3/2))
+        rotation.columns.0.y = Float(sin(CGFloat.pi * -3/2))
+        rotation.columns.1.x = Float(-sin(CGFloat.pi * -3/2))
+        rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
+        wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
+        
+        // For redo purposes
+        lastNodeInserted = wrapperNode
+        self.sceneView.scene.rootNode.addChildNode(wrapperNode)
+    }
+    
     
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
@@ -102,6 +180,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         sceneView.session = session
 		sceneView.antialiasingMode = .multisampling4X
 		sceneView.automaticallyUpdatesLighting = false
+        // TODO: play with frames per second
 		sceneView.preferredFramesPerSecond = 60
 		sceneView.contentScaleFactor = 1.3
 		//sceneView.showsStatistics = true
@@ -243,11 +322,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
     
 	
-	// MARK: - Picture Manipulation
-	
+    // MARK: - Picture Manipulation
+    var obj: SCNNode?
     func displayVirtualObjectTransform() {
         
-        guard let object = picture, let cameraTransform = session.currentFrame?.camera.transform else {
+        guard let object = obj, let cameraTransform = session.currentFrame?.camera.transform else {
             return
         }
         
@@ -255,7 +334,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         let cameraPos = SCNVector3.positionFromTransform(cameraTransform)
         let vectorToCamera = cameraPos - object.position
-        
         let distanceToUser = vectorToCamera.length()
         
         var angleDegrees = Int(((object.eulerAngles.y) * 180) / Float.pi) % 360
@@ -277,7 +355,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     func setNewVirtualObjectPosition(_ pos: SCNVector3) {
     
-        guard let object = picture, let cameraTransform = session.currentFrame?.camera.transform else {
+        guard let object = obj, let cameraTransform = session.currentFrame?.camera.transform else {
             return
         }
         
@@ -297,8 +375,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     func resetVirtualObject() {
-        picture?.unload()
-        picture?.removeFromParentNode()
+//        obj?.unload()
+        obj?.removeFromParentNode()
         picture = nil
         
         addObjectButton.setImage(#imageLiteral(resourceName: "add"), for: [])
@@ -347,7 +425,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     // MARK: - Virtual Object Loading
     
-    var picture: Picture?
     var isLoadingObject: Bool = false {
         didSet {
             DispatchQueue.main.async {
@@ -379,7 +456,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             // hard coded
             let object = Picture.init(fileName: "sample", width: 0.2, height: 0.2)
             object.viewController = self
-            self.picture = object
+            self.obj = object
             object.load()
             
             
@@ -406,29 +483,43 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
     
+    
+    // MARK: - Image Picker and Delegate
+    
     @IBAction func chooseObject(_ button: UIButton) {
-//        // Abort if we are about to load another object to avoid concurrent modifications of the scene.
-//        if isLoadingObject { return }
-//
-//        textManager.cancelScheduledMessage(forType: .contentPlacement)
-//
-//        let rowHeight = 45
-////        let popoverSize = CGSize(width: 250, height: rowHeight * VirtualObject.availableObjects.count)
-//        let popoverSize = CGSize(width: 250, height: rowHeight * 1)
-//        let objectViewController = VirtualObjectSelectionViewController(size: popoverSize)
-//        objectViewController.delegate = self
-//        objectViewController.modalPresentationStyle = .popover
-//        objectViewController.popoverPresentationController?.delegate = self
-//        self.present(objectViewController, animated: true, completion: nil)
-//
-//        objectViewController.popoverPresentationController?.sourceView = button
-//        objectViewController.popoverPresentationController?.sourceRect = button.bounds
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.modalPresentationStyle = .popover
+        picker.popoverPresentationController?.delegate = self
+        self.present(picker, animated: true, completion: nil)
         
-        
-        
-        
-        
+        picker.popoverPresentationController?.sourceView = button
+        picker.popoverPresentationController?.sourceRect = button.bounds
     }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        let url = info[UIImagePickerControllerImageURL] as! NSURL
+        
+        // Set content
+        if (NSURL.ifGif(url: url)) { // content is gif
+            contentIsPicture = false
+            print("its a gif!")
+            print(url)
+            self.gif = SKScene.makeSKSceneFromGif(url: url, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+        } else { // content is picture
+            contentIsPicture = true
+            self.picture = (info[UIImagePickerControllerOriginalImage] as! UIImage)
+            print("its a picture!")
+           print(url)
+        }
+        
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     
     // MARK: - Plane Detection
 	
@@ -561,39 +652,51 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	@IBOutlet weak var screenshotButton: UIButton!
 	
 	@IBAction func takeScreenshot() {
-		guard screenshotButton.isEnabled else {
-			return
-		}
-		
-		let takeScreenshotBlock = {
-			UIImageWriteToSavedPhotosAlbum(self.sceneView.snapshot(), nil, nil, nil)
-			DispatchQueue.main.async {
-				// Briefly flash the screen.
-				let flashOverlay = UIView(frame: self.sceneView.frame)
-				flashOverlay.backgroundColor = UIColor.white
-				self.sceneView.addSubview(flashOverlay)
-				UIView.animate(withDuration: 0.25, animations: {
-					flashOverlay.alpha = 0.0
-				}, completion: { _ in
-					flashOverlay.removeFromSuperview()
-				})
-			}
-		}
-		
-		switch PHPhotoLibrary.authorizationStatus() {
-		case .authorized:
-			takeScreenshotBlock()
-		case .restricted, .denied:
-			let title = "Photos access denied"
-			let message = "Please enable Photos access for this application in Settings > Privacy to allow saving screenshots."
-			textManager.showAlert(title: title, message: message)
-		case .notDetermined:
-			PHPhotoLibrary.requestAuthorization({ (authorizationStatus) in
-				if authorizationStatus == .authorized {
-					takeScreenshotBlock()
-				}
-			})
-		}
+//        guard screenshotButton.isEnabled else {
+//            return
+//        }
+//
+//        let takeScreenshotBlock = {
+//            UIImageWriteToSavedPhotosAlbum(self.sceneView.snapshot(), nil, nil, nil)
+//            DispatchQueue.main.async {
+//                // Briefly flash the screen.
+//                let flashOverlay = UIView(frame: self.sceneView.frame)
+//                flashOverlay.backgroundColor = UIColor.white
+//                self.sceneView.addSubview(flashOverlay)
+//                UIView.animate(withDuration: 0.25, animations: {
+//                    flashOverlay.alpha = 0.0
+//                }, completion: { _ in
+//                    flashOverlay.removeFromSuperview()
+//                })
+//            }
+//        }
+//
+//        switch PHPhotoLibrary.authorizationStatus() {
+//        case .authorized:
+//            takeScreenshotBlock()
+//        case .restricted, .denied:
+//            let title = "Photos access denied"
+//            let message = "Please enable Photos access for this application in Settings > Privacy to allow saving screenshots."
+//            textManager.showAlert(title: title, message: message)
+//        case .notDetermined:
+//            PHPhotoLibrary.requestAuthorization({ (authorizationStatus) in
+//                if authorizationStatus == .authorized {
+//                    takeScreenshotBlock()
+//                }
+//            })
+//        }
+        
+        
+        // Undo Button
+        // TODO: Currently only undo the image put immediately, cannot keep on erasing. Figure out how to trace back the history. removeLast()
+        guard let lastNode = lastNodeInserted else {
+            textManager.showMessage("Nothing to remove!")
+            return
+        }
+        lastNode.removeFromParentNode()
+//       sceneView.scene.rootNode.
+//        print(lastNode.name)
+        
 	}
 		
 	// MARK: - Settings
@@ -618,6 +721,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		
 		navigationController.popoverPresentationController?.sourceView = settingsButton
 		navigationController.popoverPresentationController?.sourceRect = settingsButton.bounds
+        
 	}
 	
     @objc
