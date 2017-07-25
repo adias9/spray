@@ -16,10 +16,8 @@ import MobileCoreServices
 
 class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    var picture: UIImage?
-    var gif: SKScene?
-    var contentIsPicture: Bool = true
-    var lastNodeInserted: SCNNode?
+    
+    var content:SKScene?
     
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -33,28 +31,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		updateSettings()
 		resetVirtualObject()
         
-        // Set tap Gesture using handleTap()
+        // Set Tap Gesture using handleTap()
         let tapGesture = UITapGestureRecognizer(target: self, action:
-            #selector(self.handleTap(gestureRecognize:)))
+            #selector(self.placeObject(gestureRecognize:)))
         view.addGestureRecognizer(tapGesture)
+        
+        // Set Long Pess Gesture to delete using deleteObject
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(deleteObject(press:)))
+        longPressGesture.minimumPressDuration = 1.5
+        view.addGestureRecognizer(longPressGesture)
+        
+        
+        
     }
     
     
-    @objc
-    func handleTap(gestureRecognize: UITapGestureRecognizer){
-        if (contentIsPicture) { // picture
-            guard let content = picture else {
-                self.textManager.showMessage("Input is invalid!")
-                return
-            }
-            createImageNode(image: content)
-        } else { // gif
-            guard let content = gif else {
-                self.textManager.showMessage("Input is invalid!")
-                return
-            }
-            createGifNode(gif: content)
+    @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
+        guard let obj = content else {
+            textManager.showMessage("Please select an output!!")
+            return
         }
+        createNode(content: obj)
+        
+        
          // ------------------------------------------------------------------------------------------------------
 //        let layer = CALayer.init()
 //        layer.frame = CGRect(x: 0, y: 0, width: CGFloat(25), height: CGFloat(25))
@@ -73,46 +72,36 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         // ------------------------------------------------------------------------------------------------------
     }
     
-    func createImageNode(image: UIImage) {
-        guard let currentFrame = sceneView.session.currentFrame else{
-            return
+    @objc func deleteObject(press:UILongPressGestureRecognizer) {
+        if press.state == .began {
+            print("LONG PRESS INITIATED!!!!")
+            // hit test
+            let point = press.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                let geometry = result.node.geometry! as! SCNPlane
+                print(result.node.debugDescription)
+                let imagePlane = SCNPlane(width: geometry.width * 0.2, height: geometry.height * 0.2)
+                imagePlane.firstMaterial?.diffuse.contents = UIColor.blue.cgColor
+                imagePlane.firstMaterial?.isDoubleSided = true
+                let wrapperNode = SCNNode(geometry: imagePlane)
+                wrapperNode.simdTransform = result.node.simdTransform
+                
+            }
+            
         }
-        
-        // Image Plane
-        let imagePlane = SCNPlane(width: self.sceneView.bounds.height / 3000, height: self.sceneView.bounds.height / 3000)
-        imagePlane.firstMaterial?.lightingModel = .constant
-        imagePlane.firstMaterial?.diffuse.contents = image.fixOrientation()
-        imagePlane.firstMaterial?.isDoubleSided = true
-        imagePlane.cornerRadius = self.sceneView.bounds.height / (3000 * 10)
-        
-        
-        // Node transform
-        let wrapperNode = SCNNode(geometry: imagePlane)
-        // 10 cm in front of camera
-        var translation = matrix_identity_float4x4
-        translation.columns.3.z = -0.1
-        // Rotate to correct orientation
-        var rotation = matrix_identity_float4x4
-        rotation.columns.0.x = Float(cos(CGFloat.pi * -3/2))
-        rotation.columns.0.y = Float(sin(CGFloat.pi * -3/2))
-        rotation.columns.1.x = Float(-sin(CGFloat.pi * -3/2))
-        rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
-        wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
-        
-        // For redo purposes
-        lastNodeInserted = wrapperNode
-        self.sceneView.scene.rootNode.addChildNode(wrapperNode)
     }
     
-    func createGifNode(gif: SKScene) {
+    
+    func createNode(content: SKScene) {
         guard let currentFrame = sceneView.session.currentFrame else{
             return
         }
         // Image Plane
         let imagePlane = SCNPlane(width: self.sceneView.bounds.height / 3000, height: self.sceneView.bounds.height / 3000)
         imagePlane.firstMaterial?.lightingModel = .constant
-        imagePlane.firstMaterial?.diffuse.contents = gif
-        // Flip gif horizontally
+        imagePlane.firstMaterial?.diffuse.contents = content
+        // Flip content horizontally
         imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
         imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
         imagePlane.firstMaterial?.isDoubleSided = true
@@ -132,8 +121,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
         wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
         
-        // For redo purposes
-        lastNodeInserted = wrapperNode
         self.sceneView.scene.rootNode.addChildNode(wrapperNode)
     }
     
@@ -373,6 +360,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             sceneView.scene.rootNode.addChildNode(object)
         }
     }
+    
+    var picture: Picture?
 
     func resetVirtualObject() {
 //        obj?.unload()
@@ -502,15 +491,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         // Set content
         if (NSURL.ifGif(url: url)) { // content is gif
-            contentIsPicture = false
-            print("its a gif!")
-            print(url)
-            self.gif = SKScene.makeSKSceneFromGif(url: url, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+            self.content = SKScene.makeSKSceneFromGif(url: url, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
         } else { // content is picture
-            contentIsPicture = true
-            self.picture = (info[UIImagePickerControllerOriginalImage] as! UIImage)
-            print("its a picture!")
-           print(url)
+            self.content = SKScene.makeSKSceneFromImage(image: (info[UIImagePickerControllerOriginalImage] as! UIImage),
+                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
         }
         
         self.dismiss(animated: true, completion: nil)
@@ -687,13 +671,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 //        }
         
         
-        // Undo Button
-        // TODO: Currently only undo the image put immediately, cannot keep on erasing. Figure out how to trace back the history. removeLast()
-        guard let lastNode = lastNodeInserted else {
-            textManager.showMessage("Nothing to remove!")
-            return
-        }
-        lastNode.removeFromParentNode()
 //       sceneView.scene.rootNode.
 //        print(lastNode.name)
         

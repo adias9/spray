@@ -300,8 +300,47 @@ extension NSURL {
         }
     }
 }
+extension SKNode {
+    public class func createNameTag(name: String) -> SKNode {
+        let nameTag = SKNode()
+        nameTag.position = CGPoint(x: 100, y: 10)
+        
+        // text
+        let text = SKLabelNode(text: "AndrewJayZhou")
+        text.fontName = "GillSans"
+        text.fontSize = CGFloat(20)
+        text.fontColor = UIColor.white
+        
+        // background
+        let background = SKSpriteNode(color: UIColor.black,
+                                      size: CGSize(width: text.frame.size.width, height: text.frame.size.height))
+        
+        nameTag.addChild(background)
+        nameTag.addChild(text)
+        
+        return nameTag
+    }
+}
 
 extension SKScene {
+    public class func makeSKSceneFromImage(image: UIImage, size: CGSize) -> SKScene {
+        let skScene = SKScene(size: size)
+        
+        // Create Image Node
+        let texture = SKTexture.init(image: image.fixOrientation()!)
+        let imageNode = SKSpriteNode.init(texture: texture)
+        imageNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
+        imageNode.size = size
+        skScene.addChild(imageNode)
+        
+        // Create Name Tag
+        let nameTag = createNameTag(name: "username")
+        skScene.addChild(nameTag)
+        
+        
+        return skScene
+    }
+    
     public class func makeSKSceneFromGif(url: NSURL, size: CGSize) -> SKScene {
         let skScene = SKScene(size: size)
         
@@ -358,11 +397,13 @@ extension SKScene {
         
         
         // Add animation to scene
-//        let gifAnimation = SKAction.animate(with: frames, timePerFrame: Double(duration) / 1000.0)
-        print(duration)
         let gifAnimation = SKAction.animate(with: frames, timePerFrame: ((Double(duration) / 1000.0)) / Double(frames.count))
         gifNode.run(SKAction.repeatForever(gifAnimation))
         skScene.addChild(gifNode)
+        
+        // Create Name Tag
+        let nameTag = createNameTag(name: "username")
+        skScene.addChild(nameTag)
         
         
         return skScene
