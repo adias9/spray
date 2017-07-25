@@ -152,7 +152,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
 
         let picturesRef = storageRef.child("/pictures/\(userID)/\(picID)")
         
-        let uploadTask = picturesRef.putData(data, metadata: metaData) { (metadata, error) in
+        picturesRef.putData(data, metadata: metaData) { (metadata, error) in
             if let error = error {
                 // Uh-oh, an error occurred!
                 print(error)
