@@ -23,8 +23,11 @@
 		6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A25DA4D1F159D3F00DD7AFC /* Location.swift */; };
 		6A6159361F105E7200715603 /* Picture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6159351F105E7200715603 /* Picture.swift */; };
 		6A6159AE1F1540B800715603 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A6159AD1F1540AC00715603 /* CoreLocation.framework */; };
+<<<<<<< HEAD
 		B99B4D871F23EADD004324BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B99B4D861F23EADD004324BC /* GoogleService-Info.plist */; };
+=======
 		6AB764D01F1C2AEA002975A7 /* UIImage+Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB764CF1F1C2AEA002975A7 /* UIImage+Gif.swift */; };
+>>>>>>> refs/remotes/origin/AirPics
 		C41366B91EB80DD400EC054A /* TextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41366B81EB80DD400EC054A /* TextManager.swift */; };
 		C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */; };
 /* End PBXBuildFile section */

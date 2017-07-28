@@ -10,4 +10,5 @@ target 'ARKitExample' do
   pod 'Firebase/Auth'
   pod 'Firebase/Database'
   pod 'Firebase/Storage'
+  pod 'SwiftGifOrigin', '~> 1.6.1'
 end
