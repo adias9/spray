@@ -303,7 +303,7 @@ extension NSURL {
 extension SKNode {
     public class func createNameTag(name: String) -> SKNode {
         let nameTag = SKNode()
-        nameTag.position = CGPoint(x: 100, y: 10)
+        nameTag.position = CGPoint(x: 50, y: 10)
         
         // text
         let text = SKLabelNode(text: "AndrewJayZhou")
@@ -331,6 +331,30 @@ extension SKScene {
         let imageNode = SKSpriteNode.init(texture: texture)
         imageNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
         imageNode.size = size
+        imageNode.name = "content"
+        skScene.addChild(imageNode)
+        
+        // Create Name Tag
+        let nameTag = createNameTag(name: "username")
+        skScene.addChild(nameTag)
+        
+        
+        return skScene
+    }
+    
+    public class func makeSKSceneFromImage(url: NSURL, size: CGSize) -> SKScene {
+        let skScene = SKScene(size: size)
+        guard let imageData = try? Data(contentsOf: url as URL) else {
+            return SKScene() // Tweak for error handling
+        }
+        let image = UIImage.init(data: imageData)
+        
+        // Create Image Node
+        let texture = SKTexture.init(image: image!.fixOrientation()!)
+        let imageNode = SKSpriteNode.init(texture: texture)
+        imageNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
+        imageNode.size = size
+        imageNode.name = "content"
         skScene.addChild(imageNode)
         
         // Create Name Tag
@@ -394,12 +418,14 @@ extension SKScene {
         // Might need to change below code in future
         let gifNode = SKSpriteNode.init(texture: frames[0])
         gifNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
+        gifNode.name = "content"
         
         
         // Add animation to scene
         let gifAnimation = SKAction.animate(with: frames, timePerFrame: ((Double(duration) / 1000.0)) / Double(frames.count))
         gifNode.run(SKAction.repeatForever(gifAnimation))
         skScene.addChild(gifNode)
+        
         
         // Create Name Tag
         let nameTag = createNameTag(name: "username")

@@ -14,10 +14,15 @@ import Photos
 import CoreLocation
 import MobileCoreServices
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
-    
-    var content:SKScene?
+    var deleteMode: Bool = false
+    var tapAdd: UITapGestureRecognizer?
+    var tapDelete: UITapGestureRecognizer?
+    var longPressDelete: UILongPressGestureRecognizer?
+    var longPressDarken: UILongPressGestureRecognizer?
+    var stdLen: CGFloat?
+    var url: NSURL?
     
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -31,82 +36,68 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		updateSettings()
 		resetVirtualObject()
         
-        // Set Tap Gesture using handleTap()
-        let tapGesture = UITapGestureRecognizer(target: self, action:
+        // Set StdLen
+        stdLen = sceneView.bounds.height / 3000
+        
+        // Delete - Tap gesture recognizer change
+        tapDelete = UITapGestureRecognizer(target: self, action:
+            #selector(self.deleteNode(tap:)))
+        view.addGestureRecognizer(tapDelete!)
+        tapDelete!.isEnabled = false
+        
+        // Tap to add Gesture using placeObject()
+        tapAdd = UITapGestureRecognizer(target: self, action:
             #selector(self.placeObject(gestureRecognize:)))
-        view.addGestureRecognizer(tapGesture)
+        view.addGestureRecognizer(tapAdd!)
+        
         
         // Set Long Pess Gesture to delete using deleteObject
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(deleteObject(press:)))
-        longPressGesture.minimumPressDuration = 1.5
-        view.addGestureRecognizer(longPressGesture)
+        let longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
+        longPressDelete.minimumPressDuration = 1.5 //*undarken
+        view.addGestureRecognizer(longPressDelete)
+        longPressDelete.delegate = self
         
-        
-        
+        let longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
+        longPressDarken.minimumPressDuration = 0.2
+        view.addGestureRecognizer(longPressDarken)
+        longPressDarken.delegate = self
     }
     
+    // MARK: - Gesture Recognizers
     
+    // Adding Objects
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
-        guard let obj = content else {
+        guard let obj = url else {
             textManager.showMessage("Please select an output!!")
             return
         }
-        createNode(content: obj)
         
-        
-         // ------------------------------------------------------------------------------------------------------
-//        let layer = CALayer.init()
-//        layer.frame = CGRect(x: 0, y: 0, width: CGFloat(25), height: CGFloat(25))
-//        // animation layer
-//        layer.contents = images
-////        layer.contentsGravity = kCAGravityResizeAspectFill
-//        let animation = CAKeyframeAnimation(keyPath: "contents")
-//        animation.values = images
-//        animation.repeatCount = .greatestFiniteMagnitude
-//        animation.duration = 2
-//        layer.add(animation, forKey: "key frame animation"
-//        // empty layer
-//        let backLayer = CALayer()
-//        backLayer.frame = CGRect.init(origin: layer.frame.origin, size: layer.frame.size)
-//        backLayer.addSublayer(layer)
-        // ------------------------------------------------------------------------------------------------------
-    }
-    
-    @objc func deleteObject(press:UILongPressGestureRecognizer) {
-        if press.state == .began {
-            print("LONG PRESS INITIATED!!!!")
-            // hit test
-            let point = press.location(in: view)
-            let scnHitTestResults = sceneView.hitTest(point, options: nil)
-            if let result = scnHitTestResults.first {
-                let geometry = result.node.geometry! as! SCNPlane
-                print(result.node.debugDescription)
-                let imagePlane = SCNPlane(width: geometry.width * 0.2, height: geometry.height * 0.2)
-                imagePlane.firstMaterial?.diffuse.contents = UIColor.blue.cgColor
-                imagePlane.firstMaterial?.isDoubleSided = true
-                let wrapperNode = SCNNode(geometry: imagePlane)
-                wrapperNode.simdTransform = result.node.simdTransform
-                
-            }
-            
+        // Set content
+        if (NSURL.ifGif(url: obj)) { // content is gif
+            let content = SKScene.makeSKSceneFromGif(url: obj, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+            createNode(content: content)
+        } else { // content is picture
+            let content = SKScene.makeSKSceneFromImage(url: obj,
+                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+             createNode(content: content)
         }
+        
     }
-    
     
     func createNode(content: SKScene) {
         guard let currentFrame = sceneView.session.currentFrame else{
             return
         }
         // Image Plane
-        let imagePlane = SCNPlane(width: self.sceneView.bounds.height / 3000, height: self.sceneView.bounds.height / 3000)
+        
+        let imagePlane = SCNPlane(width: stdLen!, height: stdLen!)
         imagePlane.firstMaterial?.lightingModel = .constant
         imagePlane.firstMaterial?.diffuse.contents = content
         // Flip content horizontally
         imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
         imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
         imagePlane.firstMaterial?.isDoubleSided = true
-        imagePlane.cornerRadius = self.sceneView.bounds.height / (3000 * 10)
-
+        
         
         // Node transform
         let wrapperNode = SCNNode(geometry: imagePlane)
@@ -123,6 +114,157 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         self.sceneView.scene.rootNode.addChildNode(wrapperNode)
     }
+    
+    // Deleting Object
+    var longPressDeleteFired: Bool = false
+    @objc func darkenObject(shortPress: UILongPressGestureRecognizer) {
+        var skScene: SKScene?
+        
+        if shortPress.state == .began {
+            let point = shortPress.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                skScene = result.node.geometry?.firstMaterial?.diffuse.contents as! SKScene
+                let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
+                skScene!.childNode(withName: "content")?.run(darken)
+            }
+        }
+        
+        // TODO: find a more elegant solution to opt out of darken when user release before initiateDeletion(). Right now, minimum duration for longPressDelete needs to be 1.5 for things to work. comments with //*undarken are related to this
+        if shortPress.state == UIGestureRecognizerState.ended{
+            if !longPressDeleteFired {
+                let point = shortPress.location(in: view)
+                let scnHitTestResults = sceneView.hitTest(point, options: nil)
+                if let result = scnHitTestResults.first {
+                    skScene = result.node.geometry?.firstMaterial?.diffuse.contents as! SKScene
+                    let darken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+                    skScene!.childNode(withName: "content")?.run(darken)
+                }
+            }
+        }
+    }
+    
+    @objc func initiateDeletion(longPress:UILongPressGestureRecognizer) {
+        if longPress.state == .began {
+            longPressDeleteFired = true
+            
+            // hit test
+            let point = longPress.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                let geometry = result.node.geometry! as! SCNPlane
+                
+                // Add delete button
+                let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
+                let delete = SKSpriteNode.init(imageNamed: "delete.png")
+                delete.name = "delete"
+                delete.size = CGSize.init(width: skScene.frame.width * 0.15, height: skScene.frame.width * 0.15)
+                delete.position = CGPoint.init(x: skScene.frame.width * 0.90, y: skScene.frame.height * 0.90)
+                delete.isUserInteractionEnabled = true
+                skScene.addChild(delete)
+                
+                
+                // Disable tapAdd recognizer
+                tapAdd!.isEnabled = false
+                
+                // Delete - Tap gesture recognizer change
+                tapDelete = UITapGestureRecognizer(target: self, action:
+                    #selector(self.deleteNode(tap:)))
+                target = result.node
+                view.addGestureRecognizer(tapDelete!)
+                
+                // Vibrate phone
+                AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+            }
+        }
+        
+        //*undarken
+        if longPress.state == .ended {
+            let point = longPress.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                let geometry = result.node.geometry! as! SCNPlane
+                let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
+                let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
+                skScene.childNode(withName: "content")?.run(darken)
+            }
+        }
+    }
+    
+    var target: SCNNode?
+    @objc func deleteNode(tap: UITapGestureRecognizer) {
+        guard let node = target else {
+            return
+        }
+        let skScene = node.geometry?.firstMaterial?.diffuse.contents as! SKScene
+        let deleteButton = skScene.childNode(withName: "delete")
+        
+        let point = tap.location(in: view)
+        skScene.view?.hitTest(point, with: nil)
+        
+        // Debug
+//        print("Point Location: \(point)")
+//        print("Delete Button Location: \(deleteButton?.position)")
+//        print("SKScene SIZE: \(skScene.frame)")
+//        print("SCNPlane SIZE: \((node.geometry as! SCNPlane).width) x \((node.geometry as! SCNPlane).height)")
+        
+        let scnHitTestResults = sceneView.hitTest(point, options: nil)
+        if let result = scnHitTestResults.first {
+//            print("Point on Plane: \(result.localCoordinates)")
+            
+            let currentNode = result.node
+            if (currentNode == node && deleteIsClicked(localCoordinates: result.localCoordinates)){
+                deleteButton?.removeFromParent()
+                currentNode.removeFromParentNode()
+                tapDelete!.isEnabled = false
+                tapAdd!.isEnabled = true
+                
+                longPressDeleteFired = false
+            } else {
+                // Cancel deletion process if user taps out
+                deleteButton?.removeFromParent()
+                tapDelete!.isEnabled = false
+                tapAdd!.isEnabled = true
+                // Undarken
+                let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+                skScene.childNode(withName: "content")?.run(undarken)
+                longPressDeleteFired = false
+            }
+        } else {
+            // Cancel deletion process if user taps out
+            deleteButton?.removeFromParent()
+            tapDelete!.isEnabled = false
+            tapAdd!.isEnabled = true
+            // Undarken
+            let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+            skScene.childNode(withName: "content")?.run(undarken)
+            longPressDeleteFired = false
+        }
+    }
+    
+    func deleteIsClicked(localCoordinates: SCNVector3) -> Bool {
+        let x = CGFloat(localCoordinates.x)
+        let y = CGFloat(localCoordinates.y)
+        
+        print("input x: \(x) , comparision range \(stdLen! * 0.3) to \(stdLen! * 0.5)")
+        print("input y: \(y) , comparision range \(stdLen!*0.5) to \(stdLen!/2)")
+        
+        if (x > (stdLen! * 0.3) && x < (stdLen! * 0.5) && y > (stdLen! * 0.3) && (y < stdLen! / 0.5)){
+             return true
+        }
+        return false
+        
+    }
+    
+    // Gesture Recognizer Delegates
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer is UILongPressGestureRecognizer &&
+            otherGestureRecognizer is UILongPressGestureRecognizer {
+            return true
+        }
+        return false
+    }
+    
     
     
 	override func viewDidAppear(_ animated: Bool) {
@@ -487,16 +629,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        let url = info[UIImagePickerControllerImageURL] as! NSURL
-        
-        // Set content
-        if (NSURL.ifGif(url: url)) { // content is gif
-            self.content = SKScene.makeSKSceneFromGif(url: url, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-        } else { // content is picture
-            self.content = SKScene.makeSKSceneFromImage(image: (info[UIImagePickerControllerOriginalImage] as! UIImage),
-                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-        }
-        
+        url = info[UIImagePickerControllerImageURL] as! NSURL
         self.dismiss(animated: true, completion: nil)
     }
     
