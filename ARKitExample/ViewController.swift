@@ -18,15 +18,20 @@ import FirebaseDatabase
 import FirebaseStorage
 import MobileCoreServices
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
+
     var locationManager = CLLocationManager()
     var rootNodeLocation = CLLocation()
     var currentLocation = CLLocation()
     var currentRootID : String = ""
     var handle: AuthStateDidChangeListenerHandle?
-    var content:SKScene?
-    var imageUrl:NSURL?
+    var deleteMode: Bool = false
+    var tapAdd: UITapGestureRecognizer?
+    var tapDelete: UITapGestureRecognizer?
+    var longPressDelete: UILongPressGestureRecognizer?
+    var longPressDarken: UILongPressGestureRecognizer?
+    var stdLen: CGFloat?
+    var url: NSURL?
 
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -36,85 +41,72 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         setupScene()
         setupDebug()
         setupUIControls()
-        updateSettings()
-        resetVirtualObject()
         setupLocationSettings()
+		    updateSettings()
+		    resetVirtualObject()
 
-        // Set Tap Gesture using handleTap()
-        let tapGesture = UITapGestureRecognizer(target: self, action:
+        // Set StdLen
+        stdLen = sceneView.bounds.height / 3000
+
+        // Delete - Tap gesture recognizer change
+        tapDelete = UITapGestureRecognizer(target: self, action:
+            #selector(self.deleteNode(tap:)))
+        view.addGestureRecognizer(tapDelete!)
+        tapDelete!.isEnabled = false
+
+        // Tap to add Gesture using placeObject()
+        tapAdd = UITapGestureRecognizer(target: self, action:
             #selector(self.placeObject(gestureRecognize:)))
-        view.addGestureRecognizer(tapGesture)
+        view.addGestureRecognizer(tapAdd!)
+
 
         // Set Long Pess Gesture to delete using deleteObject
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(deleteObject(press:)))
-        longPressGesture.minimumPressDuration = 1.5
-        view.addGestureRecognizer(longPressGesture)
+        let longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
+        longPressDelete.minimumPressDuration = 1.5 //*undarken
+        view.addGestureRecognizer(longPressDelete)
+        longPressDelete.delegate = self
 
-
-
+        let longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
+        longPressDarken.minimumPressDuration = 0.2
+        view.addGestureRecognizer(longPressDarken)
+        longPressDarken.delegate = self
     }
 
+    // MARK: - Gesture Recognizers
 
+    // Adding Objects
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
-        guard let obj = content else {
+        guard let obj = url else {
             textManager.showMessage("Please select an output!!")
             return
         }
-        createNode(content: obj)
 
-
-         // ------------------------------------------------------------------------------------------------------
-//        let layer = CALayer.init()
-//        layer.frame = CGRect(x: 0, y: 0, width: CGFloat(25), height: CGFloat(25))
-//        // animation layer
-//        layer.contents = images
-////        layer.contentsGravity = kCAGravityResizeAspectFill
-//        let animation = CAKeyframeAnimation(keyPath: "contents")
-//        animation.values = images
-//        animation.repeatCount = .greatestFiniteMagnitude
-//        animation.duration = 2
-//        layer.add(animation, forKey: "key frame animation"
-//        // empty layer
-//        let backLayer = CALayer()
-//        backLayer.frame = CGRect.init(origin: layer.frame.origin, size: layer.frame.size)
-//        backLayer.addSublayer(layer)
-        // ------------------------------------------------------------------------------------------------------
-    }
-
-    @objc func deleteObject(press:UILongPressGestureRecognizer) {
-        if press.state == .began {
-            print("LONG PRESS INITIATED!!!!")
-            // hit test
-            let point = press.location(in: view)
-            let scnHitTestResults = sceneView.hitTest(point, options: nil)
-            if let result = scnHitTestResults.first {
-                let geometry = result.node.geometry! as! SCNPlane
-                print(result.node.debugDescription)
-                let imagePlane = SCNPlane(width: geometry.width * 0.2, height: geometry.height * 0.2)
-                imagePlane.firstMaterial?.diffuse.contents = UIColor.blue.cgColor
-                imagePlane.firstMaterial?.isDoubleSided = true
-                let wrapperNode = SCNNode(geometry: imagePlane)
-                wrapperNode.simdTransform = result.node.simdTransform
-
-            }
-
+        // Set content
+        if (NSURL.ifGif(url: obj)) { // content is gif
+            let content = SKScene.makeSKSceneFromGif(url: obj, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+            createNode(content: content)
+        } else { // content is picture
+            let content = SKScene.makeSKSceneFromImage(url: obj,
+                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+             createNode(content: content)
         }
-    }
 
+    }
 
     func createNode(content: SKScene) {
         guard let currentFrame = sceneView.session.currentFrame else{
             return
         }
         // Image Plane
-        let imagePlane = SCNPlane(width: self.sceneView.bounds.height / 3000, height: self.sceneView.bounds.height / 3000)
+
+        let imagePlane = SCNPlane(width: stdLen!, height: stdLen!)
         imagePlane.firstMaterial?.lightingModel = .constant
         imagePlane.firstMaterial?.diffuse.contents = content
         // Flip content horizontally
         imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
         imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
         imagePlane.firstMaterial?.isDoubleSided = true
-        imagePlane.cornerRadius = self.sceneView.bounds.height / (3000 * 10)
+
 
         // Node transform
         let wrapperNode = SCNNode(geometry: imagePlane)
@@ -133,16 +125,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         sceneView.scene.rootNode.addChildNode(wrapperNode)
 
-        
+
         // MARK: Andreas's Code
 
         // Save Node and Pictures to Database
-        guard let data = try? Data(contentsOf: imageUrl! as URL) else {
+        guard let data = try? Data(contentsOf: url! as URL) else {
             print("Error downcasting to URL")
             return
         }
-//        var data = Data()
-//        data = UIImageJPEGRepresentation(obj!, 0.8)!
 
         var databaseRef: DatabaseReference!
         databaseRef = Database.database().reference()
@@ -173,7 +163,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 dateFormatter.locale = Locale(identifier: "en_US")
                 let timestamp = dateFormatter.string(from:date as Date)
-                
+
 
                 // check if node distance is new radius
                 let newDistance = Double(wrapperNode.position.length())
@@ -201,7 +191,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 databaseRef.updateChildValues(picChildUpdates)
                 databaseRef.child("/pictures/\(picID)/nodes/\(nodeID)").setValue(true);
                 databaseRef.child("/pictures/\(picID)/users/\(userID)").setValue(true);
-                
+
                 var transformArray: [[Float]] = [[],[],[],[]]
                 for index in 0...3 {
                     if index == 0 {
@@ -226,20 +216,233 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                         transformArray[3].append(wrapperNode.simdTransform.columns.3.w)
                     }
                 }
-                print("Transform Array: \(transformArray)")
-                
+                print("Transform Array (simd) create: \(wrapperNode.simdTransform)")
+                print("Transform Array create: \(transformArray)")
+
                 let node : [String : Any] = ["distance": newDistance,
                                              "transformArray": transformArray,
+                                             "picture": picID,
+                                             "root": rootID,
+                                             "user": userID,
                                              "timestamp": timestamp]
                 let nodeChildUpdates: [String: Any] = ["/nodes/\(nodeID)": node]
                 databaseRef.updateChildValues(nodeChildUpdates)
-                databaseRef.child("/nodes/\(nodeID)/pictures/\(picID)").setValue(true);
                 databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").setValue(true);
             }
         }
 
         //-------------
     }
+
+    // Deleting Object
+    var longPressDeleteFired: Bool = false
+    @objc func darkenObject(shortPress: UILongPressGestureRecognizer) {
+        var skScene: SKScene?
+
+        if shortPress.state == .began {
+            let point = shortPress.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
+                let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
+                skScene!.childNode(withName: "content")?.run(darken)
+            }
+        }
+
+        // TODO: find a more elegant solution to opt out of darken when user release before initiateDeletion(). Right now, minimum duration for longPressDelete needs to be 1.5 for things to work. comments with //*undarken are related to this
+        if shortPress.state == UIGestureRecognizerState.ended{
+            if !longPressDeleteFired {
+                let point = shortPress.location(in: view)
+                let scnHitTestResults = sceneView.hitTest(point, options: nil)
+                if let result = scnHitTestResults.first {
+                    skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
+                    let darken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+                    skScene!.childNode(withName: "content")?.run(darken)
+                }
+            }
+        }
+    }
+
+    @objc func initiateDeletion(longPress:UILongPressGestureRecognizer) {
+        if longPress.state == .began {
+            longPressDeleteFired = true
+
+            // hit test
+            let point = longPress.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                let geometry = result.node.geometry! as! SCNPlane
+
+                // Add delete button
+                let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
+                let delete = SKSpriteNode.init(imageNamed: "delete.png")
+                delete.name = "delete"
+                delete.size = CGSize.init(width: skScene.frame.width * 0.15, height: skScene.frame.width * 0.15)
+                delete.position = CGPoint.init(x: skScene.frame.width * 0.90, y: skScene.frame.height * 0.90)
+                delete.isUserInteractionEnabled = true
+                skScene.addChild(delete)
+
+
+                // Disable tapAdd recognizer
+                tapAdd!.isEnabled = false
+
+                // Delete - Tap gesture recognizer change
+                tapDelete = UITapGestureRecognizer(target: self, action:
+                    #selector(self.deleteNode(tap:)))
+                target = result.node
+                view.addGestureRecognizer(tapDelete!)
+
+                // Vibrate phone
+                AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+            }
+        }
+
+        //*undarken
+        if longPress.state == .ended {
+            let point = longPress.location(in: view)
+            let scnHitTestResults = sceneView.hitTest(point, options: nil)
+            if let result = scnHitTestResults.first {
+                let geometry = result.node.geometry! as! SCNPlane
+                let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
+                let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
+                skScene.childNode(withName: "content")?.run(darken)
+            }
+        }
+    }
+
+    var target: SCNNode?
+    @objc func deleteNode(tap: UITapGestureRecognizer) {
+        guard let node = target else {
+            return
+        }
+        let skScene = node.geometry?.firstMaterial?.diffuse.contents as! SKScene
+        let deleteButton = skScene.childNode(withName: "delete")
+
+        let point = tap.location(in: view)
+        skScene.view?.hitTest(point, with: nil)
+
+        // Debug
+//        print("Point Location: \(point)")
+//        print("Delete Button Location: \(deleteButton?.position)")
+//        print("SKScene SIZE: \(skScene.frame)")
+//        print("SCNPlane SIZE: \((node.geometry as! SCNPlane).width) x \((node.geometry as! SCNPlane).height)")
+
+        let scnHitTestResults = sceneView.hitTest(point, options: nil)
+        if let result = scnHitTestResults.first {
+//            print("Point on Plane: \(result.localCoordinates)")
+
+            let currentNode = result.node
+            if (currentNode == node && deleteIsClicked(localCoordinates: result.localCoordinates)){
+                deleteButton?.removeFromParent()
+                currentNode.removeFromParentNode()
+                tapDelete!.isEnabled = false
+                tapAdd!.isEnabled = true
+
+                longPressDeleteFired = false
+                
+                // MARK: Andreas' code to delete a node from db
+                
+//                // Code to remove node from db
+//                let storageRef = Storage.storage()
+//                let databaseRef = Database.database()
+//
+//                // remove node from root
+//                databaseRef.child("/nodes/\(nodeID)/root").observeSingleEvent(of: .value, with: { (snapshot) in
+//                    let rootID = snapshot.value as? String
+//                    databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error in
+//                        if error != nil {
+//                            print("error \(error)")
+//                        }
+//                    }
+//                })
+//
+//
+//                // remove node from added roots (this could be expensive
+//                // for all roots search for addedroots/\(nodeID).removeValue
+//
+//
+//                // remove node from user
+//                databaseRef.child("/nodes/\(nodeID)/user").observeSingleEvent(of: .value, with: { (snapshot) in
+//                    let userID = snapshot.value as? String
+//                    databaseRef.child("/users/\(userID)/lastPicture").removeValue { error in
+//                        if error != nil {
+//                            print("error \(error)")
+//                        }
+//                    }
+//                })
+//
+//                // remove pic
+//                databaseRef.child("/nodes/\(nodeID)/picture").observeSingleEvent(of: .value, with: { (snapshot) in
+//                    let picID = snapshot.value as? String
+//                    databaseRef.child("/pictures/\(picID)").removeValue { error in
+//                        if error != nil {
+//                            print("error \(error)")
+//                        }
+//                    }
+//
+//                    // remove pic from storage
+//                    let picRef = storageRef.child("pictures").child(picID)
+//                    picRef.delete { error in
+//                        if let error = error {
+//                            // Uh-oh, an error occurred!
+//                        } else {
+//                            // File deleted successfully
+//                        }
+//                    }
+//                })
+//
+//                // remove node
+//                databaseRef.child("/nodes/\(nodeID)").removeValue { error in
+//                    if error != nil {
+//                        print("error \(error)")
+//                    }
+//                }
+            } else {
+                // Cancel deletion process if user taps out
+                deleteButton?.removeFromParent()
+                tapDelete!.isEnabled = false
+                tapAdd!.isEnabled = true
+                // Undarken
+                let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+                skScene.childNode(withName: "content")?.run(undarken)
+                longPressDeleteFired = false
+            }
+        } else {
+            // Cancel deletion process if user taps out
+            deleteButton?.removeFromParent()
+            tapDelete!.isEnabled = false
+            tapAdd!.isEnabled = true
+            // Undarken
+            let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+            skScene.childNode(withName: "content")?.run(undarken)
+            longPressDeleteFired = false
+        }
+    }
+
+    func deleteIsClicked(localCoordinates: SCNVector3) -> Bool {
+        let x = CGFloat(localCoordinates.x)
+        let y = CGFloat(localCoordinates.y)
+
+        print("input x: \(x) , comparision range \(stdLen! * 0.3) to \(stdLen! * 0.5)")
+        print("input y: \(y) , comparision range \(stdLen!*0.5) to \(stdLen!/2)")
+
+        if (x > (stdLen! * 0.3) && x < (stdLen! * 0.5) && y > (stdLen! * 0.3) && (y < stdLen! / 0.5)){
+             return true
+        }
+        return false
+
+    }
+
+    // Gesture Recognizer Delegates
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer is UILongPressGestureRecognizer &&
+            otherGestureRecognizer is UILongPressGestureRecognizer {
+            return true
+        }
+        return false
+    }
+
+
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -307,7 +510,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
 
         print("getcurrentLocation in setupFirebase: \(currentLocation)")
-        print("getrootNodeLocation in setupFirebase: \(currentLocation)")
+        print("getrootNodeLocation in setupFirebase: \(rootNodeLocation)")
 
 
         // Initialize Firebase Database
@@ -342,8 +545,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     private func getRadiansFrom(degrees: Double) -> Double {
         return degrees * .pi / 180
     }
+    
+    private func getMagnitudeOf() {
+        
+    }
 
     private func getSCNVectorComponentsBetween(currLocation: CLLocation, prevLocation: CLLocation) -> (Double, Double, Double) {
+        
+        let distance = currLocation.distance(from: prevLocation)
+        let altitude = currLocation.altitude - prevLocation.altitude
+        
         let lat1 = self.getRadiansFrom(degrees: currLocation.coordinate.latitude)
         let lon1 = self.getRadiansFrom(degrees: currLocation.coordinate.longitude)
 
@@ -352,28 +563,32 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         let dLon = lon2 - lon1
 
-        let z = sin(dLon) * cos(lat2)
+        let y = sin(dLon) * cos(lat2)
         let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+        let radiansBearing = atan2(y, x)
+        
+        let xcom = distance * cos(radiansBearing)
+        let ycom = distance * sin(radiansBearing)
+        
+        let zcom = currLocation.altitude - prevLocation.altitude
 
-        let y = currLocation.altitude - prevLocation.altitude
-
-        return (x, y, z)
+        return (xcom, zcom, ycom)
     }
 
     // Since I did not use cloning here I'm not sure that the original stays intact for multiple usage.
     func addPrevNodesToScene() {
         let databaseRef = Database.database().reference()
         let rootsRef = databaseRef.child("/roots/")
-        
+
         rootsRef.observe(.value, with: { (snapshot) in
             if snapshot.exists() {
                 let enumerator = snapshot.children
                 while let dbRoot = enumerator.nextObject() as? DataSnapshot {
                     let rootDict = dbRoot.valueInExportFormat() as! NSDictionary
-                    
+
                     print("dbRoot: \(dbRoot)")
                     print("dbRoot.key: \(dbRoot.key)")
-                    
+
                     var dbLatitude : Double = 0.0
                     var dbLongitude : Double = 0.0
                     var dbAltitude : Double = 0.0
@@ -411,7 +626,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                     print("this is prevRootCoordinates: \(prevRootCoordinates)")
                     let prevRootLocation = CLLocation.init(coordinate: prevRootCoordinates, altitude: dbAltitude, horizontalAccuracy: dbHorizontalAccuracy, verticalAccuracy: dbVerticalAccuracy, timestamp: dbTimestamp)
                     print("this is prevRootLocation: \(prevRootLocation)")
-                    
+
                     if (dbRoot.key != self.currentRootID) {
                         // Add Posted Scene if within 20 meters from furthest node of a previous scene & if a session had a picture added
                         // & if root hasn't already been added
@@ -435,36 +650,37 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                     do {
                                         let prevRootNode = SCNNode()
                                         
+                                        let group = DispatchGroup()
+                                        
                                         for (nodeID, _) in dbNodes {
+                                            group.enter()
                                             print("got in node loop with nodeID: \(nodeID)")
                                             let nodeRef = databaseRef.child("/nodes/\(nodeID)")
                                             nodeRef.observeSingleEvent(of: .value, with: { (snapshot) in
                                                 if snapshot.exists() {
                                                     let nodeDict = snapshot.valueInExportFormat() as! NSDictionary
-                                                    
+
                                                     print("nodeDict: \(nodeDict)")
-                                                    
+
                                                     var dbNodeTransformDict : NSDictionary = [:]
-                                                    //                                        Array = [[Float]]()
-                                                    var dbNodePictures : NSDictionary = ["":true]
+                                                    var dbNodePicture : String = ""
                                                     for (key, value) in nodeDict {
                                                         if (key as? String == "transformArray") {
                                                             dbNodeTransformDict = value as! NSDictionary
-                                                        } else if (key as? String == "pictures") {
-                                                            dbNodePictures = value as! NSDictionary
+                                                        } else if (key as? String == "picture") {
+                                                            dbNodePicture = value as! String
                                                         } else {
-                                                            
+
                                                         }
                                                     }
+
                                                     
-                                                    let imagePlane = SCNPlane(width: self.sceneView.bounds.width / 6000, height: self.sceneView.bounds.height / 6000)
-                                                    let picRef = databaseRef.child("/pictures/\(dbNodePictures.allKeys.first! as! String)/url")
+                                                    let picRef = databaseRef.child("/pictures/\(dbNodePicture)/url")
                                                     picRef.observeSingleEvent(of: .value, with :{ (snapshot) in
                                                         if snapshot.exists() {
+                                                            let imagePlane = SCNPlane(width: self.stdLen!, height: self.stdLen!)
                                                             let picUrl = snapshot.valueInExportFormat() as! String
-                                                            
-                                                            // Data for "images/island.jpg" is returned
-                                                            //                                                let image = UIImage(data: data!)
+
                                                             let skimage : SKScene
                                                             //                                                if (NSURL.ifGif(url: NSURL(string: picUrl)!)) {
                                                             //                                                    skimage = SKScene.makeSKSceneFromGif(url: data!, size: CGSize)
@@ -472,51 +688,57 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                                             skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
                                                             //                                                }
                                                             imagePlane.firstMaterial?.diffuse.contents = skimage
+                                                            imagePlane.firstMaterial?.lightingModel = .constant
+                                                            imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
+                                                            imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
+                                                            imagePlane.firstMaterial?.isDoubleSided = true
+                                                            
+                                                            let childNode = SCNNode(geometry: imagePlane)
+                                                            var transformArray : simd_float4x4
+                                                            
+                                                            var columns = [float4].init()
+                                                            for key in 0...3 {
+                                                                let tempDict = dbNodeTransformDict.value(forKey: "\(key)") as! NSDictionary
+                                                                print("tempDict: \(tempDict)")
+                                                                var temp = [Float].init()
+                                                                temp.append((tempDict.value(forKey: "0") as! NSNumber).floatValue)
+                                                                print("temp0: \(temp)")
+                                                                print(tempDict.value(forKey: "1")!)
+                                                                temp.append((tempDict.value(forKey: "1") as! NSNumber).floatValue)
+                                                                print("temp1: \(temp)")
+                                                                temp.append((tempDict.value(forKey: "2") as! NSNumber).floatValue)
+                                                                print("temp2: \(temp)")
+                                                                temp.append((tempDict.value(forKey: "3") as! NSNumber).floatValue)
+                                                                print("temp3: \(temp)")
+                                                                let floatFour = float4.init(temp)
+                                                                columns.append(floatFour)
+                                                            }
+                                                            transformArray = simd_float4x4.init(columns)
+                                                            print("Transform Array addPrev: \(transformArray)")
+                                                            childNode.simdTransform = transformArray
+                                                            prevRootNode.addChildNode(childNode)
+                                                            group.leave()
                                                         } else {
-                                                            print("snapshot of pictures doesn not exist")
+                                                            print("snapshot of pictures does not exist")
                                                         }
                                                     })
-                                                    imagePlane.firstMaterial?.lightingModel = .constant
-                                                    imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
-                                                    imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
-                                                    imagePlane.firstMaterial?.isDoubleSided = true
-                                                    imagePlane.cornerRadius = self.sceneView.bounds.height / (3000 * 10)
-                                                    
-                                                    let childNode = SCNNode(geometry: imagePlane)
-                                                    var transformArray : simd_float4x4
-                                                    
-                                                    var columns = [float4].init()
-                                                    for key in 0...3 {
-                                                        let tempDict = dbNodeTransformDict.value(forKey: "\(key)") as! NSDictionary
-                                                        print("tempDict: \(tempDict)")
-                                                        var temp = [Float].init()
-                                                        temp.append((tempDict.value(forKey: "0") as! NSNumber).floatValue)
-                                                        print("temp0: \(temp)")
-                                                        print(tempDict.value(forKey: "1")!)
-                                                        temp.append((tempDict.value(forKey: "1") as! NSNumber).floatValue)
-                                                        print("temp1: \(temp)")
-                                                        temp.append((tempDict.value(forKey: "2") as! NSNumber).floatValue)
-                                                        print("temp2: \(temp)")
-                                                        temp.append((tempDict.value(forKey: "3") as! NSNumber).floatValue)
-                                                        print("temp3: \(temp)")
-                                                        let floatFour = float4.init(temp)
-                                                        columns.append(floatFour)
-                                                    }
-                                                    transformArray = simd_float4x4.init(columns)
-                                                    childNode.simdTransform = transformArray
-                                                    prevRootNode.addChildNode(childNode)
                                                 } else {
                                                     print("snapshot of nodes does not exist")
                                                 }
                                             })
                                         }
-                                        let components = self.getSCNVectorComponentsBetween(currLocation: self.currentLocation, prevLocation: prevRootLocation)
-                                        let childPosition = SCNVector3(components.0, components.1, components.2)
-                                        prevRootNode.position = childPosition
-                                        
-                                        self.sceneView.scene.rootNode.addChildNode(prevRootNode)
-                                        // Add this to seen
-                                        databaseRef.child("/roots/\(self.currentRootID)/addedRoots/\(dbRoot.key)").setValue(true)
+                                        group.notify(queue: .main) {
+                                            let components = self.getSCNVectorComponentsBetween(currLocation: self.rootNodeLocation, prevLocation: prevRootLocation)
+                                            print("check if components are switched")
+                                            print("components: \(components)")
+                                            let childPosition = SCNVector3(components.0, components.1, components.2)
+                                            print("childPosition: \(childPosition)")
+                                            prevRootNode.position = childPosition
+
+                                            self.sceneView.scene.rootNode.addChildNode(prevRootNode)
+                                            // Add this to seen
+                                            databaseRef.child("/roots/\(self.currentRootID)/addedRoots/\(dbRoot.key)").setValue(true)
+                                        }
                                     } catch {
                                         print(error)
                                     }
@@ -945,16 +1167,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        imageUrl = info[UIImagePickerControllerImageURL] as? NSURL
-
-        // Set content
-        if (NSURL.ifGif(url: imageUrl!)) { // content is gif
-            self.content = SKScene.makeSKSceneFromGif(url: imageUrl!, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-        } else { // content is picture
-            self.content = SKScene.makeSKSceneFromImage(image: (info[UIImagePickerControllerOriginalImage] as! UIImage),
-                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-        }
-
+        url = info[UIImagePickerControllerImageURL] as? NSURL
         self.dismiss(animated: true, completion: nil)
     }
 
@@ -970,7 +1183,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         // configure session
         if let worldSessionConfig = sessionConfig as? ARWorldTrackingSessionConfiguration {
             //            worldSessionConfig.planeDetection = .horizontal
-            print("lalala")
             print(worldSessionConfig.planeDetection)
             session.run(worldSessionConfig, options: [.resetTracking, .removeExistingAnchors])
         }
