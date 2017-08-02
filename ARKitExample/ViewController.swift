@@ -21,8 +21,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var tapDelete: UITapGestureRecognizer?
     var longPressDelete: UILongPressGestureRecognizer?
     var longPressDarken: UILongPressGestureRecognizer?
-    var stdLen: CGFloat?
     var url: NSURL?
+    lazy var stdLen: CGFloat = {
+        let len = self.sceneView.bounds.height / 3000
+        return len
+    }()
     
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -35,10 +38,30 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         setupLocationManager()
 		updateSettings()
 		resetVirtualObject()
+        setupMenuBar()
+    }
+    
+    func setupMenuBar() {
+        let container = UIView()
+        container.backgroundColor = UIColor.blue
+        view.addSubview(container)
+        view.addConstraintsWithFormat("H:|[v0]|", views: container)
+        container.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        container.heightAnchor.constraint(equalToConstant: 228).isActive = true
         
-        // Set StdLen
-        stdLen = sceneView.bounds.height / 3000
+        let menuBar = MenuBar()
+        container.addSubview(menuBar)
+        container.addConstraintsWithFormat("H:|[v0]|", views: menuBar)
+        container.addConstraintsWithFormat("V:|[v0(32)]", views: menuBar)
         
+        let grid = SelectionGrid()
+        container.addSubview(grid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: grid)
+        grid.topAnchor.constraint(equalTo: menuBar.bottomAnchor).isActive = true
+        grid.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+    }
+    
+    func setupGestures() {
         // Delete - Tap gesture recognizer change
         tapDelete = UITapGestureRecognizer(target: self, action:
             #selector(self.deleteNode(tap:)))
@@ -90,7 +113,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
         // Image Plane
         
-        let imagePlane = SCNPlane(width: stdLen!, height: stdLen!)
+        let imagePlane = SCNPlane(width: stdLen, height: stdLen)
         imagePlane.firstMaterial?.lightingModel = .constant
         imagePlane.firstMaterial?.diffuse.contents = content
         // Flip content horizontally
@@ -246,10 +269,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let x = CGFloat(localCoordinates.x)
         let y = CGFloat(localCoordinates.y)
         
-        print("input x: \(x) , comparision range \(stdLen! * 0.3) to \(stdLen! * 0.5)")
-        print("input y: \(y) , comparision range \(stdLen!*0.5) to \(stdLen!/2)")
+        print("input x: \(x) , comparision range \(stdLen * 0.3) to \(stdLen * 0.5)")
+        print("input y: \(y) , comparision range \(stdLen*0.5) to \(stdLen/2)")
         
-        if (x > (stdLen! * 0.3) && x < (stdLen! * 0.5) && y > (stdLen! * 0.3) && (y < stdLen! / 0.5)){
+        if (x > (stdLen * 0.3) && x < (stdLen * 0.5) && y > (stdLen * 0.3) && (y < stdLen / 0.5)){
              return true
         }
         return false
@@ -290,7 +313,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	var use3DOFTracking = false {
 		didSet {
 			if use3DOFTracking {
-                sessionConfig = ARSessionConfiguration() as! ARWorldTrackingSessionConfiguration
+//                sessionConfig = ARSessionConfiguration() as! ARWorldTrackingSessionConfiguration
 			}
 			sessionConfig.isLightEstimationEnabled = UserDefaults.standard.bool(for: .ambientLightEstimation)
             sessionConfig.worldAlignment = .gravityAndHeading

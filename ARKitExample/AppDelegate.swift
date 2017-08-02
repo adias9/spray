@@ -11,8 +11,17 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
-
-	// Nothing to do here. See ViewController for primary app features.
+//
+//    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+//        
+//        window = UIWindow(frame: UIScreen.main.bounds)
+//        window?.makeKeyAndVisible()
+//        
+//        let layout = UICollectionViewFlowLayout()
+//        let viewController = ViewController?
+//        window?.rootViewController = viewController
+//        return true
+//    }
 
 }
 
