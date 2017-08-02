@@ -140,7 +140,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let storageRef = Storage.storage().reference()
 
         let metaData = StorageMetadata()
-        metaData.contentType = "image/jpg"
+        let input : NSData = NSData(data: data)
+        if input.imageFormat == .JPEG {
+            metaData.contentType = "image/jpeg"
+        } else if input.imageFormat == .PNG {
+            metaData.contentType = "image/png"
+        } else if input.imageFormat == .TIFF {
+            metaData.contentType = "image/tiff"
+        } else if input.imageFormat == .GIF {
+            metaData.contentType = "image/gif"
+        } else {
+            print("not acceptable format of media")
+        }
 
         let userID = Auth.auth().currentUser!.uid
         let rootID = self.currentRootID
@@ -681,12 +692,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                                             let imagePlane = SCNPlane(width: self.stdLen!, height: self.stdLen!)
                                                             let picUrl = snapshot.valueInExportFormat() as! String
 
-                                                            let skimage : SKScene
-                                                            //                                                if (NSURL.ifGif(url: NSURL(string: picUrl)!)) {
-                                                            //                                                    skimage = SKScene.makeSKSceneFromGif(url: data!, size: CGSize)
-                                                            //                                                } else {
-                                                            skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                                                            //                                                }
+                                                            // initialize this correctly and make sure of corner cases
+                                                            var skimage = SKScene()
+                                                            
+                                                            do {
+                                                                let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
+                                                                if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
+                                                                    skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+                                                                } else if input.imageFormat == .GIF {
+                                                                    skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+                                                                } else {
+                                                                    print("not acceptable format of image")
+                                                                }
+                                                            } catch {
+                                                                print("Error in converting picurl to NSData")
+                                                            }
+                                                            
                                                             imagePlane.firstMaterial?.diffuse.contents = skimage
                                                             imagePlane.firstMaterial?.lightingModel = .constant
                                                             imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
