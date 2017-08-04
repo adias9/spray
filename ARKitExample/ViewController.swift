@@ -39,6 +39,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		updateSettings()
 		resetVirtualObject()
         setupMenuBar()
+        setupGestures()
     }
     
     func setupMenuBar() {
@@ -54,11 +55,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         container.addConstraintsWithFormat("H:|[v0]|", views: menuBar)
         container.addConstraintsWithFormat("V:|[v0(32)]", views: menuBar)
         
-        let grid = SelectionGrid()
+        let grid = GifGrid()
         container.addSubview(grid)
         container.addConstraintsWithFormat("H:|[v0]|", views: grid)
         grid.topAnchor.constraint(equalTo: menuBar.bottomAnchor).isActive = true
         grid.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+        
+//        container.isHidden = true
     }
     
     func setupGestures() {
