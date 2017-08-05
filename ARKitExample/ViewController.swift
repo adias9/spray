@@ -40,28 +40,67 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		resetVirtualObject()
         setupMenuBar()
         setupGestures()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
+    var contentStackBotAnchor : NSLayoutConstraint?
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue, let constraint = contentStackBotAnchor{
+            
+            let topLeftPos = view.frame.height - contentStack.frame.origin.y
+            print(topLeftPos)
+            print(contentStack.frame.height)
+            if topLeftPos == contentStack.frame.height{
+                 print("trying to execute -------------------------------------------------------")
+                 print(constraint.constant)
+//                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = false
+////                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -keyboardSize.height).isActive = true
+//                self.stack.frame.origin.y -= keyboardSize.height
+                UIView.animate(withDuration: 1.5, animations: {
+                    constraint.constant = -keyboardSize.height
+                    print(keyboardSize.height)
+                    print(constraint.constant)
+                    self.view.layoutIfNeeded()
+                    print("it should be working ... ")
+                })
+            }
+        }
+    }
+    
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue, let constraint = contentStackBotAnchor{
+            let topLeftPos = view.frame.height - contentStack.frame.origin.y
+            if topLeftPos != contentStack.frame.height{
+//                self.contentStack.frame.origin.y += keyboardSize.height
+////                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -keyboardSize.height).isActive = false
+//                contentStack.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+                UIView.animate(withDuration: 1.5, animations: {
+                    constraint.constant = 0
+                    self.view.layoutIfNeeded()
+                })
+            }
+        }
+    }
+    
+    var contentStack = UIStackView()
     func setupMenuBar() {
-        let container = UIView()
-        container.backgroundColor = UIColor.blue
-        view.addSubview(container)
-        view.addConstraintsWithFormat("H:|[v0]|", views: container)
-        container.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        container.heightAnchor.constraint(equalToConstant: 228).isActive = true
-        
         let menuBar = MenuBar()
-        container.addSubview(menuBar)
-        container.addConstraintsWithFormat("H:|[v0]|", views: menuBar)
-        container.addConstraintsWithFormat("V:|[v0(32)]", views: menuBar)
-        
         let grid = GifGrid()
-        container.addSubview(grid)
-        container.addConstraintsWithFormat("H:|[v0]|", views: grid)
-        grid.topAnchor.constraint(equalTo: menuBar.bottomAnchor).isActive = true
-        grid.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+        contentStack.addArrangedSubview(menuBar)
+        contentStack.addArrangedSubview(grid)
         
-//        container.isHidden = true
+        
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(contentStack)
+        contentStackBotAnchor = contentStack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+        contentStackBotAnchor!.isActive = true
+        contentStack.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        contentStack.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        contentStack.axis = .vertical
+        contentStack.spacing = 0
     }
     
     func setupGestures() {

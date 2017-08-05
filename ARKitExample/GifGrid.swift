@@ -12,13 +12,51 @@ import Alamofire
 import SwiftyJSON
 import Foundation
 
-class GifGrid : LibraryGrid {
+class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
+    
+    lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 1
+        layout.minimumInteritemSpacing = 2
+        layout.scrollDirection = .horizontal
+        
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = UIColor.white
+        cv.dataSource = self
+        cv.delegate = self
+        return cv
+    }()
+    let cellId = "cellId"
     var count = 0
     var sources = [String]()
     var sizes = [CGSize]()
     
-    override func fetchContent() {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        fetchContent()
+        
+        collectionView.register(GridCell.self, forCellWithReuseIdentifier: cellId)
+        addSubview(collectionView)
+        
+        let selectedIndexPath = IndexPath(item: 0, section: 0)
+        collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: UICollectionViewScrollPosition())
+        
+        let searchBar = UISearchBar()
+        searchBar.tintColor = UIColor.green
+        searchBar.barTintColor = UIColor.green
+        searchBar.showsSearchResultsButton = true
+        searchBar.delegate = self
+        addSubview(searchBar)
+        searchBar.bottomAnchor.constraint(equalTo: collectionView.topAnchor).isActive = true
+        
+        addConstraintsWithFormat("H:|[v0]|", views: collectionView)
+        addConstraintsWithFormat("H:|[v0]|", views: searchBar)
+        addConstraintsWithFormat("V:|[v0(32)][v1(196)]|", views: searchBar,collectionView)
+    }
+    
+    func fetchContent() {
 //        let host = "api.giphy.com"
 //        let path = "/v1/stickers/search"
 //        let q = "doge"
@@ -33,30 +71,31 @@ class GifGrid : LibraryGrid {
 //        })
         
         //Sending a /guggify request with no sentence param will return trending results
-        let url = URL(string: "http://text2gif.guggy.com/v2/guggify")
-        let apiKey = "45P8xNDXBNsnNzh"
-        let parameters: [String: String] = [
-            "sentence" : "life is good",
-            "lang" : "en"
-        ]
-        let headers: [String: String] = [
-            "content-type" : "application/json",
-            "apiKey" : apiKey
-        ]
-        
-        Alamofire.request(url!, method: .post, parameters:  parameters, encoding: JSONEncoding.default, headers: headers).responseData(completionHandler: {(responseData) -> Void in
-            if (responseData.data != nil) {
-                self.parseData(data: responseData.data!)
-            }
-        })
-        
+        if let text = searchText {
+            let url = URL(string: "http://text2gif.guggy.com/v2/guggify")
+            let apiKey = "45P8xNDXBNsnNzh"
+            let parameters: [String: String] = [
+                "sentence" : text,
+                "lang" : "en"
+            ]
+            let headers: [String: String] = [
+                "content-type" : "application/json",
+                "apiKey" : apiKey
+            ]
+            
+            Alamofire.request(url!, method: .post, parameters:  parameters, encoding: JSONEncoding.default, headers: headers).responseData(completionHandler: {(responseData) -> Void in
+                if (responseData.data != nil) {
+                    self.parseData(data: responseData.data!)
+                }
+            })
+        }
+        collectionView.reloadData()
     }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return count
     }
-    
-    override func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if (sizes.count != 0){
             let currentSize = sizes[indexPath.item]
             let aspectRatio = currentSize.width / currentSize.height
@@ -64,16 +103,17 @@ class GifGrid : LibraryGrid {
             let newWidth = newHeight * aspectRatio
             return CGSize.init(width: newWidth, height: newHeight)
         }
-        let length = frame.height / 2 - 2
+        let length = collectionView.frame.height / 2 - 2
         return CGSize.init(width: length, height: length)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! GridCell
         
         let content = UIImage.gif(url: sources[indexPath.item])
         cell.imageView.backgroundColor = UIColor.clear
         cell.imageView.image = content
+        print(cell.imageView.image)
         
         
         return cell
@@ -85,6 +125,7 @@ class GifGrid : LibraryGrid {
         for (_, elements) in parsed["animated"] {
             let gifPreview = elements["gif"]["preview"]
             let original = gifPreview["url"].string!
+            print(original)
             let secured = "https\(original.substring(from: original.index(of: ":")!))"
             sources.append(secured)
             
@@ -95,6 +136,23 @@ class GifGrid : LibraryGrid {
         count = sources.count
         
         collectionView.reloadData()
-    }
         
+    }
+    
+    var searchText : String?
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let text = searchBar.text {
+            searchText = text
+            fetchContent()
+            print("hey")
+        }
+        searchBar.resignFirstResponder()
+    }
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        print("lakjflkadsj;fadklsfjadls;fklasdj")
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }

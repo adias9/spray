@@ -25,14 +25,6 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         cv.delegate = self
         return cv
     }()
-    
-    let imageView: UIImageView = {
-        let iv = UIImageView()
-        //        imageView.contentMode = .scaleAspectFill
-        //        imageView.clipsToBounds = true
-        iv.backgroundColor = UIColor.purple
-        return iv
-    }()
     let cellId = "cellId"
     let assets = {
        return PHAsset.fetchAssets(with: .image, options: nil)
@@ -50,6 +42,8 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         addSubview(collectionView)
         addConstraintsWithFormat("H:|[v0]|", views: collectionView)
         addConstraintsWithFormat("V:|[v0]|", views: collectionView)
+        
+        collectionView.heightAnchor.constraint(equalToConstant: 196).isActive = true
         
         let selectedIndexPath = IndexPath(item: 0, section: 0)
         collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: UICollectionViewScrollPosition())
