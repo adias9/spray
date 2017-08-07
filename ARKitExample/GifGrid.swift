@@ -165,5 +165,7 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         if let content = cell?.info {
             viewController?.content = content
         }
+        viewController?.contentStack.isHidden = true
+        viewController?.showPreview()
     }
 }

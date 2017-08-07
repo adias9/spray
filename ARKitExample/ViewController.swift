@@ -40,9 +40,47 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		resetVirtualObject()
         setupMenuBar()
         setupGestures()
+        setupPreview()
         
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    let preview = UIImageView()
+    func setupPreview() {
+        preview.backgroundColor = UIColor.black
+        view.addSubview(preview)
+        
+        let viewWidth = view.frame.width
+        let viewHeight = view.frame.height
+        let previewWidth = CGFloat(80)
+        let previewHeight = CGFloat(80 )
+        let bottomMargin = CGFloat(15)
+        
+        view.addConstraintsWithFormat("H:|-\((viewWidth - previewWidth)/2)-[v0]-\((viewWidth - previewWidth)/2)-|", views: preview)
+        view.addConstraintsWithFormat("V:|-\(viewHeight - bottomMargin - previewHeight)-[v0]-\(bottomMargin)-|", views: preview)
+        
+        preview.isHidden = true
+    }
+    func showPreview() {
+        guard let content = self.content else {
+            return
+        }
+        if content.type == .gif {
+            if let data = content.data {
+                preview.image = UIImage.gif(data: data)
+            }
+        } else {
+            if let data = content.data {
+                preview.image = UIImage(data: data)
+            }
+        }
+        
+        preview.isHidden = false
+        
+    }
+    func hidePreview() {
+        preview.isHidden = true
     }
     
     var contentStackBotAnchor : NSLayoutConstraint?
@@ -67,8 +105,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             }
         }
     }
-    
-    
     @objc func keyboardWillHide(notification: NSNotification) {
         tapDismissContentStack?.isEnabled = true
         tapDismissKeyboard?.isEnabled = false
@@ -136,7 +172,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         contentStack.isHidden = true
     }
-    
     func showGrid(type : ContentType) {
         let grid = contentStack.subviews[1]
         if type == .library {
@@ -214,8 +249,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
              createNode(content: content)
         }
         
-        
-        
         // ----------------------------------------------------------------------------------------------------
         
 //        //file:///var/mobile/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG
@@ -273,7 +306,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             }
         }
         
-        // TODO: find a more elegant solution to opt out of darken when user release before initiateDeletion(). Right now, minimum duration for longPressDelete needs to be 1.5 for things to work. comments with //*undarken are related to this
         if shortPress.state == UIGestureRecognizerState.ended{
             if !longPressDeleteFired {
                 let point = shortPress.location(in: view)
@@ -407,19 +439,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
         return false
     }
-    
-//    var selectionMode : Bool = true
-//    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-//        print("lalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalala1")
-//        let safety = CGFloat(10.0)
-//        let point = gestureRecognizer.location(in: view)
-//        print(gestureRecognizer.name)
-//        if(gestureRecognizer is UITapGestureRecognizer && (point.y > (contentStack.frame.origin.y - safety)) && selectionMode) {
-//             print("lalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalala2")
-//            return false
-//        }
-//        return true
-//    }
     
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
@@ -767,6 +786,36 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 //                self.addObjectButton.setImage(pressedButtonImage, for: [.highlighted])
                 self.isLoadingObject = false
             }
+        }
+    }
+    
+    enum State {
+        case view
+        case selection
+        case delete
+        case place
+    }
+    
+    func configureGesturesForState(state : State) {
+        if state == .view {
+            longPressDarken?.isEnabled = true
+            longPressDelete?.isEnabled = true
+            
+            tapAdd?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            tapDismissKeyboard?.isEnabled = false
+        } else if state == .selection {
+            tapDismissContentStack?.isEnabled = true
+            
+            longPressDarken?.isEnabled = false
+            longPressDelete?.isEnabled = false
+            tapAdd?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            tapDismissKeyboard?.isEnabled = false
+        } else {
+            
         }
     }
     

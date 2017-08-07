@@ -91,11 +91,6 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         return cell
     }
     
-    func makeURL(identifier : String, ext : String) {
-        
-        
-    }
-    
     var viewController : ViewController?
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -106,6 +101,9 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         if let content = cell?.info {
             viewController?.content = content
         }
+        
+        viewController?.contentStack.isHidden = true
+        viewController?.showPreview()
     }
     
     func fetchContent(){}
