@@ -194,24 +194,32 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         grid.endEditing(true)
     }
     
+    var content : Content?
     // Adding Objects
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
-        guard let obj = url else {
+        guard let obj = content else {
             textManager.showMessage("Please select an output!!")
             return
         }
         
         // Set content
-        if (NSURL.ifGif(url: obj)) { // content is gif
-            let content = SKScene.makeSKSceneFromGif(url: obj, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+        if (obj.type == .gif) { // content is gif
+            guard let data = obj.data else {return}
+            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
             createNode(content: content)
         } else { // content is picture
-            let content = SKScene.makeSKSceneFromImage(url: obj,
+            guard let data = obj.data else {return}
+            let content = SKScene.makeSKSceneFromImage(data: data,
                                                         size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
              createNode(content: content)
         }
+        
+        
+        
+        // ----------------------------------------------------------------------------------------------------
+        
 //        //file:///var/mobile/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG
-//        let obj = NSURL(string: "/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG")
+//        let obj = NSURL(string: "assets-library://asset/asset.JPG?id=EA05C3C1-0FE4-43B9-8A10-2AE932CDDE4D&ext=JPG")
 //        let content = SKScene.makeSKSceneFromImage(url: obj!,
 //                                                   size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
 //        createNode(content: content)
@@ -771,6 +779,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         tapAdd?.isEnabled = false
         longPressDarken?.isEnabled = false
         longPressDelete?.isEnabled = false
+        
+        tapDismissContentStack?.isEnabled = true
     }
     
     @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){

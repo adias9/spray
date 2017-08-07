@@ -111,10 +111,18 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! GridCell
         
-        let content = UIImage.gif(url: sources[indexPath.item])
+        guard let data = try? Data.init(contentsOf: URL(string: sources[indexPath.item])!) else {
+            print("Error with content data")
+            return cell
+        }
+        let content = UIImage.gif(data: data)
         cell.imageView.backgroundColor = UIColor.clear
         cell.imageView.image = content
-        cell.url = NSURL(string : sources[indexPath.item])
+        
+        let info = Content()
+        info.data = data
+        info.type = .gif
+        cell.info = info
       
         return cell
     }
@@ -154,8 +162,8 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
     var viewController : ViewController?
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? GridCell
-        if let url = cell?.url {
-            viewController?.url = url
+        if let content = cell?.info {
+            viewController?.content = content
         }
     }
 }

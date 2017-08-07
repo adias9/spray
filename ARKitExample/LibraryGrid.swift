@@ -64,15 +64,36 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         fetchOptions.sortDescriptors =  [NSSortDescriptor.init(key: "creationDate", ascending: true)]
         let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: fetchOptions)
         if fetchResult.count > 0 {
-            manager.requestImage(for: fetchResult.object(at: fetchResult.count - 1 - indexPath.row) as PHAsset, targetSize: cell.frame.size, contentMode: .aspectFill, options: nil) { (image: UIImage?, info: [AnyHashable: Any]?) -> Void in
-                cell.imageView.image = image
-                self.getURL(ofPhotoWith: fetchResult.object(at: fetchResult.count - 1 - indexPath.row), completionHandler: { url in
-                    cell.url = url as NSURL?
-                })
-            }
+            var data : Data?
+            manager.requestImageData(for: fetchResult.object(at: fetchResult.count - 1 - indexPath.row) as PHAsset, options: PHImageRequestOptions(), resultHandler: {contentData, string, orientation, hashable in
+                if let data = contentData {
+                    let info = Content()
+                    info.data = data
+                    
+                    if (string?.contains(".gif"))! {
+                        cell.imageView.image = UIImage.gif(data: data)
+                        
+                        info.type = .gif
+                        cell.info = info
+                        
+                    } else {
+                        cell.imageView.image = UIImage(data: data)
+                        
+                        info.type = .image
+                        cell.info = info
+                    }
+                }
+            })
+            
         }
         
+        
         return cell
+    }
+    
+    func makeURL(identifier : String, ext : String) {
+        
+        
     }
     
     var viewController : ViewController?
@@ -82,38 +103,37 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? GridCell
-        if let url = cell?.url {
-            viewController?.url = url
-            print(url)
+        if let content = cell?.info {
+            viewController?.content = content
         }
     }
     
     func fetchContent(){}
     
-    func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
-        
-        if mPhasset.mediaType == .image {
-            let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
-            options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
-                return true
-            }
-            mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
-                completionHandler(contentEditingInput!.fullSizeImageURL)
-            })
-        } else if mPhasset.mediaType == .video {
-            let options: PHVideoRequestOptions = PHVideoRequestOptions()
-            options.version = .original
-            PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: { (asset, audioMix, info) in
-                if let urlAsset = asset as? AVURLAsset {
-                    let localVideoUrl = urlAsset.url
-                    completionHandler(localVideoUrl)
-                } else {
-                    completionHandler(nil)
-                }
-            })
-        }
-        
-    }
+//    func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
+//
+//        if mPhasset.mediaType == .image {
+//            let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+//            options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
+//                return true
+//            }
+//            mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
+//                completionHandler(contentEditingInput!.fullSizeImageURL)
+//            })
+//        } else if mPhasset.mediaType == .video {
+//            let options: PHVideoRequestOptions = PHVideoRequestOptions()
+//            options.version = .original
+//            PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: { (asset, audioMix, info) in
+//                if let urlAsset = asset as? AVURLAsset {
+//                    let localVideoUrl = urlAsset.url
+//                    completionHandler(localVideoUrl)
+//                } else {
+//                    completionHandler(nil)
+//                }
+//            })
+//        }
+//
+//    }
 }
 
 
@@ -127,7 +147,7 @@ class GridCell: BaseCell {
         return iv
     }()
     
-    var url : NSURL?
+    var info : Content?
     
     override func setupViews() {
         super.setupViews()
