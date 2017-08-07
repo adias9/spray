@@ -343,24 +343,13 @@ extension SKScene {
     }
     
     public class func makeSKSceneFromImage(data: Data, size: CGSize) -> SKScene {
-        let skScene = SKScene(size: size)
-        
-        let image = UIImage.init(data: data)
-        
-        // Create Image Node
-        let texture = SKTexture.init(image: image!.fixOrientation()!)
-        let imageNode = SKSpriteNode.init(texture: texture)
-        imageNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
-        imageNode.size = size
-        imageNode.name = "content"
-        skScene.addChild(imageNode)
-        
-        // Create Name Tag
-        let nameTag = createNameTag(name: "username")
-        skScene.addChild(nameTag)
-        
-        
-        return skScene
+        guard let image = UIImage.init(data: data) else {return SKScene()}
+        return makeSKSceneFromImage(image: image, size: size)
+    }
+    
+    public class func makeSKSceneFromImage(url: NSURL, size: CGSize) -> SKScene {
+        guard let data = try? Data(contentsOf: url as URL) else {return SKScene()}
+        return makeSKSceneFromImage(data: data, size: size)
     }
     
     public class func makeSKSceneFromGif(data: Data, size: CGSize) -> SKScene {
@@ -428,6 +417,13 @@ extension SKScene {
         
         
         return skScene
+    }
+    
+     public class func makeSKSceneFromGif(url: NSURL, size: CGSize) -> SKScene {
+        guard let data = try? Data(contentsOf: url as URL) else {
+            return SKScene()
+        }
+        return makeSKSceneFromGif(data: data, size: size)
     }
     
     internal class func gcdForPair(_ a: Int?, _ b: Int?) -> Int {
