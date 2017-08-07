@@ -46,7 +46,6 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         let searchBar = UISearchBar()
         searchBar.tintColor = UIColor.green
         searchBar.barTintColor = UIColor.green
-        searchBar.showsSearchResultsButton = true
         searchBar.delegate = self
         addSubview(searchBar)
         searchBar.bottomAnchor.constraint(equalTo: collectionView.topAnchor).isActive = true
@@ -85,11 +84,12 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
             
             Alamofire.request(url!, method: .post, parameters:  parameters, encoding: JSONEncoding.default, headers: headers).responseData(completionHandler: {(responseData) -> Void in
                 if (responseData.data != nil) {
+                    self.sources.removeAll()
                     self.parseData(data: responseData.data!)
                 }
             })
         }
-        collectionView.reloadData()
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -99,7 +99,8 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         if (sizes.count != 0){
             let currentSize = sizes[indexPath.item]
             let aspectRatio = currentSize.width / currentSize.height
-            let newHeight = frame.height / 2 - 2
+//            let newHeight = collectionView.nframe.height / 2 - 2
+            let newHeight = collectionView.frame.height
             let newWidth = newHeight * aspectRatio
             return CGSize.init(width: newWidth, height: newHeight)
         }
@@ -113,9 +114,8 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         let content = UIImage.gif(url: sources[indexPath.item])
         cell.imageView.backgroundColor = UIColor.clear
         cell.imageView.image = content
-        print(cell.imageView.image)
-        
-        
+        cell.url = NSURL(string : sources[indexPath.item])
+      
         return cell
     }
     
@@ -128,7 +128,6 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
             print(original)
             let secured = "https\(original.substring(from: original.index(of: ":")!))"
             sources.append(secured)
-            
             
             let size = CGSize.init(width: gifPreview["dimensions"]["width"].intValue, height: gifPreview["dimensions"]["height"].intValue)
             sizes.append(size)
@@ -144,15 +143,19 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         if let text = searchBar.text {
             searchText = text
             fetchContent()
-            print("hey")
         }
-        searchBar.resignFirstResponder()
+        searchBar.endEditing(true)
     }
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        print("lakjflkadsj;fadklsfjadls;fklasdj")
-    }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    var viewController : ViewController?
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? GridCell
+        if let url = cell?.url {
+            viewController?.url = url
+        }
     }
 }

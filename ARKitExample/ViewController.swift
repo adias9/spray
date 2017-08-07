@@ -47,31 +47,33 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     var contentStackBotAnchor : NSLayoutConstraint?
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue, let constraint = contentStackBotAnchor{
-            
+        tapDismissContentStack?.isEnabled = false
+        tapDismissKeyboard?.isEnabled = true
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
+            print(keyboardSize)
+            if let constraint = contentStackBotAnchor {
             let topLeftPos = view.frame.height - contentStack.frame.origin.y
-            print(topLeftPos)
-            print(contentStack.frame.height)
             if topLeftPos == contentStack.frame.height{
-                 print("trying to execute -------------------------------------------------------")
-                 print(constraint.constant)
 //                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = false
 ////                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -keyboardSize.height).isActive = true
 //                self.stack.frame.origin.y -= keyboardSize.height
                 UIView.animate(withDuration: 1.5, animations: {
-                    constraint.constant = -keyboardSize.height
-                    print(keyboardSize.height)
-                    print(constraint.constant)
+//                    constraint.constant = -keyboardSize.height
+                    // TODO: SoftCode this
+                    constraint.constant = -226.0
                     self.view.layoutIfNeeded()
-                    print("it should be working ... ")
                 })
+            }
             }
         }
     }
     
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue, let constraint = contentStackBotAnchor{
+        tapDismissContentStack?.isEnabled = true
+        tapDismissKeyboard?.isEnabled = false
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
+            if let constraint = contentStackBotAnchor{
             let topLeftPos = view.frame.height - contentStack.frame.origin.y
             if topLeftPos != contentStack.frame.height{
 //                self.contentStack.frame.origin.y += keyboardSize.height
@@ -82,29 +84,75 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                     self.view.layoutIfNeeded()
                 })
             }
+            }
         }
     }
     
-    var contentStack = UIStackView()
+    enum ContentType {
+        case library
+        case meme
+        case gif
+        case sticker
+    }
+
+    let contentStack = UIStackView()
+    let libraryGrid = LibraryGrid()
+    let memeGrid = LibraryGrid()
+    let gifGrid = GifGrid()
+    let stickerGrid = LibraryGrid()
     func setupMenuBar() {
         let menuBar = MenuBar()
-        let grid = GifGrid()
+        menuBar.viewController = self
+        libraryGrid.viewController = self
+        memeGrid.viewController = self
+        gifGrid.viewController = self
+        stickerGrid.viewController = self
+        
+        let container = UIView()
+        container.addSubview(libraryGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: libraryGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: libraryGrid)
+        container.addSubview(memeGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: memeGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: memeGrid)
+        container.addSubview(gifGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: gifGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: gifGrid)
+        container.addSubview(stickerGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: stickerGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: stickerGrid)
+        
         contentStack.addArrangedSubview(menuBar)
-        contentStack.addArrangedSubview(grid)
+        contentStack.addArrangedSubview(container)
         
-        
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(contentStack)
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
         contentStackBotAnchor = contentStack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
         contentStackBotAnchor!.isActive = true
         contentStack.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         contentStack.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         contentStack.axis = .vertical
         contentStack.spacing = 0
+        
+        contentStack.isHidden = true
+    }
+    
+    func showGrid(type : ContentType) {
+        let grid = contentStack.subviews[1]
+        if type == .library {
+            grid.bringSubview(toFront: libraryGrid)
+        } else if type == .meme{
+            grid.bringSubview(toFront: memeGrid)
+        } else if type == .gif{
+            grid.bringSubview(toFront: gifGrid)
+        } else {
+            grid.bringSubview(toFront: stickerGrid)
+        }
     }
     
     func setupGestures() {
         // Delete - Tap gesture recognizer change
+        
         tapDelete = UITapGestureRecognizer(target: self, action:
             #selector(self.deleteNode(tap:)))
         view.addGestureRecognizer(tapDelete!)
@@ -126,9 +174,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         longPressDarken.minimumPressDuration = 0.2
         view.addGestureRecognizer(longPressDarken)
         longPressDarken.delegate = self
+        
+        // contentStack dismiss
+        tapDismissContentStack = UITapGestureRecognizer(target: self, action:
+            #selector(self.dismissContentStack(gestureRecognize:)))
+        view.addGestureRecognizer(tapDismissContentStack!)
+        tapDismissContentStack!.cancelsTouchesInView = false
+        
+        // Dismiss Keyboard
+        tapDismissKeyboard = UITapGestureRecognizer.init(target: self, action: #selector(dismissKeyboard(tap:)))
+        view.addGestureRecognizer(tapDismissKeyboard!)
+        tapDismissKeyboard?.isEnabled = false
     }
     
     // MARK: - Gesture Recognizers
+    var tapDismissKeyboard : UITapGestureRecognizer?
+    @objc func dismissKeyboard(tap: UITapGestureRecognizer) {
+        let grid = contentStack.arrangedSubviews[1]
+        grid.endEditing(true)
+    }
     
     // Adding Objects
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
@@ -146,6 +210,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                                         size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
              createNode(content: content)
         }
+//        //file:///var/mobile/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG
+//        let obj = NSURL(string: "/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG")
+//        let content = SKScene.makeSKSceneFromImage(url: obj!,
+//                                                   size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+//        createNode(content: content)
+        
         
     }
     
@@ -330,7 +400,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         return false
     }
     
-    
+//    var selectionMode : Bool = true
+//    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+//        print("lalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalala1")
+//        let safety = CGFloat(10.0)
+//        let point = gestureRecognizer.location(in: view)
+//        print(gestureRecognizer.name)
+//        if(gestureRecognizer is UITapGestureRecognizer && (point.y > (contentStack.frame.origin.y - safety)) && selectionMode) {
+//             print("lalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalalala2")
+//            return false
+//        }
+//        return true
+//    }
     
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
@@ -344,6 +425,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
 		session.pause()
 	}
 	
@@ -681,16 +764,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     
     // MARK: - Image Picker and Delegate
-    
+    var tapDismissContentStack : UITapGestureRecognizer?
     @IBAction func chooseObject(_ button: UIButton) {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.modalPresentationStyle = .popover
-        picker.popoverPresentationController?.delegate = self
-        self.present(picker, animated: true, completion: nil)
+        contentStack.isHidden = false
         
-        picker.popoverPresentationController?.sourceView = button
-        picker.popoverPresentationController?.sourceRect = button.bounds
+        tapAdd?.isEnabled = false
+        longPressDarken?.isEnabled = false
+        longPressDelete?.isEnabled = false
+    }
+    
+    @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
+        print("this is a freaking joke?")
+        let point = gestureRecognize.location(in: view)
+        let safety = CGFloat(10.0)
+        
+        if point.y < (contentStack.frame.origin.y - safety) {
+            tapAdd?.isEnabled = true
+            longPressDarken?.isEnabled = true
+            longPressDelete?.isEnabled = true
+            tapDismissContentStack?.isEnabled = false
+            
+            contentStack.isHidden = true
+        }
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -813,7 +908,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		
 		DispatchQueue.main.async {
 			self.restartExperienceButtonIsEnabled = false
-			
+            
 			self.textManager.cancelAllScheduledMessages()
 			self.textManager.dismissPresentedAlert()
 			self.textManager.showMessage("STARTING A NEW SESSION")

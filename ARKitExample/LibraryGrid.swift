@@ -66,18 +66,54 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         if fetchResult.count > 0 {
             manager.requestImage(for: fetchResult.object(at: fetchResult.count - 1 - indexPath.row) as PHAsset, targetSize: cell.frame.size, contentMode: .aspectFill, options: nil) { (image: UIImage?, info: [AnyHashable: Any]?) -> Void in
                 cell.imageView.image = image
+                self.getURL(ofPhotoWith: fetchResult.object(at: fetchResult.count - 1 - indexPath.row), completionHandler: { url in
+                    cell.url = url as NSURL?
+                })
             }
         }
         
         return cell
     }
     
+    var viewController : ViewController?
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? GridCell
+        if let url = cell?.url {
+            viewController?.url = url
+            print(url)
+        }
+    }
     
     func fetchContent(){}
+    
+    func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
+        
+        if mPhasset.mediaType == .image {
+            let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+            options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
+                return true
+            }
+            mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
+                completionHandler(contentEditingInput!.fullSizeImageURL)
+            })
+        } else if mPhasset.mediaType == .video {
+            let options: PHVideoRequestOptions = PHVideoRequestOptions()
+            options.version = .original
+            PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: { (asset, audioMix, info) in
+                if let urlAsset = asset as? AVURLAsset {
+                    let localVideoUrl = urlAsset.url
+                    completionHandler(localVideoUrl)
+                } else {
+                    completionHandler(nil)
+                }
+            })
+        }
+        
+    }
 }
 
 
@@ -90,6 +126,8 @@ class GridCell: BaseCell {
         
         return iv
     }()
+    
+    var url : NSURL?
     
     override func setupViews() {
         super.setupViews()

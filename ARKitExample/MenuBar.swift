@@ -21,10 +21,12 @@ class MenuBar: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UIC
         return cv
     }()
     let cellId = "cellId"
-     let imageNames = ["photo", "meme", "gif", "sticker"]
+    let imageNames = ["photo", "meme", "gif", "sticker"]
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        self.heightAnchor.constraint(equalToConstant: 32).isActive = true
         
         collectionView.register(MenuCell.self, forCellWithReuseIdentifier: cellId)
         
@@ -34,10 +36,11 @@ class MenuBar: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UIC
         
         let selectedIndexPath = IndexPath(item: 0, section: 0)
         collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: UICollectionViewScrollPosition())
-        
-        collectionView.heightAnchor.constraint(equalToConstant: 32).isActive = true
     }
     
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 4
+    }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! MenuCell
         
@@ -45,11 +48,22 @@ class MenuBar: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UIC
         cell.tintColor = UIColor.gray
         return cell
     }
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 4
-    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize.init(width: frame.width / 4, height: frame.height)
+    }
+    
+    // Handle Selection
+    var viewController : ViewController?
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if (indexPath.item == 0) {
+            viewController?.showGrid(type: .library)
+        } else if (indexPath.item == 1) {
+            viewController?.showGrid(type: .meme)
+        } else if (indexPath.item == 2) {
+            viewController?.showGrid(type: .gif)
+        } else  {
+            viewController?.showGrid(type: .sticker)
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -63,6 +77,10 @@ class MenuCell: BaseCell {
         let iv = UIImageView()
         return iv
     }()
+    
+    func setColor(color : UIColor) {
+        imageView.tintColor = color
+    }
     
     override var isHighlighted: Bool {
         didSet {
