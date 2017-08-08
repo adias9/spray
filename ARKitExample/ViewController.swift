@@ -14,7 +14,7 @@ import Photos
 import CoreLocation
 import MobileCoreServices
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
     var deleteMode: Bool = false
     var tapAdd: UITapGestureRecognizer?
@@ -70,8 +70,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
     
     func showContentStack() {
-        contentStack.isHidden = false
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            self.contentStack.transform = .identity
+            }, completion: nil)
+        
         configureGesturesForState(state: .selection)
+    }
+    
+    func hideContentStack() {
+        UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            self.contentStack.transform = CGAffineTransform(translationX: 0, y: self.view.frame.height)
+        }, completion: nil)
+        
+        configureGesturesForState(state: .view)
     }
     
     func showPreview() {
@@ -89,14 +100,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
         
         configureGesturesForState(state: .place)
-        contentStackButton.isEnabled = false
-        contentStackHitArea.isEnabled = false
+        showPlaceObjectButton(bool: false)
         preview.isHidden = false
     }
     func hidePreview() {
         preview.isHidden = true
-        contentStackButton.isEnabled = true
-        contentStackHitArea.isEnabled = true
+        showPlaceObjectButton(bool: true)
+    }
+    
+    func showPlaceObjectButton(bool : Bool) {
+        contentStackButton.isEnabled = bool
+        contentStackHitArea.isEnabled = bool
+        contentStackButton.isHidden = !bool
     }
     
     var contentStackBotAnchor : NSLayoutConstraint?
@@ -184,7 +199,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         contentStack.axis = .vertical
         contentStack.spacing = 0
         
-        contentStack.isHidden = true
+        contentStack.transform = CGAffineTransform(translationX: 0, y: view.frame.height)
     }
     func showGrid(type : ContentType) {
         let grid = contentStack.subviews[1]
@@ -865,20 +880,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
     @IBAction func chooseObject(_ button: UIButton) {
-        contentStack.isHidden = false
-        
-        configureGesturesForState(state: .selection)
+        showContentStack()
     }
     
     @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
-        print("this is a freaking joke?")
         let point = gestureRecognize.location(in: view)
         let safety = CGFloat(10.0)
         
         if point.y < (contentStack.frame.origin.y - safety) {
-            configureGesturesForState(state: .view)
-            
-            contentStack.isHidden = true
+            hideContentStack()
         }
     }
     
