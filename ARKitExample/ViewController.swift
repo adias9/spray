@@ -21,6 +21,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var tapDelete: UITapGestureRecognizer?
     var longPressDelete: UILongPressGestureRecognizer?
     var longPressDarken: UILongPressGestureRecognizer?
+    var tapPreviewToStack : UITapGestureRecognizer?
     var url: NSURL?
     lazy var stdLen: CGFloat = {
         let len = self.sceneView.bounds.height / 3000
@@ -61,8 +62,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         view.addConstraintsWithFormat("V:|-\(viewHeight - bottomMargin - previewHeight)-[v0]-\(bottomMargin)-|", views: preview)
         
         preview.isHidden = true
-        
+        preview.isUserInteractionEnabled = true
     }
+    @objc func previewToContentStack(gestureRecognize: UITapGestureRecognizer) {
+        hidePreview()
+        showContentStack()
+    }
+    
+    func showContentStack() {
+        contentStack.isHidden = false
+        configureGesturesForState(state: .selection)
+    }
+    
     func showPreview() {
         guard let content = self.content else {
             return
@@ -81,7 +92,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         contentStackButton.isEnabled = false
         contentStackHitArea.isEnabled = false
         preview.isHidden = false
-        
     }
     func hidePreview() {
         preview.isHidden = true
@@ -215,6 +225,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         tapDismissKeyboard = UITapGestureRecognizer.init(target: self, action: #selector(dismissKeyboard(tap:)))
         view.addGestureRecognizer(tapDismissKeyboard!)
         tapDismissKeyboard?.isEnabled = false
+        
+        tapPreviewToStack = UITapGestureRecognizer(target: self, action:
+            #selector(self.previewToContentStack(gestureRecognize:)))
+        preview.addGestureRecognizer(tapPreviewToStack!)
+        
         
         configureGesturesForState(state: .view)
     }
@@ -804,6 +819,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             tapDelete?.isEnabled = false
             tapDismissContentStack?.isEnabled = false
             tapDismissKeyboard?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
         } else if state == .selection {
             tapDismissContentStack?.isEnabled = true
             
@@ -812,10 +828,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             tapAdd?.isEnabled = false
             tapDelete?.isEnabled = false
             tapDismissKeyboard?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
         } else if state == .place {
             tapAdd?.isEnabled = true
             longPressDarken?.isEnabled = true
             longPressDelete?.isEnabled = true
+            tapPreviewToStack?.isEnabled = true
             
             tapDismissContentStack?.isEnabled = false
             tapDelete?.isEnabled = false
@@ -828,6 +846,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false
             tapDelete?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
         } else if state == .delete {
             tapDelete?.isEnabled = true
             
@@ -836,6 +855,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             tapDismissContentStack?.isEnabled = false
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
         }
     }
     @IBOutlet weak var contentStackHitArea: UIButton!
