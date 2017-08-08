@@ -208,6 +208,8 @@
                     </view>
                     <connections>
                         <outlet property="addObjectButton" destination="xcf-ic-uGo" id="uFa-W2-4Iu"/>
+                        <outlet property="contentStackButton" destination="xcf-ic-uGo" id="GUT-9S-bUF"/>
+                        <outlet property="contentStackHitArea" destination="SPB-Sb-hjO" id="kFg-Mx-mG6"/>
                         <outlet property="debugMessageLabel" destination="Cxm-GD-h1F" id="0BW-FJ-xmR"/>
                         <outlet property="featurePointCountLabel" destination="2ZI-fK-iax" id="wpJ-fJ-Kn2"/>
                         <outlet property="messageLabel" destination="Mqz-65-rAs" id="G3a-qn-5g9"/>

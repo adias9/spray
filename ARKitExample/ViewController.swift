@@ -18,7 +18,7 @@ import FirebaseDatabase
 import FirebaseStorage
 import MobileCoreServices
 
-class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
     var locationManager = CLLocationManager()
     var rootNodeLocation = CLLocation()
@@ -30,8 +30,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var tapDelete: UITapGestureRecognizer?
     var longPressDelete: UILongPressGestureRecognizer?
     var longPressDarken: UILongPressGestureRecognizer?
-    var stdLen: CGFloat?
-    var url: NSURL?
+    var tapPreviewToStack : UITapGestureRecognizer?
+    var content : Content?
+    lazy var stdLen: CGFloat = {
+        let len = self.sceneView.bounds.height / 3000
+        return len
+    }()
 
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -43,53 +47,236 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         setupUIControls()
         setupLocationSettings()
 		updateSettings()
-        resetVirtualObject()
+		resetVirtualObject()
+        setupMenuBar()
+        setupGestures()
+        setupPreview()
 
-        // Set StdLen
-        stdLen = sceneView.bounds.height / 3000
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
 
-        // Delete - Tap gesture recognizer change
+    let preview = UIImageView()
+    func setupPreview() {
+        preview.backgroundColor = UIColor.black
+        view.addSubview(preview)
+
+        let viewWidth = view.frame.width
+        let viewHeight = view.frame.height
+        let previewWidth = CGFloat(80)
+        let previewHeight = CGFloat(80 )
+        let bottomMargin = CGFloat(15)
+
+        view.addConstraintsWithFormat("H:|-\((viewWidth - previewWidth)/2)-[v0]-\((viewWidth - previewWidth)/2)-|", views: preview)
+        view.addConstraintsWithFormat("V:|-\(viewHeight - bottomMargin - previewHeight)-[v0]-\(bottomMargin)-|", views: preview)
+
+        preview.isHidden = true
+        preview.isUserInteractionEnabled = true
+    }
+    @objc func previewToContentStack(gestureRecognize: UITapGestureRecognizer) {
+        hidePreview()
+        showContentStack()
+    }
+
+    func showContentStack() {
+        contentStack.isHidden = false
+        configureGesturesForState(state: .selection)
+    }
+
+    func showPreview() {
+        guard let content = self.content else {
+            return
+        }
+        if content.type == .gif {
+            if let data = content.data {
+                preview.image = UIImage.gif(data: data)
+            }
+        } else {
+            if let data = content.data {
+                preview.image = UIImage(data: data)
+            }
+        }
+
+        configureGesturesForState(state: .place)
+        contentStackButton.isEnabled = false
+        contentStackHitArea.isEnabled = false
+        preview.isHidden = false
+    }
+    func hidePreview() {
+        preview.isHidden = true
+        contentStackButton.isEnabled = true
+        contentStackHitArea.isEnabled = true
+    }
+
+    var contentStackBotAnchor : NSLayoutConstraint?
+    @objc func keyboardWillShow(notification: NSNotification) {
+        configureGesturesForState(state: .keyboard)
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
+            print(keyboardSize)
+            if let constraint = contentStackBotAnchor {
+            let topLeftPos = view.frame.height - contentStack.frame.origin.y
+            if topLeftPos == contentStack.frame.height{
+//                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = false
+////                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -keyboardSize.height).isActive = true
+//                self.stack.frame.origin.y -= keyboardSize.height
+                UIView.animate(withDuration: 1.5, animations: {
+//                    constraint.constant = -keyboardSize.height
+                    // TODO: SoftCode this
+                    constraint.constant = -226.0
+                    self.view.layoutIfNeeded()
+                })
+            }
+            }
+        }
+    }
+    @objc func keyboardWillHide(notification: NSNotification) {
+        configureGesturesForState(state: .selection)
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
+            if let constraint = contentStackBotAnchor{
+            let topLeftPos = view.frame.height - contentStack.frame.origin.y
+            if topLeftPos != contentStack.frame.height{
+//                self.contentStack.frame.origin.y += keyboardSize.height
+////                stack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -keyboardSize.height).isActive = false
+//                contentStack.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+                UIView.animate(withDuration: 1.5, animations: {
+                    constraint.constant = 0
+                    self.view.layoutIfNeeded()
+                })
+            }
+            }
+        }
+    }
+
+    enum ContentType {
+        case library
+        case meme
+        case gif
+        case sticker
+    }
+
+    let contentStack = UIStackView()
+    let libraryGrid = LibraryGrid()
+    let memeGrid = LibraryGrid()
+    let gifGrid = GifGrid()
+    let stickerGrid = LibraryGrid()
+    func setupMenuBar() {
+        let menuBar = MenuBar()
+        menuBar.viewController = self
+        libraryGrid.viewController = self
+        memeGrid.viewController = self
+        gifGrid.viewController = self
+        stickerGrid.viewController = self
+
+        let container = UIView()
+        container.addSubview(libraryGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: libraryGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: libraryGrid)
+        container.addSubview(memeGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: memeGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: memeGrid)
+        container.addSubview(gifGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: gifGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: gifGrid)
+        container.addSubview(stickerGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: stickerGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: stickerGrid)
+
+        contentStack.addArrangedSubview(menuBar)
+        contentStack.addArrangedSubview(container)
+
+        view.addSubview(contentStack)
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        contentStackBotAnchor = contentStack.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+        contentStackBotAnchor!.isActive = true
+        contentStack.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        contentStack.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        contentStack.axis = .vertical
+        contentStack.spacing = 0
+
+        contentStack.isHidden = true
+    }
+    func showGrid(type : ContentType) {
+        let grid = contentStack.subviews[1]
+        if type == .library {
+            grid.bringSubview(toFront: libraryGrid)
+        } else if type == .meme{
+            grid.bringSubview(toFront: memeGrid)
+        } else if type == .gif{
+            grid.bringSubview(toFront: gifGrid)
+        } else {
+            grid.bringSubview(toFront: stickerGrid)
+        }
+    }
+
+    func setupGestures() {
         tapDelete = UITapGestureRecognizer(target: self, action:
             #selector(self.deleteNode(tap:)))
         view.addGestureRecognizer(tapDelete!)
-        tapDelete!.isEnabled = false
 
-        // Tap to add Gesture using placeObject()
         tapAdd = UITapGestureRecognizer(target: self, action:
             #selector(self.placeObject(gestureRecognize:)))
         view.addGestureRecognizer(tapAdd!)
 
+        longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
+        longPressDelete!.minimumPressDuration = 1.5 //*undarken
+        view.addGestureRecognizer(longPressDelete!)
+        longPressDelete!.delegate = self
 
-        // Set Long Pess Gesture to delete using deleteObject
-        let longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
-        longPressDelete.minimumPressDuration = 1.5 //*undarken
-        view.addGestureRecognizer(longPressDelete)
-        longPressDelete.delegate = self
+        longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
+        longPressDarken!.minimumPressDuration = 0.2
+        view.addGestureRecognizer(longPressDarken!)
+        longPressDarken!.delegate = self
 
-        let longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
-        longPressDarken.minimumPressDuration = 0.2
-        view.addGestureRecognizer(longPressDarken)
-        longPressDarken.delegate = self
+        tapDismissContentStack = UITapGestureRecognizer(target: self, action: #selector(self.dismissContentStack(gestureRecognize:)))
+        view.addGestureRecognizer(tapDismissContentStack!)
+        tapDismissContentStack!.cancelsTouchesInView = false
+
+        tapDismissKeyboard = UITapGestureRecognizer.init(target: self, action: #selector(dismissKeyboard(tap:)))
+        view.addGestureRecognizer(tapDismissKeyboard!)
+        tapDismissKeyboard?.isEnabled = false
+
+        tapPreviewToStack = UITapGestureRecognizer(target: self, action:
+            #selector(self.previewToContentStack(gestureRecognize:)))
+        preview.addGestureRecognizer(tapPreviewToStack!)
+
+
+        configureGesturesForState(state: .view)
     }
 
     // MARK: - Gesture Recognizers
+    var tapDismissKeyboard : UITapGestureRecognizer?
+    @objc func dismissKeyboard(tap: UITapGestureRecognizer) {
+        let grid = contentStack.arrangedSubviews[1]
+        grid.endEditing(true)
+    }
 
     // Adding Objects
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
-        guard let obj = url else {
+        guard let obj = content else {
             textManager.showMessage("Please select an output!!")
             return
         }
 
         // Set content
-        if (NSURL.ifGif(url: obj)) { // content is gif
-            let content = SKScene.makeSKSceneFromGif(url: obj, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+        if (obj.type == .gif) { // content is gif
+            guard let data = obj.data else {return}
+            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
             createNode(content: content)
         } else { // content is picture
-            let content = SKScene.makeSKSceneFromImage(url: obj,
+            guard let data = obj.data else {return}
+            let content = SKScene.makeSKSceneFromImage(data: data,
                                                         size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
              createNode(content: content)
         }
+
+        // ----------------------------------------------------------------------------------------------------
+
+//        //file:///var/mobile/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG
+//        let obj = NSURL(string: "assets-library://asset/asset.JPG?id=EA05C3C1-0FE4-43B9-8A10-2AE932CDDE4D&ext=JPG")
+//        let content = SKScene.makeSKSceneFromImage(url: obj!,
+//                                                   size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+//        createNode(content: content)
+
 
     }
 
@@ -99,7 +286,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
         // Image Plane
 
-        let imagePlane = SCNPlane(width: stdLen!, height: stdLen!)
+        let imagePlane = SCNPlane(width: stdLen, height: stdLen)
         imagePlane.firstMaterial?.lightingModel = .constant
         imagePlane.firstMaterial?.diffuse.contents = content
         // Flip content horizontally
@@ -127,11 +314,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         // MARK: Andreas's Code
 
         // Save Node and Pictures to Database
-        guard let data = try? Data(contentsOf: url! as URL) else {
-            print("Error downcasting to URL")
-            return
-        }
-
+        let data = self.content!.data!
+        
         var databaseRef: DatabaseReference!
         databaseRef = Database.database().reference()
 
@@ -261,7 +445,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             }
         }
 
-        // TODO: find a more elegant solution to opt out of darken when user release before initiateDeletion(). Right now, minimum duration for longPressDelete needs to be 1.5 for things to work. comments with //*undarken are related to this
         if shortPress.state == UIGestureRecognizerState.ended{
             if !longPressDeleteFired {
                 let point = shortPress.location(in: view)
@@ -295,14 +478,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 skScene.addChild(delete)
 
 
-                // Disable tapAdd recognizer
-                tapAdd!.isEnabled = false
+                configureGesturesForState(state: .delete)
 
                 // Delete - Tap gesture recognizer change
-                tapDelete = UITapGestureRecognizer(target: self, action:
-                    #selector(self.deleteNode(tap:)))
+//                tapDelete = UITapGestureRecognizer(target: self, action:
+//                    #selector(self.deleteNode(tap:)))
                 target = result.node
-                view.addGestureRecognizer(tapDelete!)
+//                view.addGestureRecognizer(tapDelete!)
 
                 // Vibrate phone
                 AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
@@ -333,42 +515,38 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let point = tap.location(in: view)
         skScene.view?.hitTest(point, with: nil)
 
-        // Debug
-//        print("Point Location: \(point)")
-//        print("Delete Button Location: \(deleteButton?.position)")
-//        print("SKScene SIZE: \(skScene.frame)")
-//        print("SCNPlane SIZE: \((node.geometry as! SCNPlane).width) x \((node.geometry as! SCNPlane).height)")
-
         let scnHitTestResults = sceneView.hitTest(point, options: nil)
         if let result = scnHitTestResults.first {
-//            print("Point on Plane: \(result.localCoordinates)")
 
             let currentNode = result.node
             if (currentNode == node && deleteIsClicked(localCoordinates: result.localCoordinates)){
                 deleteButton?.removeFromParent()
                 currentNode.removeFromParentNode()
-                tapDelete!.isEnabled = false
-                tapAdd!.isEnabled = true
+                if preview.isHidden {
+                    configureGesturesForState(state: .view)
+                } else {
+                    configureGesturesForState(state: .place)
+                }
 
                 longPressDeleteFired = false
-                
+
                 // MARK: Andreas' code to delete a node from db
-                
+
                 let nodeID : String = currentNode.name!
                 print("Node Id: \(nodeID)")
-                
+
                 // Code to remove node from db
                 let storageRef = Storage.storage().reference()
                 let databaseRef = Database.database().reference()
                 let outsideGroup = DispatchGroup()
-                
+
                 //access node
                 databaseRef.child("/nodes/\(nodeID)/").observeSingleEvent(of: .value, with: { (snapshot) in
                     if snapshot.exists() {
                         outsideGroup.enter()
                         // remove node from root
                         let nodeDict = snapshot.value as! NSDictionary
-                        
+
                         var rootID : String = ""
                         var userID : String = ""
                         var picID : String = ""
@@ -385,7 +563,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                             } else {
                             }
                         }
-                        
+
                         databaseRef.child("/roots/\(rootID)").observeSingleEvent(of: .value, with: { (snapshot) in
                             let rootDict = snapshot.value as! NSDictionary
                             var dbNodes : NSDictionary = ["":true]
@@ -397,9 +575,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                     dbRadius = value as! Double
                                 }
                             }
-                            
+
                             let group = DispatchGroup()
-                            
+
                             // Update the radius of the root
                             if dbNodes.count == 1 {
                                 databaseRef.child("/roots/\(rootID)/radius").setValue(0.0)
@@ -407,12 +585,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                 // Don't need to change the radius if this node is not the max radius
                             } else {
                                 var nodeRadius = 0.0
-                                
+
                                 for (nodeID,_) in dbNodes {
                                     group.enter()
                                     databaseRef.child("/nodes/\(nodeID)").observeSingleEvent(of: .value, with: { (snapshot) in
                                         let allNodesDict = snapshot.value as! NSDictionary
-                                        
+
                                         var givenNodeDist : Double = 0.0
                                         for (key, value) in allNodesDict {
                                             if (key as? String == "distance") {
@@ -431,7 +609,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                     databaseRef.child("/roots/\(rootID)/radius").setValue(nodeRadius)
                                 }
                             }
-                            
+
                             // remove the node from the root
                             databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error,_  in
                                 if error != nil {
@@ -439,21 +617,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                 }
                             }
                         })
-                        
+
                         // remove node from user
                         databaseRef.child("/users/\(userID)/lastPicture").removeValue { error,_ in
                             if error != nil {
                                 print("error \(error!)")
                             }
                         }
-                        
+
                         // remove pic
                         databaseRef.child("/pictures/\(picID)").removeValue { error,_ in
                             if error != nil {
                                 print("error \(error!)")
                             }
                         }
-                        
+
                         // remove pic from storage
                         let picRef = storageRef.child("/pictures/").child(picID)
                         picRef.delete { error in
@@ -464,7 +642,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                             }
                         }
                         outsideGroup.leave()
-                        
+
                         outsideGroup.notify(queue: .main) {
                             // remove node
                             databaseRef.child("/nodes/\(nodeID)").removeValue { error,_ in
@@ -482,8 +660,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             } else {
                 // Cancel deletion process if user taps out
                 deleteButton?.removeFromParent()
-                tapDelete!.isEnabled = false
-                tapAdd!.isEnabled = true
+                if preview.isHidden {
+                    configureGesturesForState(state: .view)
+                } else {
+                    configureGesturesForState(state: .place)
+                }
                 // Undarken
                 let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
                 skScene.childNode(withName: "content")?.run(undarken)
@@ -492,8 +673,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         } else {
             // Cancel deletion process if user taps out
             deleteButton?.removeFromParent()
-            tapDelete!.isEnabled = false
-            tapAdd!.isEnabled = true
+            if preview.isHidden {
+                configureGesturesForState(state: .view)
+            } else {
+                configureGesturesForState(state: .place)
+            }
             // Undarken
             let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
             skScene.childNode(withName: "content")?.run(undarken)
@@ -505,10 +689,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let x = CGFloat(localCoordinates.x)
         let y = CGFloat(localCoordinates.y)
 
-        print("input x: \(x) , comparision range \(stdLen! * 0.3) to \(stdLen! * 0.5)")
-        print("input y: \(y) , comparision range \(stdLen!*0.5) to \(stdLen!/2)")
+        print("input x: \(x) , comparision range \(stdLen * 0.3) to \(stdLen * 0.5)")
+        print("input y: \(y) , comparision range \(stdLen*0.5) to \(stdLen/2)")
 
-        if (x > (stdLen! * 0.3) && x < (stdLen! * 0.5) && y > (stdLen! * 0.3) && (y < stdLen! / 0.5)){
+        if (x > (stdLen * 0.3) && x < (stdLen * 0.5) && y > (stdLen * 0.3) && (y < stdLen / 0.5)){
              return true
         }
         return false
@@ -544,7 +728,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         session.pause()
 
         // Remove Auth Listener for User Sign in State
@@ -627,16 +812,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     private func getRadiansFrom(degrees: Double) -> Double {
         return degrees * .pi / 180
     }
-    
+
     private func getMagnitudeOf() {
-        
+
     }
 
     private func getSCNVectorComponentsBetween(currLocation: CLLocation, prevLocation: CLLocation) -> (Double, Double, Double) {
-        
+
         let distance = currLocation.distance(from: prevLocation)
         let altitude = currLocation.altitude - prevLocation.altitude
-        
+
         let lat1 = self.getRadiansFrom(degrees: currLocation.coordinate.latitude)
         let lon1 = self.getRadiansFrom(degrees: currLocation.coordinate.longitude)
 
@@ -648,10 +833,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let y = sin(dLon) * cos(lat2)
         let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
         let radiansBearing = atan2(y, x)
-        
+
         let xcom = distance * cos(radiansBearing)
         let ycom = distance * sin(radiansBearing)
-        
+
         let zcom = currLocation.altitude - prevLocation.altitude
 
         return (xcom, zcom, ycom)
@@ -731,9 +916,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                     print("I'm within 20 meters")
                                     do {
                                         let prevRootNode = SCNNode()
-                                        
+
                                         let group = DispatchGroup()
-                                        
+
                                         for (nodeID, _) in dbNodes {
                                             group.enter()
                                             print("got in node loop with nodeID: \(nodeID)")
@@ -756,16 +941,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                                         }
                                                     }
 
-                                                    
+
                                                     let picRef = databaseRef.child("/pictures/\(dbNodePicture)/url")
                                                     picRef.observeSingleEvent(of: .value, with :{ (snapshot) in
                                                         if snapshot.exists() {
-                                                            let imagePlane = SCNPlane(width: self.stdLen!, height: self.stdLen!)
+                                                            let imagePlane = SCNPlane(width: self.stdLen, height: self.stdLen)
                                                             let picUrl = snapshot.valueInExportFormat() as! String
 
                                                             // initialize this correctly and make sure of corner cases
                                                             var skimage = SKScene()
-                                                            
+
                                                             do {
                                                                 let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
                                                                 if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
@@ -778,16 +963,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                                             } catch {
                                                                 print("Error in converting picurl to NSData")
                                                             }
-                                                            
+
                                                             imagePlane.firstMaterial?.diffuse.contents = skimage
                                                             imagePlane.firstMaterial?.lightingModel = .constant
                                                             imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
                                                             imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
                                                             imagePlane.firstMaterial?.isDoubleSided = true
-                                                            
+
                                                             let childNode = SCNNode(geometry: imagePlane)
                                                             var transformArray : simd_float4x4
-                                                            
+
                                                             var columns = [float4].init()
                                                             for key in 0...3 {
                                                                 let tempDict = dbNodeTransformDict.value(forKey: "\(key)") as! NSDictionary
@@ -1230,27 +1415,84 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
 
+    enum State {
+        case view
+        case selection
+        case delete
+        case place
+        case keyboard
+    }
+
+    func configureGesturesForState(state : State) {
+        if state == .view {
+            longPressDarken?.isEnabled = true
+            longPressDelete?.isEnabled = true
+
+            tapAdd?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            tapDismissKeyboard?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
+        } else if state == .selection {
+            tapDismissContentStack?.isEnabled = true
+
+            longPressDarken?.isEnabled = false
+            longPressDelete?.isEnabled = false
+            tapAdd?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapDismissKeyboard?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
+        } else if state == .place {
+            tapAdd?.isEnabled = true
+            longPressDarken?.isEnabled = true
+            longPressDelete?.isEnabled = true
+            tapPreviewToStack?.isEnabled = true
+
+            tapDismissContentStack?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapDismissKeyboard?.isEnabled = false
+        } else if state == .keyboard {
+            tapDismissKeyboard?.isEnabled = true
+
+            tapAdd?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            longPressDarken?.isEnabled = false
+            longPressDelete?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
+        } else if state == .delete {
+            tapDelete?.isEnabled = true
+
+            tapDismissKeyboard?.isEnabled = false
+            tapAdd?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            longPressDarken?.isEnabled = false
+            longPressDelete?.isEnabled = false
+            tapPreviewToStack?.isEnabled = false
+        }
+    }
+    @IBOutlet weak var contentStackHitArea: UIButton!
+
+    @IBOutlet weak var contentStackButton: UIButton!
 
     // MARK: - Image Picker and Delegate
-
+    var tapDismissContentStack : UITapGestureRecognizer?
     @IBAction func chooseObject(_ button: UIButton) {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.modalPresentationStyle = .popover
-        picker.popoverPresentationController?.delegate = self
-        self.present(picker, animated: true, completion: nil)
+        contentStack.isHidden = false
 
-        picker.popoverPresentationController?.sourceView = button
-        picker.popoverPresentationController?.sourceRect = button.bounds
+        configureGesturesForState(state: .selection)
     }
 
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        url = info[UIImagePickerControllerImageURL] as? NSURL
-        self.dismiss(animated: true, completion: nil)
-    }
+    @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
+        print("this is a freaking joke?")
+        let point = gestureRecognize.location(in: view)
+        let safety = CGFloat(10.0)
 
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.dismiss(animated: true, completion: nil)
+        if point.y < (contentStack.frame.origin.y - safety) {
+            configureGesturesForState(state: .view)
+
+            contentStack.isHidden = true
+        }
     }
 
 
@@ -1345,29 +1587,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         textManager = TextManager(viewController: self)
 
         // hide debug message view
-        debugMessageLabel.isHidden = true
+		debugMessageLabel.isHidden = true
 
-        featurePointCountLabel.text = ""
-        debugMessageLabel.text = ""
-        messageLabel.text = ""
+		featurePointCountLabel.text = ""
+		debugMessageLabel.text = ""
+		messageLabel.text = ""
     }
 
-    @IBOutlet weak var restartExperienceButton: UIButton!
-    var restartExperienceButtonIsEnabled = true
+	@IBOutlet weak var restartExperienceButton: UIButton!
+	var restartExperienceButtonIsEnabled = true
 
-    @IBAction func restartExperience(_ sender: Any) {
+	@IBAction func restartExperience(_ sender: Any) {
 
-        guard restartExperienceButtonIsEnabled, !isLoadingObject else {
-            return
-        }
+		guard restartExperienceButtonIsEnabled, !isLoadingObject else {
+			return
+		}
 
-        DispatchQueue.main.async {
-            self.restartExperienceButtonIsEnabled = false
+		DispatchQueue.main.async {
+			self.restartExperienceButtonIsEnabled = false
 
-            self.textManager.cancelAllScheduledMessages()
-            self.textManager.dismissPresentedAlert()
-            self.textManager.showMessage("STARTING A NEW SESSION")
-            self.use3DOFTracking = false
+			self.textManager.cancelAllScheduledMessages()
+			self.textManager.dismissPresentedAlert()
+			self.textManager.showMessage("STARTING A NEW SESSION")
+			self.use3DOFTracking = false
 
             self.resetVirtualObject()
 			self.restartPlaneDetection()

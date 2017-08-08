@@ -21,10 +21,17 @@
 		59292F8EEC3432BFBD2D18B6 /* Pods_ARKitExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */; };
 		6A11FFB01F199A430042F4F6 /* ImagePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A11FFAF1F199A430042F4F6 /* ImagePickerViewController.swift */; };
 		6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A25DA4D1F159D3F00DD7AFC /* Location.swift */; };
+		6A3F5A271F3242860013A67D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3F5A261F3242860013A67D /* Extensions.swift */; };
+		6A3F5A2D1F3244DA0013A67D /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */; };
 		6A61055C1F2A5597009C852E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A61055B1F2A5589009C852E /* AudioToolbox.framework */; };
 		6A6159361F105E7200715603 /* Picture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6159351F105E7200715603 /* Picture.swift */; };
 		6A6159AE1F1540B800715603 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A6159AD1F1540AC00715603 /* CoreLocation.framework */; };
 		6AB764D01F1C2AEA002975A7 /* UIImage+Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AB764CF1F1C2AEA002975A7 /* UIImage+Gif.swift */; };
+		6ABA875A1F38EDEA00D7782C /* Content.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABA87591F38EDEA00D7782C /* Content.swift */; };
+		6AD086991F3273110035B6BC /* LibraryGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD086981F3273110035B6BC /* LibraryGrid.swift */; };
+		6AD0869E1F339FC10035B6BC /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AD0869D1F339FC10035B6BC /* SwiftyJSON.framework */; };
+		6AD0869F1F33BF310035B6BC /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AD0869B1F338BFF0035B6BC /* Alamofire.framework */; };
+		6AD086A11F33E1210035B6BC /* GifGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD086A01F33E1210035B6BC /* GifGrid.swift */; };
 		B99B4D871F23EADD004324BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B99B4D861F23EADD004324BC /* GoogleService-Info.plist */; };
 		C41366B91EB80DD400EC054A /* TextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41366B81EB80DD400EC054A /* TextManager.swift */; };
 		C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */; };
@@ -48,11 +55,18 @@
 		65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ARKitExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A11FFAF1F199A430042F4F6 /* ImagePickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewController.swift; sourceTree = "<group>"; };
 		6A25DA4D1F159D3F00DD7AFC /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
+		6A3F5A261F3242860013A67D /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
 		6A61055B1F2A5589009C852E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		6A6159351F105E7200715603 /* Picture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Picture.swift; sourceTree = "<group>"; };
 		6A6159AD1F1540AC00715603 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		6AB764CC1F1C2A42002975A7 /* UIImage+Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIImage+Gif.swift"; path = "Carthage/Checkouts/SwiftGif/SwiftGifCommon/UIImage+Gif.swift"; sourceTree = SOURCE_ROOT; };
 		6AB764CF1F1C2AEA002975A7 /* UIImage+Gif.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Gif.swift"; sourceTree = "<group>"; };
+		6ABA87591F38EDEA00D7782C /* Content.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Content.swift; sourceTree = "<group>"; };
+		6AD086981F3273110035B6BC /* LibraryGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryGrid.swift; sourceTree = "<group>"; };
+		6AD0869B1F338BFF0035B6BC /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../Library/Developer/Xcode/DerivedData/ARKitExample-gcladahytrxtuzgdrkqbdipyvwtm/Build/Products/Debug-iphoneos/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
+		6AD0869D1F339FC10035B6BC /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "../../Library/Developer/Xcode/DerivedData/ARKitExample-gcladahytrxtuzgdrkqbdipyvwtm/Build/Products/Debug-iphoneos/SwiftyJSON/SwiftyJSON.framework"; sourceTree = "<group>"; };
+		6AD086A01F33E1210035B6BC /* GifGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifGrid.swift; sourceTree = "<group>"; };
 		6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.debug.xcconfig"; sourceTree = "<group>"; };
 		B90A8E131F2BCE7B00064CDA /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
 		B99B4D861F23EADD004324BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -67,6 +81,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AD0869F1F33BF310035B6BC /* Alamofire.framework in Frameworks */,
+				6AD0869E1F339FC10035B6BC /* SwiftyJSON.framework in Frameworks */,
 				6A61055C1F2A5597009C852E /* AudioToolbox.framework in Frameworks */,
 				6A6159AE1F1540B800715603 /* CoreLocation.framework in Frameworks */,
 				59292F8EEC3432BFBD2D18B6 /* Pods_ARKitExample.framework in Frameworks */,
@@ -111,14 +127,15 @@
 		3929C48A1E89EC2C00E00B60 /* ARKitExample */ = {
 			isa = PBXGroup;
 			children = (
-				6AB764CF1F1C2AEA002975A7 /* UIImage+Gif.swift */,
-				6A6159351F105E7200715603 /* Picture.swift */,
+				6A3F5A2A1F3244160013A67D /* Modal */,
+				6A3F5A281F3243B40013A67D /* View */,
+				6A3F5A291F3243C40013A67D /* Controller */,
 				6A25DA4D1F159D3F00DD7AFC /* Location.swift */,
 				3929C48B1E89EC2C00E00B60 /* AppDelegate.swift */,
-				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
+				6A3F5A2B1F3244240013A67D /* Helper */,
 				113B64D01ECA81CA0071CBD1 /* UI Elements */,
-				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
 				C41366B81EB80DD400EC054A /* TextManager.swift */,
+				6A6159351F105E7200715603 /* Picture.swift */,
 				C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */,
 				39C0B9581E9C6B1F003FCA0C /* Utilities.swift */,
 				B90A8E131F2BCE7B00064CDA /* delete.png */,
@@ -142,6 +159,42 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		6A3F5A281F3243B40013A67D /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */,
+				6AD086981F3273110035B6BC /* LibraryGrid.swift */,
+				6AD086A01F33E1210035B6BC /* GifGrid.swift */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		6A3F5A291F3243C40013A67D /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
+				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		6A3F5A2A1F3244160013A67D /* Modal */ = {
+			isa = PBXGroup;
+			children = (
+				6ABA87591F38EDEA00D7782C /* Content.swift */,
+			);
+			name = Modal;
+			sourceTree = "<group>";
+		};
+		6A3F5A2B1F3244240013A67D /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				6AB764CF1F1C2AEA002975A7 /* UIImage+Gif.swift */,
+				6A3F5A261F3242860013A67D /* Extensions.swift */,
+			);
+			name = Helper;
+			sourceTree = "<group>";
+		};
 		9C8A8E986AF37F2203F141AB /* LICENSE */ = {
 			isa = PBXGroup;
 			children = (
@@ -160,6 +213,8 @@
 		E23A930AB9F74D4889073628 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6AD0869D1F339FC10035B6BC /* SwiftyJSON.framework */,
+				6AD0869B1F338BFF0035B6BC /* Alamofire.framework */,
 				6A61055B1F2A5589009C852E /* AudioToolbox.framework */,
 				6A6159AD1F1540AC00715603 /* CoreLocation.framework */,
 				65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */,
@@ -299,14 +354,19 @@
 				C41366B91EB80DD400EC054A /* TextManager.swift in Sources */,
 				39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */,
 				6AB764D01F1C2AEA002975A7 /* UIImage+Gif.swift in Sources */,
+				6ABA875A1F38EDEA00D7782C /* Content.swift in Sources */,
 				392BB82C1EA19A7C00FBBAC8 /* Plane.swift in Sources */,
 				6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */,
 				6A11FFB01F199A430042F4F6 /* ImagePickerViewController.swift in Sources */,
+				6AD086A11F33E1210035B6BC /* GifGrid.swift in Sources */,
 				39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */,
 				39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */,
+				6AD086991F3273110035B6BC /* LibraryGrid.swift in Sources */,
 				6A6159361F105E7200715603 /* Picture.swift in Sources */,
 				3929C48C1E89EC2C00E00B60 /* AppDelegate.swift in Sources */,
 				C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */,
+				6A3F5A271F3242860013A67D /* Extensions.swift in Sources */,
+				6A3F5A2D1F3244DA0013A67D /* MenuBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

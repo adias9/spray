@@ -378,37 +378,21 @@ extension SKScene {
         return skScene
     }
     
-    public class func makeSKSceneFromImage(url: NSURL, size: CGSize) -> SKScene {
-        let skScene = SKScene(size: size)
-        guard let imageData = try? Data(contentsOf: url as URL) else {
-            return SKScene() // Tweak for error handling
-        }
-        let image = UIImage.init(data: imageData)
-        
-        // Create Image Node
-        let texture = SKTexture.init(image: image!.fixOrientation()!)
-        let imageNode = SKSpriteNode.init(texture: texture)
-        imageNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
-        imageNode.size = size
-        imageNode.name = "content"
-        skScene.addChild(imageNode)
-        
-        // Create Name Tag
-        let nameTag = createNameTag(name: "username")
-        skScene.addChild(nameTag)
-        
-        
-        return skScene
+    public class func makeSKSceneFromImage(data: Data, size: CGSize) -> SKScene {
+        guard let image = UIImage.init(data: data) else {return SKScene()}
+        return makeSKSceneFromImage(image: image, size: size)
     }
     
-    public class func makeSKSceneFromGif(url: NSURL, size: CGSize) -> SKScene {
+    public class func makeSKSceneFromImage(url: NSURL, size: CGSize) -> SKScene {
+        guard let data = try? Data(contentsOf: url as URL) else {return SKScene()}
+        return makeSKSceneFromImage(data: data, size: size)
+    }
+    
+    public class func makeSKSceneFromGif(data: Data, size: CGSize) -> SKScene {
         let skScene = SKScene(size: size)
         
         // Extract frames and duration
-        guard let imageData = try? Data(contentsOf: url as URL) else {
-            return SKScene() // Tweak for error handling
-        }
-        let source = CGImageSourceCreateWithData(imageData as CFData, nil)
+        let source = CGImageSourceCreateWithData(data as CFData, nil)
         var images = [CGImage]()
         let count = CGImageSourceGetCount(source!)
         var delays = [Int]()
@@ -469,6 +453,13 @@ extension SKScene {
         
         
         return skScene
+    }
+    
+     public class func makeSKSceneFromGif(url: NSURL, size: CGSize) -> SKScene {
+        guard let data = try? Data(contentsOf: url as URL) else {
+            return SKScene()
+        }
+        return makeSKSceneFromGif(data: data, size: size)
     }
     
     internal class func gcdForPair(_ a: Int?, _ b: Int?) -> Int {
