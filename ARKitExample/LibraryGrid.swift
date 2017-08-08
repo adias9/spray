@@ -102,7 +102,8 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
             viewController?.content = content
         }
         
-        viewController?.contentStack.isHidden = true
+//        viewController?.contentStack.isHidden = true
+        viewController?.hideContentStack()
         viewController?.showPreview()
     }
     
