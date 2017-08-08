@@ -42,8 +42,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         setupDebug()
         setupUIControls()
         setupLocationSettings()
-		    updateSettings()
-		    resetVirtualObject()
+		updateSettings()
+        resetVirtualObject()
 
         // Set StdLen
         stdLen = sceneView.bounds.height / 3000
@@ -123,8 +123,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         print("simdtransform array \(wrapperNode.simdTransform)")
 
-        sceneView.scene.rootNode.addChildNode(wrapperNode)
-
 
         // MARK: Andreas's Code
 
@@ -157,6 +155,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let rootID = self.currentRootID
         let picID = databaseRef.child("/pictures/").childByAutoId().key
         let nodeID = databaseRef.child("/nodes/").childByAutoId().key
+        //set the name of the node in the scene & add to scene
+        wrapperNode.name = nodeID
+        sceneView.scene.rootNode.addChildNode(wrapperNode)
 
         let picturesRef = storageRef.child("/pictures/\(picID)")
 
@@ -353,61 +354,131 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 
                 // MARK: Andreas' code to delete a node from db
                 
-//                // Code to remove node from db
-//                let storageRef = Storage.storage()
-//                let databaseRef = Database.database()
-//
-//                // remove node from root
-//                databaseRef.child("/nodes/\(nodeID)/root").observeSingleEvent(of: .value, with: { (snapshot) in
-//                    let rootID = snapshot.value as? String
-//                    databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error in
-//                        if error != nil {
-//                            print("error \(error)")
-//                        }
-//                    }
-//                })
-//
-//
-//                // remove node from added roots (this could be expensive
-//                // for all roots search for addedroots/\(nodeID).removeValue
-//
-//
-//                // remove node from user
-//                databaseRef.child("/nodes/\(nodeID)/user").observeSingleEvent(of: .value, with: { (snapshot) in
-//                    let userID = snapshot.value as? String
-//                    databaseRef.child("/users/\(userID)/lastPicture").removeValue { error in
-//                        if error != nil {
-//                            print("error \(error)")
-//                        }
-//                    }
-//                })
-//
-//                // remove pic
-//                databaseRef.child("/nodes/\(nodeID)/picture").observeSingleEvent(of: .value, with: { (snapshot) in
-//                    let picID = snapshot.value as? String
-//                    databaseRef.child("/pictures/\(picID)").removeValue { error in
-//                        if error != nil {
-//                            print("error \(error)")
-//                        }
-//                    }
-//
-//                    // remove pic from storage
-//                    let picRef = storageRef.child("pictures").child(picID)
-//                    picRef.delete { error in
-//                        if let error = error {
-//                            // Uh-oh, an error occurred!
-//                        } else {
-//                            // File deleted successfully
-//                        }
-//                    }
-//                })
-//
-//                // remove node
-//                databaseRef.child("/nodes/\(nodeID)").removeValue { error in
-//                    if error != nil {
-//                        print("error \(error)")
-//                    }
-//                }
+                let nodeID : String = currentNode.name!
+                print("Node Id: \(nodeID)")
+                
+                // Code to remove node from db
+                let storageRef = Storage.storage().reference()
+                let databaseRef = Database.database().reference()
+                let outsideGroup = DispatchGroup()
+                
+                //access node
+                databaseRef.child("/nodes/\(nodeID)/").observeSingleEvent(of: .value, with: { (snapshot) in
+                    if snapshot.exists() {
+                        outsideGroup.enter()
+                        // remove node from root
+                        let nodeDict = snapshot.value as! NSDictionary
+                        
+                        var rootID : String = ""
+                        var userID : String = ""
+                        var picID : String = ""
+                        var nodeDist : Double = 0.0
+                        for (key, value) in nodeDict {
+                            if (key as? String == "root") {
+                                rootID = value as! String
+                            } else if (key as? String == "user") {
+                                userID = value as! String
+                            } else if (key as? String == "picture") {
+                                picID = value as! String
+                            }else if (key as? String == "distance") {
+                                nodeDist = value as! Double
+                            } else {
+                            }
+                        }
+                        
+                        databaseRef.child("/roots/\(rootID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                            let rootDict = snapshot.value as! NSDictionary
+                            var dbNodes : NSDictionary = ["":true]
+                            var dbRadius : Double = 0.0
+                            for (key, value) in rootDict {
+                                if (key as? String == "nodes") {
+                                    dbNodes = value as! NSDictionary
+                                } else if (key as? String == "radius") {
+                                    dbRadius = value as! Double
+                                }
+                            }
+                            
+                            let group = DispatchGroup()
+                            
+                            // Update the radius of the root
+                            if dbNodes.count == 1 {
+                                databaseRef.child("/roots/\(rootID)/radius").setValue(0.0)
+                            } else if nodeDist != dbRadius {
+                                // Don't need to change the radius if this node is not the max radius
+                            } else {
+                                var nodeRadius = 0.0
+                                
+                                for (nodeID,_) in dbNodes {
+                                    group.enter()
+                                    databaseRef.child("/nodes/\(nodeID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                                        let allNodesDict = snapshot.value as! NSDictionary
+                                        
+                                        var givenNodeDist : Double = 0.0
+                                        for (key, value) in allNodesDict {
+                                            if (key as? String == "distance") {
+                                                givenNodeDist = value as! Double
+                                                break
+                                            }
+                                        }
+                                        if givenNodeDist > nodeRadius {
+                                            nodeRadius = givenNodeDist
+                                        }
+                                        group.leave()
+                                    })
+                                }
+                                // Set the new radius of root
+                                group.notify(queue: .main) {
+                                    databaseRef.child("/roots/\(rootID)/radius").setValue(nodeRadius)
+                                }
+                            }
+                            
+                            // remove the node from the root
+                            databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error,_  in
+                                if error != nil {
+                                    print("error \(error!)")
+                                }
+                            }
+                        })
+                        
+                        // remove node from user
+                        databaseRef.child("/users/\(userID)/lastPicture").removeValue { error,_ in
+                            if error != nil {
+                                print("error \(error!)")
+                            }
+                        }
+                        
+                        // remove pic
+                        databaseRef.child("/pictures/\(picID)").removeValue { error,_ in
+                            if error != nil {
+                                print("error \(error!)")
+                            }
+                        }
+                        
+                        // remove pic from storage
+                        let picRef = storageRef.child("/pictures/").child(picID)
+                        picRef.delete { error in
+                            if let error = error {
+                                print("Error occurred: \(error)")
+                            } else {
+                                // File deleted successfully
+                            }
+                        }
+                        outsideGroup.leave()
+                        
+                        outsideGroup.notify(queue: .main) {
+                            // remove node
+                            databaseRef.child("/nodes/\(nodeID)").removeValue { error,_ in
+                                if error != nil {
+                                    print("error \(error!)")
+                                }
+                                print("removed Node")
+                            }
+                        }
+                    } else {
+                        print("removenode snapshot empty")
+                    }
+                })
+
             } else {
                 // Cancel deletion process if user taps out
                 deleteButton?.removeFromParent()
@@ -737,6 +808,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                                             transformArray = simd_float4x4.init(columns)
                                                             print("Transform Array addPrev: \(transformArray)")
                                                             childNode.simdTransform = transformArray
+                                                            childNode.name = "\(nodeID)"
                                                             prevRootNode.addChildNode(childNode)
                                                             group.leave()
                                                         } else {
@@ -764,21 +836,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                                         print(error)
                                     }
                                 }
-                            //
-                            //                        } else if (self.currentLocation.distance(from: prevRootLocation) >= (dbRadius + 20) && dbRadius != 0) {
-                            //                            var key : Any?
-                            //                            databaseRef.child("/roots/\(self.currentRootID)/addedRoots").observeSingleEvent(of: .value, with: { (snapshot) in
-                            //                                if let addedRootsDict = snapshot.value as? NSDictionary {
-                            //                                    key = addedRootsDict.value(forKey: dbRoot.key)
-                            //                                } else {
-                            //                                    key = nil
-                            //                                }
-                            //                            })
-                            //                            if (key != nil) {
-                            //                                databaseRef.child("/roots/\(self.currentRootID)/addedRoots/\(dbRoot.key)").setValue(true)
-                            //                            }
-                            //                        } else {
-                            //                        }
                             })
                         }
                     }
