@@ -61,6 +61,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         view.addConstraintsWithFormat("V:|-\(viewHeight - bottomMargin - previewHeight)-[v0]-\(bottomMargin)-|", views: preview)
         
         preview.isHidden = true
+        
     }
     func showPreview() {
         guard let content = self.content else {
@@ -76,17 +77,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             }
         }
         
+        configureGesturesForState(state: .place)
+        contentStackButton.isEnabled = false
+        contentStackHitArea.isEnabled = false
         preview.isHidden = false
         
     }
     func hidePreview() {
         preview.isHidden = true
+        contentStackButton.isEnabled = true
+        contentStackHitArea.isEnabled = true
     }
     
     var contentStackBotAnchor : NSLayoutConstraint?
     @objc func keyboardWillShow(notification: NSNotification) {
-        tapDismissContentStack?.isEnabled = false
-        tapDismissKeyboard?.isEnabled = true
+        configureGesturesForState(state: .keyboard)
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
             print(keyboardSize)
             if let constraint = contentStackBotAnchor {
@@ -106,8 +111,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
     @objc func keyboardWillHide(notification: NSNotification) {
-        tapDismissContentStack?.isEnabled = true
-        tapDismissKeyboard?.isEnabled = false
+        configureGesturesForState(state: .selection)
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
             if let constraint = contentStackBotAnchor{
             let topLeftPos = view.frame.height - contentStack.frame.origin.y
@@ -186,40 +190,33 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
     
     func setupGestures() {
-        // Delete - Tap gesture recognizer change
-        
         tapDelete = UITapGestureRecognizer(target: self, action:
             #selector(self.deleteNode(tap:)))
         view.addGestureRecognizer(tapDelete!)
-        tapDelete!.isEnabled = false
         
-        // Tap to add Gesture using placeObject()
         tapAdd = UITapGestureRecognizer(target: self, action:
             #selector(self.placeObject(gestureRecognize:)))
         view.addGestureRecognizer(tapAdd!)
         
+        longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
+        longPressDelete!.minimumPressDuration = 1.5 //*undarken
+        view.addGestureRecognizer(longPressDelete!)
+        longPressDelete!.delegate = self
         
-        // Set Long Pess Gesture to delete using deleteObject
-        let longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
-        longPressDelete.minimumPressDuration = 1.5 //*undarken
-        view.addGestureRecognizer(longPressDelete)
-        longPressDelete.delegate = self
+        longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
+        longPressDarken!.minimumPressDuration = 0.2
+        view.addGestureRecognizer(longPressDarken!)
+        longPressDarken!.delegate = self
         
-        let longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
-        longPressDarken.minimumPressDuration = 0.2
-        view.addGestureRecognizer(longPressDarken)
-        longPressDarken.delegate = self
-        
-        // contentStack dismiss
-        tapDismissContentStack = UITapGestureRecognizer(target: self, action:
-            #selector(self.dismissContentStack(gestureRecognize:)))
+        tapDismissContentStack = UITapGestureRecognizer(target: self, action: #selector(self.dismissContentStack(gestureRecognize:)))
         view.addGestureRecognizer(tapDismissContentStack!)
         tapDismissContentStack!.cancelsTouchesInView = false
         
-        // Dismiss Keyboard
         tapDismissKeyboard = UITapGestureRecognizer.init(target: self, action: #selector(dismissKeyboard(tap:)))
         view.addGestureRecognizer(tapDismissKeyboard!)
         tapDismissKeyboard?.isEnabled = false
+        
+        configureGesturesForState(state: .view)
     }
     
     // MARK: - Gesture Recognizers
@@ -339,14 +336,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 skScene.addChild(delete)
                 
                 
-                // Disable tapAdd recognizer
-                tapAdd!.isEnabled = false
+                configureGesturesForState(state: .delete)
                 
                 // Delete - Tap gesture recognizer change
-                tapDelete = UITapGestureRecognizer(target: self, action:
-                    #selector(self.deleteNode(tap:)))
+//                tapDelete = UITapGestureRecognizer(target: self, action:
+//                    #selector(self.deleteNode(tap:)))
                 target = result.node
-                view.addGestureRecognizer(tapDelete!)
+//                view.addGestureRecognizer(tapDelete!)
                 
                 // Vibrate phone
                 AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
@@ -377,29 +373,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let point = tap.location(in: view)
         skScene.view?.hitTest(point, with: nil)
         
-        // Debug
-//        print("Point Location: \(point)")
-//        print("Delete Button Location: \(deleteButton?.position)")
-//        print("SKScene SIZE: \(skScene.frame)")
-//        print("SCNPlane SIZE: \((node.geometry as! SCNPlane).width) x \((node.geometry as! SCNPlane).height)")
-        
         let scnHitTestResults = sceneView.hitTest(point, options: nil)
         if let result = scnHitTestResults.first {
-//            print("Point on Plane: \(result.localCoordinates)")
             
             let currentNode = result.node
             if (currentNode == node && deleteIsClicked(localCoordinates: result.localCoordinates)){
                 deleteButton?.removeFromParent()
                 currentNode.removeFromParentNode()
-                tapDelete!.isEnabled = false
-                tapAdd!.isEnabled = true
+                if preview.isHidden {
+                    configureGesturesForState(state: .view)
+                } else {
+                    configureGesturesForState(state: .place)
+                }
                 
                 longPressDeleteFired = false
             } else {
                 // Cancel deletion process if user taps out
                 deleteButton?.removeFromParent()
-                tapDelete!.isEnabled = false
-                tapAdd!.isEnabled = true
+                if preview.isHidden {
+                    configureGesturesForState(state: .view)
+                } else {
+                    configureGesturesForState(state: .place)
+                }
                 // Undarken
                 let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
                 skScene.childNode(withName: "content")?.run(undarken)
@@ -408,8 +403,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         } else {
             // Cancel deletion process if user taps out
             deleteButton?.removeFromParent()
-            tapDelete!.isEnabled = false
-            tapAdd!.isEnabled = true
+            if preview.isHidden {
+                configureGesturesForState(state: .view)
+            } else {
+                configureGesturesForState(state: .place)
+            }
             // Undarken
             let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
             skScene.childNode(withName: "content")?.run(undarken)
@@ -794,6 +792,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         case selection
         case delete
         case place
+        case keyboard
     }
     
     func configureGesturesForState(state : State) {
@@ -812,24 +811,43 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             longPressDelete?.isEnabled = false
             tapAdd?.isEnabled = false
             tapDelete?.isEnabled = false
-            tapDismissContentStack?.isEnabled = false
             tapDismissKeyboard?.isEnabled = false
-        } else {
+        } else if state == .place {
+            tapAdd?.isEnabled = true
+            longPressDarken?.isEnabled = true
+            longPressDelete?.isEnabled = true
             
+            tapDismissContentStack?.isEnabled = false
+            tapDelete?.isEnabled = false
+            tapDismissKeyboard?.isEnabled = false
+        } else if state == .keyboard {
+            tapDismissKeyboard?.isEnabled = true
+            
+            tapAdd?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            longPressDarken?.isEnabled = false
+            longPressDelete?.isEnabled = false
+            tapDelete?.isEnabled = false
+        } else if state == .delete {
+            tapDelete?.isEnabled = true
+            
+            tapDismissKeyboard?.isEnabled = false
+            tapAdd?.isEnabled = false
+            tapDismissContentStack?.isEnabled = false
+            longPressDarken?.isEnabled = false
+            longPressDelete?.isEnabled = false
         }
     }
+    @IBOutlet weak var contentStackHitArea: UIButton!
     
+    @IBOutlet weak var contentStackButton: UIButton!
     
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
     @IBAction func chooseObject(_ button: UIButton) {
         contentStack.isHidden = false
         
-        tapAdd?.isEnabled = false
-        longPressDarken?.isEnabled = false
-        longPressDelete?.isEnabled = false
-        
-        tapDismissContentStack?.isEnabled = true
+        configureGesturesForState(state: .selection)
     }
     
     @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
@@ -838,10 +856,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let safety = CGFloat(10.0)
         
         if point.y < (contentStack.frame.origin.y - safety) {
-            tapAdd?.isEnabled = true
-            longPressDarken?.isEnabled = true
-            longPressDelete?.isEnabled = true
-            tapDismissContentStack?.isEnabled = false
+            configureGesturesForState(state: .view)
             
             contentStack.isHidden = true
         }
