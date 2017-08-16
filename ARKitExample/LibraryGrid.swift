@@ -11,7 +11,7 @@ import Photos
 import Alamofire
 import SwiftyJSON
 
-class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
