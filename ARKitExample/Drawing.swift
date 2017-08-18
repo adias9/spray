@@ -12,23 +12,26 @@ class Drawing : UIView {
     
     var lines : [Line] = []
     var lastPoint : CGPoint?
-    
+    var currentLine: Line?
     var text : Text?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.isUserInteractionEnabled = true
+        backgroundColor = UIColor.clear
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        currentLine = Line()
+        lines.append(currentLine!)
         lastPoint = touches.first?.location(in: self)
     }
-
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         let newPoint = touches.first?.location(in: self)
-        lines.append(Line(start: lastPoint!, end: newPoint!))
+        currentLine?.appendSegment(start: lastPoint!, end: newPoint!)
         lastPoint = newPoint
-
+        
         self.setNeedsDisplay()
     }
     
@@ -37,11 +40,20 @@ class Drawing : UIView {
         context?.setLineCap(.round)
         context?.setLineWidth(5)
         for line in lines {
+            for segment in line.segments {
                 context?.beginPath()
-                context?.move(to: line.start!)
-                context?.addLine(to: line.end!)
+                context?.move(to: segment.start!)
+                context?.addLine(to: segment.end!)
                 context?.setStrokeColor(UIColor.red.cgColor)
                 context?.strokePath()
+            }
+        }
+    }
+    
+    func undo() {
+        if !lines.isEmpty {
+            lines.remove(at: lines.count - 1)
+            setNeedsDisplay()
         }
     }
     

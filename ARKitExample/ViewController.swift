@@ -60,6 +60,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        
+        
+        setupButtonsForDrawing()
     }
 
     let preview = UIImageView()
@@ -1212,4 +1215,46 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
         updateSettings()
     }
+    
+    // MARK: - Temporary Placement
+    let drawButton = UIButton()
+    let undoButton = UIButton()
+    
+    func setupButtonsForDrawing(){
+        drawButton.imageView?.image = UIImage(named: "draw")
+        drawButton.setImage(UIImage(named: "draw"), for: .normal)
+        undoButton.imageView?.image = UIImage(named: "undo")
+        undoButton.setImage(UIImage(named: "undo"), for: .normal)
+        drawButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        undoButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        drawButton.addTarget(self, action: #selector(handleDrawButton), for: .touchUpInside)
+        undoButton.addTarget(self, action: #selector(handleUndoButton), for: .touchUpInside)
+        
+        drawButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        drawButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        undoButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        undoButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        
+        view.addSubview(drawButton)
+        view.addSubview(undoButton)
+        view.addConstraintsWithFormat("H:|-10-[v0(32)]|", views: drawButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: drawButton)
+        view.addConstraintsWithFormat("H:|-50-[v0(32)]|", views: undoButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: undoButton)
+        
+    }
+    
+    let drawView = Drawing()
+    @objc func handleDrawButton(sender: UIButton!) {
+        editBoard.addSubview(drawView)
+        editBoard.addConstraintsWithFormat("H:|[v0]|", views: drawView)
+        editBoard.addConstraintsWithFormat("V:|[v0]|", views: drawView)
+    }
+    
+    @objc func handleUndoButton(sender: UIButton!) {
+        drawView.undo()
+    }
+    
+    
+    
 }

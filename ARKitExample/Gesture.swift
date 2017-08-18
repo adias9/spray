@@ -39,7 +39,7 @@ extension ViewController {
             tapDismissKeyboard?.isEnabled = false
             tapPreviewToStack?.isEnabled = false
         } else if state == .selection {
-            tapDismissContentStack?.isEnabled = true
+//            tapDismissContentStack?.isEnabled = true
             
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false

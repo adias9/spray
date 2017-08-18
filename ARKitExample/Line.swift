@@ -10,11 +10,24 @@ import UIKit
 
 class Line {
     
-    var start: CGPoint?
-    var end: CGPoint?
+    var segments: [Segment] = []
     
-    init(start: CGPoint, end: CGPoint){
-        self.start = start
-        self.end = end
+    struct Segment {
+        var start: CGPoint?
+        var end: CGPoint?
+        init(start: CGPoint, end: CGPoint) {
+            self.start = start
+            self.end = end
+        }
     }
+    
+    init() {
+        
+    }
+    
+    func appendSegment(start: CGPoint, end: CGPoint) {
+        let segment = Segment(start: start, end: end)
+        segments.append(segment)
+    }
+    
 }

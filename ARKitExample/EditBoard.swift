@@ -24,24 +24,24 @@ class EditBoard : UIView{
         imageView.isHidden = true
         let pinchToScale = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinchToScale(recognizer:)))
         imageView.addGestureRecognizer(pinchToScale)
-        imageView.isUserInteractionEnabled = true
+//        imageView.isUserInteractionEnabled = true
     }
     
     var offsetFromImageCenter: CGPoint = CGPoint(x: 0, y: 0)
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // get point of which I touch the image
-        if let imageTouchPoint = touches.first?.location(in: self) {
-            offsetFromImageCenter = imageView.center - imageTouchPoint
-        }
-    }
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let point = touches.first?.location(in: self) {
-            imageView.center = point + offsetFromImageCenter
-        }
-    }
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        offsetFromImageCenter = CGPoint(x: 0, y: 0)
-    }
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        // get point of which I touch the image
+//        if let imageTouchPoint = touches.first?.location(in: self) {
+//            offsetFromImageCenter = imageView.center - imageTouchPoint
+//        }
+//    }
+//    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        if let point = touches.first?.location(in: self) {
+//            imageView.center = point + offsetFromImageCenter
+//        }
+//    }
+//    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        offsetFromImageCenter = CGPoint(x: 0, y: 0)
+//    }
     
     func setBackground(data: Data) {
         let image = UIImage(data: data)
