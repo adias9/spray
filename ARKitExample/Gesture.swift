@@ -113,8 +113,12 @@ extension ViewController {
     }
     
     @objc func dismissKeyboard(tap: UITapGestureRecognizer) {
-        let grid = contentStack.arrangedSubviews[1]
+        let grid = contentStack.arrangedSubviews[contentStack.subviews.count - 1]
         grid.endEditing(true)
+        
+        // delete following line, or re-implement
+        text.endEditing(true)
+        
     }
     
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
@@ -394,6 +398,15 @@ extension ViewController {
             let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
             skScene.childNode(withName: "content")?.run(undarken)
             longPressDeleteFired = false
+        }
+    }
+    
+    @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
+        let point = gestureRecognize.location(in: view)
+        let safety = CGFloat(10.0)
+        
+        if point.y < (contentStack.frame.origin.y - safety) {
+            hideContentStack()
         }
     }
     

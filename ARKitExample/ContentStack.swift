@@ -41,10 +41,16 @@ extension ViewController {
         
         canvas.backgroundColor = UIColor.white
         canvas.heightAnchor.constraint(equalToConstant: 320).isActive = true
-        
-        contentStack.addArrangedSubview(canvas)
+    
+        contentStack.addArrangedSubview(editBoard)
         contentStack.addArrangedSubview(menuBar)
         contentStack.addArrangedSubview(container)
+        
+        let marginEditBoard = (UIScreen.main.bounds.width - editBoard.length) / 2
+        contentStack.addConstraintsWithFormat("H:|-\(marginEditBoard)-[v0]-\(marginEditBoard)-|", views: editBoard)
+        contentStack.addConstraintsWithFormat("H:|[v0]|", views: container)
+        contentStack.addConstraintsWithFormat("H:|[v0]|", views: menuBar)
+        
         
         view.addSubview(contentStack)
         contentStack.translatesAutoresizingMaskIntoConstraints = false
@@ -54,12 +60,16 @@ extension ViewController {
         contentStack.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         contentStack.axis = .vertical
         contentStack.spacing = 0
+        contentStack.setCustomSpacing(marginEditBoard * 3, after: editBoard)
+        contentStack.isLayoutMarginsRelativeArrangement = true
+        
+        
         
         contentStack.transform = CGAffineTransform(translationX: 0, y: view.frame.height)
     }
     
     func showGrid(type : ContentType) {
-        let grid = contentStack.subviews[1]
+        let grid = contentStack.subviews[contentStack.subviews.count - 1]
         if type == .library {
             grid.bringSubview(toFront: libraryGrid)
         } else if type == .meme{

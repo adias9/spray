@@ -11,7 +11,8 @@ import Photos
 import Alamofire
 import SwiftyJSON
 
-class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
+class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    // conform to drag protocol if needed
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -23,6 +24,7 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         cv.backgroundColor = UIColor.white
         cv.dataSource = self
         cv.delegate = self
+//        cv.dragDelegate = self
         return cv
     }()
     let cellId = "cellId"
@@ -47,6 +49,8 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         
         let selectedIndexPath = IndexPath(item: 0, section: 0)
         collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: UICollectionViewScrollPosition())
+        
+        collectionView.dragInteractionEnabled = true
     }
         
     
@@ -101,7 +105,7 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         if let content = cell?.info {
             viewController?.content = content
         }
-        
+
 //        viewController?.contentStack.isHidden = true
         viewController?.hideContentStack()
         viewController?.showPreview()
@@ -133,6 +137,17 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
 //        }
 //
 //    }
+    
+    // MARK :- Drag Delegate
+//    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+//        print("drag me")
+//        let cell = collectionView.cellForItem(at: indexPath) as? GridCell
+//        let touchedImage = cell?.imageView.image
+//        let itemProvider = NSItemProvider(object: touchedImage!)
+//        let dragItem = UIDragItem(itemProvider: itemProvider)
+//        dragItem.localObject = touchedImage
+//        return [dragItem]
+//    }
 }
 
 
@@ -142,6 +157,7 @@ class GridCell: BaseCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.backgroundColor = UIColor.purple
+        iv.isUserInteractionEnabled = true
         
         return iv
     }()

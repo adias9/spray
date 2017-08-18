@@ -21,7 +21,11 @@ import MobileCoreServices
 
 class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
-    var canvas = UIView()
+//    var canvas = UIView()
+    var text = Text()
+    
+    var canvas = Drawing()
+    var editBoard = EditBoard()
     var locationManager = CLLocationManager()
     var rootNodeLocation = CLLocation()
     var currentLocation = CLLocation()
@@ -968,15 +972,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var tapDismissContentStack : UITapGestureRecognizer?
     @IBAction func chooseObject(_ button: UIButton) {
         showContentStack()
-    }
-
-    @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
-        let point = gestureRecognize.location(in: view)
-        let safety = CGFloat(10.0)
-
-        if point.y < (contentStack.frame.origin.y - safety) {
-            hideContentStack()
-        }
     }
 
 
