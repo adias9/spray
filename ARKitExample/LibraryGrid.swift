@@ -104,11 +104,12 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         let cell = collectionView.cellForItem(at: indexPath) as? GridCell
         if let content = cell?.info {
             viewController?.content = content
+            viewController?.editBoard.setBackground(data: (cell?.info?.data!)!)
         }
 
-//        viewController?.contentStack.isHidden = true
-        viewController?.hideContentStack()
-        viewController?.showPreview()
+
+//        viewController?.hideContentStack()
+//        viewController?.showPreview()
     }
     
     func fetchContent(){}
