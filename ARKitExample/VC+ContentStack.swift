@@ -87,6 +87,7 @@ extension ViewController {
         }, completion: nil)
         
         configureGesturesForState(state: .selection)
+        showEditingButtons()
     }
     
     
@@ -96,6 +97,76 @@ extension ViewController {
         }, completion: nil)
         
         configureGesturesForState(state: .view)
+        hideEditingBUttons()
+    }
+    
+    func setupButtonsForEditing(){
+        drawButton.setImage(UIImage(named: "draw"), for: .normal)
+        drawButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        drawButton.addTarget(self, action: #selector(handleDrawButton), for: .touchUpInside)
+        drawButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        drawButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.addSubview(drawButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: drawButton)
+        drawButton.isHidden = true
+        
+        undoButton.setImage(UIImage(named: "undo"), for: .normal)
+        undoButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        undoButton.addTarget(self, action: #selector(handleUndoButton), for: .touchUpInside)
+        undoButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        undoButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.addSubview(undoButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: undoButton)
+        undoButton.isHidden = true
+        
+        textButton.setImage(UIImage(named: "text"), for: .normal)
+        textButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        textButton.addTarget(self, action: #selector(handleTextButton), for: .touchUpInside)
+        textButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        textButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.addSubview(textButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: textButton)
+        textButton.isHidden = true
+        
+        clearButton.setImage(UIImage(named: "clear"), for: .normal)
+        clearButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
+        clearButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        clearButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.addSubview(clearButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: clearButton)
+        clearButton.isHidden = true
+        
+        finishButton.setImage(UIImage(named: "done"), for: .normal)
+        finishButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        finishButton.addTarget(self, action: #selector(handleFinishButton), for: .touchUpInside)
+        finishButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        finishButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.addSubview(finishButton)
+        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: finishButton)
+        finishButton.isHidden = true
+        
+        
+        // TODO: Change this layout
+        view.addConstraintsWithFormat("H:|-10-[v0(32)]-50-[v1(32)]-10-[v2(32)]-10-[v3(32)]-10-[v4(32)]|",
+                                      views: clearButton, undoButton, drawButton, textButton, finishButton )
+        
+    }
+    
+    func showEditingButtons() {
+        drawButton.isHidden = false
+        clearButton.isHidden = false
+        finishButton.isHidden = false
+        textButton.isHidden = false
+//        undoButton.isHidden = false
+    }
+    
+    func hideEditingBUttons() {
+        drawButton.isHidden = true
+        clearButton.isHidden = true
+        finishButton.isHidden = true
+        textButton.isHidden = true
+        undoButton.isHidden = true
     }
 
     

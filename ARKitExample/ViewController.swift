@@ -62,7 +62,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         
-        setupButtonsForDrawing()
+        setupButtonsForEditing()
     }
 
     let preview = UIImageView()
@@ -914,6 +914,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 self.addObjectButton.isEnabled = !self.isLoadingObject
                 self.screenshotButton.isEnabled = !self.isLoadingObject
                 self.restartExperienceButton.isEnabled = !self.isLoadingObject
+                self.restartExperienceButton.isHidden = true
             }
         }
     }
@@ -1033,6 +1034,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
 
+    
     var showDebugVisuals: Bool = UserDefaults.standard.bool(for: .debugMode) {
         didSet {
             featurePointCountLabel.isHidden = !showDebugVisuals
@@ -1054,6 +1056,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         // Set appearance of debug output panel
         messagePanel.layer.cornerRadius = 3.0
         messagePanel.clipsToBounds = true
+        messagePanel.isHidden = true
     }
 
     // MARK: - UI Elements and Actions
@@ -1219,41 +1222,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // MARK: - Temporary Placement
     let drawButton = UIButton()
     let undoButton = UIButton()
+    let textButton = UIButton()
+    let clearButton = UIButton()
+    let finishButton =  UIButton()
     
-    func setupButtonsForDrawing(){
-        drawButton.imageView?.image = UIImage(named: "draw")
-        drawButton.setImage(UIImage(named: "draw"), for: .normal)
-        undoButton.imageView?.image = UIImage(named: "undo")
-        undoButton.setImage(UIImage(named: "undo"), for: .normal)
-        drawButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
-        undoButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
-        drawButton.addTarget(self, action: #selector(handleDrawButton), for: .touchUpInside)
-        undoButton.addTarget(self, action: #selector(handleUndoButton), for: .touchUpInside)
-        
-        drawButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
-        drawButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
-        undoButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
-        undoButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
-        
-        view.addSubview(drawButton)
-        view.addSubview(undoButton)
-        view.addConstraintsWithFormat("H:|-10-[v0(32)]|", views: drawButton)
-        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: drawButton)
-        view.addConstraintsWithFormat("H:|-50-[v0(32)]|", views: undoButton)
-        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: undoButton)
-        
-    }
+    
     
     let drawView = Drawing()
-    @objc func handleDrawButton(sender: UIButton!) {
-        editBoard.addSubview(drawView)
-        editBoard.addConstraintsWithFormat("H:|[v0]|", views: drawView)
-        editBoard.addConstraintsWithFormat("V:|[v0]|", views: drawView)
-    }
+    let textView = ResizableView()
+
+
     
-    @objc func handleUndoButton(sender: UIButton!) {
-        drawView.undo()
-    }
+    
     
     
     

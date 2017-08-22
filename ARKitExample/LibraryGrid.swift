@@ -104,7 +104,7 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         let cell = collectionView.cellForItem(at: indexPath) as? GridCell
         if let content = cell?.info {
             viewController?.content = content
-            viewController?.editBoard.setBackground(data: (cell?.info?.data!)!)
+            viewController?.editBoard.setBackground(content: (cell?.info)!)
         }
 
 

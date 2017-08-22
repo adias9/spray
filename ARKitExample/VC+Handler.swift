@@ -49,6 +49,40 @@ extension ViewController {
         }
     }
     
+    @objc func handleDrawButton(sender: UIButton!) {
+        drawView.isActive = true
+        editBoard.addSubview(drawView)
+        editBoard.addConstraintsWithFormat("H:|[v0]|", views: drawView)
+        editBoard.addConstraintsWithFormat("V:|[v0]|", views: drawView)
+    }
+    
+    @objc func handleUndoButton(sender: UIButton!) {
+        drawView.undo()
+    }
+    
+    @objc func handleTextButton(sender: UIButton!) {
+        drawView.isActive = false
+        editBoard.addSubview(textView)
+        textView.frame = CGRect.init(x: 0, y: 0, width: 62, height: 62)
+        textView.center = editBoard.center
+    }
+    
+    @objc func handleClearButton(sender: UIButton!) {
+        editBoard.reset()
+        drawView.reset()
+        hideContentStack()
+    }
+    
+    @objc func handleFinishButton(sender: UIButton!) {
+        UIGraphicsBeginImageContextWithOptions(editBoard.bounds.size, false, UIScreen.main.scale)
+        editBoard.layer.render(in: UIGraphicsGetCurrentContext()!)
+        preview.image = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        
+        hideContentStack()
+        showPreview()
+    }
+    
     
     
     

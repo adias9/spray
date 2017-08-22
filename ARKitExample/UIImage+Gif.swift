@@ -234,56 +234,56 @@ extension UIImage {
         return gcd
     }
     
-    internal class func animatedImageWithSource(_ source: CGImageSource) -> UIImage? {
-        let count = CGImageSourceGetCount(source)
-        var images = [CGImage]()
-        var delays = [Int]()
-        
-        // Fill arrays
-        for i in 0..<count {
-            // Add image
-            if let image = CGImageSourceCreateImageAtIndex(source, i, nil) {
-                images.append(image)
+        internal class func animatedImageWithSource(_ source: CGImageSource) -> UIImage? {
+            let count = CGImageSourceGetCount(source)
+            var images = [CGImage]()
+            var delays = [Int]()
+            
+            // Fill arrays
+            for i in 0..<count {
+                // Add image
+                if let image = CGImageSourceCreateImageAtIndex(source, i, nil) {
+                    images.append(image)
+                }
+                
+                // At it's delay in cs
+                let delaySeconds = UIImage.delayForImageAtIndex(Int(i),
+                                                                source: source)
+                delays.append(Int(delaySeconds * 1000.0)) // Seconds to ms
             }
             
-            // At it's delay in cs
-            let delaySeconds = UIImage.delayForImageAtIndex(Int(i),
-                                                            source: source)
-            delays.append(Int(delaySeconds * 1000.0)) // Seconds to ms
+            // Calculate full duration
+            let duration: Int = {
+                var sum = 0
+                
+                for val: Int in delays {
+                    sum += val
+                }
+                
+                return sum
+            }()
+            
+            // Get frames
+            let gcd = gcdForArray(delays)
+            var frames = [UIImage]()
+            
+            var frame: UIImage
+            var frameCount: Int
+            for i in 0..<count {
+                frame = UIImage(cgImage: images[Int(i)])
+                frameCount = Int(delays[Int(i)] / gcd)
+                
+                for _ in 0..<frameCount {
+                    frames.append(frame)
+                }
+            }
+            
+            // Heyhey
+            let animation = UIImage.animatedImage(with: frames,
+                                                  duration: Double(duration) / 1000.0)
+            
+            return animation
         }
-        
-        // Calculate full duration
-        let duration: Int = {
-            var sum = 0
-            
-            for val: Int in delays {
-                sum += val
-            }
-            
-            return sum
-        }()
-        
-        // Get frames
-        let gcd = gcdForArray(delays)
-        var frames = [UIImage]()
-        
-        var frame: UIImage
-        var frameCount: Int
-        for i in 0..<count {
-            frame = UIImage(cgImage: images[Int(i)])
-            frameCount = Int(delays[Int(i)] / gcd)
-            
-            for _ in 0..<frameCount {
-                frames.append(frame)
-            }
-        }
-        
-        // Heyhey
-        let animation = UIImage.animatedImage(with: frames,
-                                              duration: Double(duration) / 1000.0)
-        
-        return animation
-    }
     
 }
 

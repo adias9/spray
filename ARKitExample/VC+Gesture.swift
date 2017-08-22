@@ -41,6 +41,11 @@ extension ViewController {
         } else if state == .selection {
 //            tapDismissContentStack?.isEnabled = true
             
+            //-----
+            tapDismissContentStack?.isEnabled = false
+//            tapDismissKeyboard?.isEnabled = true
+            //-----
+            
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false
             tapAdd?.isEnabled = false
@@ -117,7 +122,9 @@ extension ViewController {
         grid.endEditing(true)
         
         // delete following line, or re-implement
-        text.endEditing(true)
+//        textView.endEditing(true)
+        
+        
         
     }
     

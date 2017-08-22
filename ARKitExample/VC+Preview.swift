@@ -28,18 +28,18 @@ extension ViewController {
     }
     
     func showPreview() {
-        guard let content = self.content else {
-            return
-        }
-        if content.type == .gif {
-            if let data = content.data {
-                preview.image = UIImage.gif(data: data)
-            }
-        } else {
-            if let data = content.data {
-                preview.image = UIImage(data: data)
-            }
-        }
+//        guard let content = self.content else {
+//            return
+//        }
+//        if content.type == .gif {
+//            if let data = content.data {
+//                preview.image = UIImage.gif(data: data)
+//            }
+//        } else {
+//            if let data = content.data {
+//                preview.image = UIImage(data: data)
+//            }
+//        }
         
         configureGesturesForState(state: .place)
         showPlaceObjectButton(bool: false)

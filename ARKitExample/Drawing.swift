@@ -14,6 +14,7 @@ class Drawing : UIView {
     var lastPoint : CGPoint?
     var currentLine: Line?
     var text : Text?
+    var isActive: Bool = true
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -22,17 +23,22 @@ class Drawing : UIView {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        currentLine = Line()
-        lines.append(currentLine!)
-        lastPoint = touches.first?.location(in: self)
+        if isActive {
+            currentLine = Line()
+            lines.append(currentLine!)
+            lastPoint = touches.first?.location(in: self)
+        }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let newPoint = touches.first?.location(in: self)
-        currentLine?.appendSegment(start: lastPoint!, end: newPoint!)
-        lastPoint = newPoint
-        
-        self.setNeedsDisplay()
+        if isActive {
+            let newPoint = touches.first?.location(in: self)
+            currentLine?.appendSegment(start: lastPoint!, end: newPoint!)
+            lastPoint = newPoint
+            
+            
+            self.setNeedsDisplay()
+        }
     }
     
     override func draw(_ rect: CGRect) {
@@ -55,6 +61,11 @@ class Drawing : UIView {
             lines.remove(at: lines.count - 1)
             setNeedsDisplay()
         }
+    }
+    
+    func reset() {
+        lines.removeAll()
+        setNeedsDisplay()
     }
     
     
