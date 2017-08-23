@@ -66,9 +66,15 @@ import UIKit
 ////    }
 //}
 
-class Text: UILabel {
+class Text: UILabel, UITextViewDelegate {
     
     let editView = UITextView()
+    var isEditing: Bool = true {
+        didSet{
+            self.isHidden = isEditing
+            editView.isHidden = !isEditing
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -83,6 +89,16 @@ class Text: UILabel {
         addGestureRecognizer(pinchToScale)
         addGestureRecognizer(rotate)
         
+        editView.delegate = self
+        editView.text = "HOLA!"
+        
+    }
+    
+    override func didMoveToSuperview() {
+        print("I am here")
+        superview?.addSubview(editView)
+        editView.center = superview!.center
+        self.center = superview!.center
     }
     
     @objc func handlePinchToScale(recognizer: UIPinchGestureRecognizer) {
@@ -100,9 +116,15 @@ class Text: UILabel {
         }
     }
     
+    func textViewDidEndEditing(_ textView: UITextView) {
+        self.text = textView.text
+        isEditing = false
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
     
     
     // Logic for dragging text label

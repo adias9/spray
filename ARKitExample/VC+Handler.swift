@@ -11,9 +11,9 @@ import UIKit
 extension ViewController {
     
     @objc func keyboardWillShow(notification: NSNotification) {
+        print("____________________________________KEYBOARD IS SHOWN_____________________________________________")
         configureGesturesForState(state: .keyboard)
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
-            print(keyboardSize)
             if let constraint = contentStackBotAnchor {
                 let topLeftPos = view.frame.height - contentStack.frame.origin.y
                 if topLeftPos == contentStack.frame.height{
@@ -50,26 +50,27 @@ extension ViewController {
     }
     
     @objc func handleDrawButton(sender: UIButton!) {
-        drawView.isActive = true
-        editBoard.addSubview(drawView)
-        editBoard.addConstraintsWithFormat("H:|[v0]|", views: drawView)
-        editBoard.addConstraintsWithFormat("V:|[v0]|", views: drawView)
+        switch editBoard.drawState {
+        case .drawing:
+            editBoard.pauseDrawing()
+        case .paused:
+            editBoard.resumeDrawing()
+        case .inactive:
+            editBoard.beginDrawing()
+        }
     }
     
     @objc func handleUndoButton(sender: UIButton!) {
-        drawView.undo()
+        editBoard.undoDrawing()
     }
     
     @objc func handleTextButton(sender: UIButton!) {
-        drawView.isActive = false
-        editBoard.addSubview(textView)
-        textView.frame = CGRect.init(x: 0, y: 0, width: 62, height: 62)
-        textView.center = editBoard.center
+        editBoard.pauseDrawing()
+        editBoard.addText()
     }
     
     @objc func handleClearButton(sender: UIButton!) {
         editBoard.reset()
-        drawView.reset()
         hideContentStack()
     }
     

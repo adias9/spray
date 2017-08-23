@@ -724,6 +724,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
         textManager.showTrackingQualityInfo(for: camera.trackingState, autoHide: !self.showDebugVisuals)
+        
 
         switch camera.trackingState {
         case .notAvailable:
@@ -1040,6 +1041,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             featurePointCountLabel.isHidden = !showDebugVisuals
             debugMessageLabel.isHidden = !showDebugVisuals
             messagePanel.isHidden = !showDebugVisuals
+            messagePanel.isHidden = true
+            messageLabel.isHidden = true
+            debugMessageLabel.isHidden = true
 
             if showDebugVisuals {
                 sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints, ARSCNDebugOptions.showWorldOrigin]
@@ -1057,6 +1061,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         messagePanel.layer.cornerRadius = 3.0
         messagePanel.clipsToBounds = true
         messagePanel.isHidden = true
+        messageLabel.isHidden = true
+        debugMessageLabel.isHidden = true
+        
     }
 
     // MARK: - UI Elements and Actions
@@ -1064,7 +1071,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     @IBOutlet weak var messagePanel: UIView!
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var debugMessageLabel: UILabel!
-
+    
+    
     var textManager: TextManager!
 
     func setupUIControls() {
@@ -1076,6 +1084,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		featurePointCountLabel.text = ""
 		debugMessageLabel.text = ""
 		messageLabel.text = ""
+        restartExperienceButton.isHidden = true
     }
 
 	@IBOutlet weak var restartExperienceButton: UIButton!
@@ -1224,17 +1233,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     let undoButton = UIButton()
     let textButton = UIButton()
     let clearButton = UIButton()
-    let finishButton =  UIButton()
-    
-    
-    
-    let drawView = Drawing()
-    let textView = ResizableView()
+    let finishButton = UIButton()
 
 
-    
-    
-    
-    
     
 }

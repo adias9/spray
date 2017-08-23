@@ -43,7 +43,7 @@ extension ViewController {
             
             //-----
             tapDismissContentStack?.isEnabled = false
-//            tapDismissKeyboard?.isEnabled = true
+            tapDismissKeyboard?.isEnabled = true
             //-----
             
             longPressDarken?.isEnabled = false
@@ -120,12 +120,8 @@ extension ViewController {
     @objc func dismissKeyboard(tap: UITapGestureRecognizer) {
         let grid = contentStack.arrangedSubviews[contentStack.subviews.count - 1]
         grid.endEditing(true)
-        
-        // delete following line, or re-implement
-//        textView.endEditing(true)
-        
-        
-        
+   
+        editBoard.endEditing(true)
     }
     
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){

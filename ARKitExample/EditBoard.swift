@@ -25,6 +25,7 @@ class EditBoard : UIView{
         let pinchToScale = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinchToScale(recognizer:)))
         imageView.addGestureRecognizer(pinchToScale)
         imageView.isUserInteractionEnabled = true
+        
     }
     
     var offsetFromImageCenter: CGPoint = CGPoint(x: 0, y: 0)
@@ -62,6 +63,7 @@ class EditBoard : UIView{
     
     func reset() {
         imageView.image = nil
+        drawView.reset()
     }
     
     @objc func handlePinchToScale(recognizer: UIPinchGestureRecognizer) {
@@ -70,7 +72,57 @@ class EditBoard : UIView{
             recognizer.scale = 1
         }
     }
+    
+    
+    // MARK :- Drawing
+    let drawView = Drawing()
+    
+    var drawState: DrawState = .inactive
+    enum DrawState {
+        case drawing
+        case paused
+        case inactive
+    }
+    
+    func beginDrawing() {
+        addSubview(drawView)
+        addConstraintsWithFormat("H:|[v0]|", views: drawView)
+        addConstraintsWithFormat("V:|[v0]|", views: drawView)
+        drawView.isActive = true
+        drawState = .drawing
+    }
+    
+    func pauseDrawing() {
+        if (drawState == .inactive) {return}
+        
+        drawView.isActive = false
+        drawState = .paused
+    }
+    
+    func resumeDrawing() {
+        if (drawState == .inactive) {return}
+        
+        drawView.isActive = true
+        drawState = .drawing
+    }
+    
+    func undoDrawing() {
+        drawView.undo()
+    }
 
+    
+    // MARK :- Texts
+    let texts: [ResizableView] = []
+    
+    func addText() {
+        let text = ResizableView()
+        text.frame = CGRect.init(x: 0, y: 0, width: 124, height: 62)
+        text.center = self.center
+        text.text = "SAMPLE"
+        addSubview(text)
+        
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

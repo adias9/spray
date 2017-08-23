@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ResizableView: UITextView, UITextViewDelegate {
+class ResizableView: UITextView, UITextViewDelegate, UIGestureRecognizerDelegate {
     
     var topLeft:DragHandle!
     var topRight:DragHandle!
@@ -18,13 +18,13 @@ class ResizableView: UITextView, UITextViewDelegate {
     var previousLocation = CGPoint.zero
     var rotateLine = CAShapeLayer()
     
-    var showHandles = false {
+    var showHandles = true {
         didSet {
-            topLeft.isHidden = showHandles
-            topRight.isHidden = showHandles
-            bottomLeft.isHidden = showHandles
-            bottomRight.isHidden = showHandles
-            rotateHandle.isHidden = showHandles
+            topLeft.isHidden = !showHandles
+            topRight.isHidden = !showHandles
+            bottomLeft.isHidden = !showHandles
+            bottomRight.isHidden = !showHandles
+            rotateHandle.isHidden = !showHandles
         }
     }
     
@@ -64,6 +64,9 @@ class ResizableView: UITextView, UITextViewDelegate {
         self.addGestureRecognizer(pan)
         
         self.updateDragHandles()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleHandles(recognizer:)))
+        superview?.addGestureRecognizer(tap)
     }
 
     override init(frame: CGRect, textContainer: NSTextContainer?) {
@@ -78,8 +81,8 @@ class ResizableView: UITextView, UITextViewDelegate {
         textColor = UIColor.white
         textAlignment = .center
         
-        let tapShowHandles = UITapGestureRecognizer(target: self, action: #selector(handleTapShowHandles(recognizer:)))
-        addGestureRecognizer(tapShowHandles)
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handleTextSize(recognizer:)))
+        addGestureRecognizer(pinch)
     }
         
     
@@ -87,13 +90,28 @@ class ResizableView: UITextView, UITextViewDelegate {
         showHandles = true
     }
 
-    @objc func handleTapShowHandles(recognizer: UITapGestureRecognizer) {
+    @objc func handleHandles(recognizer: UITapGestureRecognizer) {
         if recognizer.view == self {
             showHandles = true
         } else {
             showHandles = false
         }
         
+    }
+    
+    @objc func handleTextSize(recognizer: UIPinchGestureRecognizer) {
+        let currentFontSize = self.font?.pointSize
+        var newScale = currentFontSize! * recognizer.scale
+        if (newScale < 20.0) {
+            newScale = 20.0;
+        }
+        if (newScale > 60.0) {
+            newScale = 60.0;
+        }
+        
+        self.font = UIFont(name: "Helvetica", size:  newScale)
+        
+        recognizer.scale = 1
     }
     
     
@@ -199,5 +217,11 @@ class ResizableView: UITextView, UITextViewDelegate {
             self.setAnchorPoint(CGPoint(x: 0.5, y: 0.5))
         }
     }
+    
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
 }
 

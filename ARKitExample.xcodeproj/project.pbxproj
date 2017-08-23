@@ -81,7 +81,6 @@
 		6A61055B1F2A5589009C852E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		6A6159351F105E7200715603 /* Picture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Picture.swift; sourceTree = "<group>"; };
 		6A6159AD1F1540AC00715603 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		6AB764CC1F1C2A42002975A7 /* UIImage+Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIImage+Gif.swift"; path = "Carthage/Checkouts/SwiftGif/SwiftGifCommon/UIImage+Gif.swift"; sourceTree = SOURCE_ROOT; };
 		6AB764CF1F1C2AEA002975A7 /* UIImage+Gif.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Gif.swift"; sourceTree = "<group>"; };
 		6ABA87591F38EDEA00D7782C /* Content.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Content.swift; sourceTree = "<group>"; };
 		6AD086981F3273110035B6BC /* LibraryGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryGrid.swift; sourceTree = "<group>"; };
@@ -119,7 +118,6 @@
 		113B64D01ECA81CA0071CBD1 /* UI Elements */ = {
 			isa = PBXGroup;
 			children = (
-				6AB764CC1F1C2A42002975A7 /* UIImage+Gif.swift */,
 				392BB82B1EA19A7C00FBBAC8 /* Plane.swift */,
 				39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */,
 				39C0B9501E9C63CB003FCA0C /* HitTestVisualization.swift */,
