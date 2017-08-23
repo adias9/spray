@@ -11,7 +11,6 @@ import UIKit
 extension ViewController {
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        print("____________________________________KEYBOARD IS SHOWN_____________________________________________")
         configureGesturesForState(state: .keyboard)
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue{
             if let constraint = contentStackBotAnchor {
@@ -51,12 +50,14 @@ extension ViewController {
     
     @objc func handleDrawButton(sender: UIButton!) {
         switch editBoard.drawState {
+            
         case .drawing:
             editBoard.pauseDrawing()
         case .paused:
             editBoard.resumeDrawing()
         case .inactive:
             editBoard.beginDrawing()
+            
         }
     }
     

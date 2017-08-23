@@ -66,6 +66,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     let preview = UIImageView()
+    
+    
+    
     @objc func previewToContentStack(gestureRecognize: UITapGestureRecognizer) {
         hidePreview()
         showContentStack()
@@ -117,7 +120,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
         wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
 
-        print("simdtransform array \(wrapperNode.simdTransform)")
 
 
         // MARK: Andreas's Code
@@ -976,7 +978,33 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
     @IBAction func chooseObject(_ button: UIButton) {
-        showContentStack()
+//        showContentStack()
+        
+        let editBoard = EditBoard()
+        editBoard.center = addObjectButton.center
+        editBoard.bounds = addObjectButton.bounds
+        editBoard.alpha = 0
+        view.addSubview(editBoard)
+       
+        
+        UIView.animate(withDuration: 3, delay: 0, options: .curveEaseOut, animations: {
+            let w = UIScreen.main.bounds.width
+            let h = UIScreen.main.bounds.height
+            editBoard.bounds = CGRect(x: 0, y: 0, width: 0.93*w, height: 0.93*w)
+            editBoard.center = CGPoint(x: w/2, y: h/2 - 0.15*h)
+            editBoard.alpha = 1
+        }, completion: nil)
+        
+        UIView.animate(withDuration: 3, delay: 0, options: .curveEaseOut, animations: {
+//            let w = self.addObjectButton.bounds.width
+//            let h = self.addObjectButton.bounds.height
+//            self.addObjectButton.bounds = CGRect(x: 0, y: 0, width: 1.5*w, height: 1.5*h)
+//            let originalCenter = self.addObjectButton.center
+//            self.addObjectButton.center = originalCenter + CGPoint.init(x: 0, y: 0.2 * originalCenter.y)
+            self.addObjectButton.alpha = 0
+            self.addObjectButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0.15*self.view.bounds.height)
+            
+        }, completion: nil)
     }
 
 
@@ -1226,6 +1254,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
         updateSettings()
+        
+        
     }
     
     // MARK: - Temporary Placement
