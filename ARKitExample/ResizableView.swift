@@ -81,8 +81,10 @@ class ResizableView: UITextView, UITextViewDelegate, UIGestureRecognizerDelegate
         textColor = UIColor.white
         textAlignment = .center
         
-        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handleTextSize(recognizer:)))
-        addGestureRecognizer(pinch)
+        let tap = UIPinchGestureRecognizer(target: self, action: #selector(handleTextSize(recognizer:)))
+        addGestureRecognizer(tap)
+        let rotate = UIRotationGestureRecognizer(target: self, action: #selector(handleRotation(recognizer:)))
+        addGestureRecognizer(rotate)
     }
         
     
@@ -97,6 +99,14 @@ class ResizableView: UITextView, UITextViewDelegate, UIGestureRecognizerDelegate
             showHandles = false
         }
         
+    }
+    
+    @objc func handleRotation(recognizer: UIRotationGestureRecognizer) {
+        if let view = recognizer.view {
+            view.transform = view.transform.rotated(by: recognizer.rotation)
+            recognizer.rotation = 0
+            self.updateDragHandles()
+        }
     }
     
     @objc func handleTextSize(recognizer: UIPinchGestureRecognizer) {
