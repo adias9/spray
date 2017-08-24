@@ -25,7 +25,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var text = Text()
     
     var canvas = Drawing()
-    var editBoard = EditBoard()
     var locationManager = CLLocationManager()
     var rootNodeLocation = CLLocation()
     var currentLocation = CLLocation()
@@ -43,6 +42,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         return len
     }()
 
+    let selectionButton = UIButton()
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -984,12 +984,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     @IBOutlet weak var contentStackButton: UIButton!
 
+    let editBoard = EditBoard()
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
     @objc func chooseObject(_ button: UIButton) {
         showContentStack()
         
-        let editBoard = EditBoard()
         editBoard.center = addObjectButton.center
         editBoard.bounds = addObjectButton.bounds
         editBoard.alpha = 0
@@ -999,9 +999,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         UIView.animate(withDuration: 0.7, delay: 0, options: .curveEaseOut, animations: {
             let w = UIScreen.main.bounds.width
             let h = UIScreen.main.bounds.height
-            editBoard.bounds = CGRect(x: 0, y: 0, width: 0.93*w, height: 0.93*w)
-            editBoard.center = CGPoint(x: w/2, y: h/2 - 0.15*h)
-            editBoard.alpha = 1
+            self.editBoard.bounds = CGRect(x: 0, y: 0, width: 0.93*w, height: 0.93*w)
+            self.editBoard.center = CGPoint(x: w/2, y: h/2 - 0.15*h)
+            self.editBoard.alpha = 1
         }, completion: nil)
         
         self.addObjectButton.widthAnchor.constraint(equalToConstant: 128).isActive = true

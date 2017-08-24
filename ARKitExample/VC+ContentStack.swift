@@ -18,11 +18,16 @@ extension ViewController {
     }
     
     func setupMenuBar() {
-        let contentStackButton = UIButton()
-        contentStackButton.backgroundColor = UIColor.yellow
-        contentStackButton.widthAnchor.constraint(equalToConstant: 64).isActive = true
-        contentStackButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
-        contentStackButton.translatesAutoresizingMaskIntoConstraints = false
+        let buttonWidth: CGFloat = 64
+        selectionButton.bounds = CGRect(x: 0, y: 0, width: buttonWidth, height: 0)
+        selectionButton.backgroundColor = UIColor.yellow
+        selectionButton.widthAnchor.constraint(equalToConstant: buttonWidth).isActive = true
+        selectionButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        selectionButton.translatesAutoresizingMaskIntoConstraints = false
+        selectionButton.addTarget(self, action: #selector(controlStack), for: .touchUpInside)
+        selectionButton.setImage(UIImage(named: "settings"), for: .normal)
+        selectionButton.setImage(UIImage(named: "settingsPressed"), for: .highlighted)
+
         
         let container = UIView()
         container.addSubview(libraryGrid)
@@ -45,11 +50,14 @@ extension ViewController {
         gifGrid.viewController = self
         stickerGrid.viewController = self
         
-        contentStack.addArrangedSubview(contentStackButton)
+        contentStack.addArrangedSubview(selectionButton)
         contentStack.addArrangedSubview(container)
         contentStack.addArrangedSubview(menuBar)
         
-        contentStack.addConstraintsWithFormat("H:|[v0(64)]|", views: contentStackButton)
+        let marginButton = (self.view.bounds.width - buttonWidth) / 2
+        contentStack.addConstraintsWithFormat("H:|-\(marginButton)-[v0(\(buttonWidth))]|", views: selectionButton)
+        contentStack.addConstraintsWithFormat("H:|[v0]|", views: container)
+        contentStack.addConstraintsWithFormat("H:|[v0]|", views: menuBar)
         
         view.addSubview(contentStack)
         contentStack.translatesAutoresizingMaskIntoConstraints = false
@@ -162,6 +170,20 @@ extension ViewController {
         finishButton.isHidden = true
         textButton.isHidden = true
         undoButton.isHidden = true
+    }
+    
+    @objc func controlStack(sender: UIButton!) {
+        
+        if !selectionButton.isSelected {
+            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
+                self.contentStack.transform = CGAffineTransform(translationX: 0, y: self.contentStack.bounds.height - self.contentStack.subviews[0].bounds.height)
+            }, completion: nil)
+        } else {
+            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
+                self.contentStack.transform = .identity
+            }, completion: nil)
+        }
+        selectionButton.isSelected = !selectionButton.isSelected
     }
 
     
