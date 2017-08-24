@@ -41,16 +41,6 @@
                                     <action selector="showSettings:" destination="BV1-FR-VrT" eventType="touchUpInside" id="vhd-Nz-cMY"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SPB-Sb-hjO" userLabel="Add Content Button Hit Area">
-                                <rect key="frame" x="155" y="603" width="64" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="64" id="KiC-ah-vls"/>
-                                    <constraint firstAttribute="width" constant="64" id="TNJ-vc-uNj"/>
-                                </constraints>
-                                <connections>
-                                    <action selector="chooseObject:" destination="BV1-FR-VrT" eventType="touchUpInside" id="r5u-3K-Kd4"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qI1-of-tgS">
                                 <rect key="frame" x="15" y="604" width="48" height="48"/>
                                 <constraints>
@@ -79,19 +69,6 @@
                                 <state key="highlighted" image="settingsPressed"/>
                                 <connections>
                                     <action selector="showSettings:" destination="BV1-FR-VrT" eventType="touchUpInside" id="tO1-pq-1rM"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xcf-ic-uGo" userLabel="Add Object Button">
-                                <rect key="frame" x="163.5" y="604" width="48" height="48"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="48" id="NZv-Ts-4dl"/>
-                                    <constraint firstAttribute="height" constant="48" id="Z1M-DD-gjO"/>
-                                </constraints>
-                                <state key="normal" image="add">
-                                    <color key="titleColor" red="0.85882352941176465" green="0.72941176470588232" blue="0.22352941176470587" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="chooseObject:" destination="BV1-FR-VrT" eventType="touchUpInside" id="6wa-rW-fJZ"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SuF-Os-zmb" userLabel="Restart Experience Button Hit Area">
@@ -190,25 +167,18 @@
                             <constraint firstItem="BgI-fb-Vqi" firstAttribute="leading" secondItem="9e0-zv-RiN" secondAttribute="trailing" constant="15" id="MwJ-LS-qaQ"/>
                             <constraint firstItem="q5A-xD-w2H" firstAttribute="bottom" secondItem="E6c-py-dvH" secondAttribute="bottom" id="NdC-Ig-ZW6"/>
                             <constraint firstItem="mHW-JQ-uOv" firstAttribute="bottom" secondItem="E6c-py-dvH" secondAttribute="bottom" id="Nov-Ar-ZZv"/>
-                            <constraint firstItem="SPB-Sb-hjO" firstAttribute="centerX" secondItem="E6c-py-dvH" secondAttribute="centerX" id="SHv-Jn-H5B"/>
                             <constraint firstItem="qI1-of-tgS" firstAttribute="leading" secondItem="E6c-py-dvH" secondAttribute="leading" constant="15" id="TAE-Eo-uQj"/>
                             <constraint firstItem="SuF-Os-zmb" firstAttribute="top" secondItem="E6c-py-dvH" secondAttribute="top" id="UMK-or-VVf"/>
                             <constraint firstItem="BgI-fb-Vqi" firstAttribute="top" secondItem="GBj-4O-Whc" secondAttribute="top" constant="20" id="V7S-nn-Lcz"/>
                             <constraint firstItem="mHW-JQ-uOv" firstAttribute="leading" secondItem="E6c-py-dvH" secondAttribute="leading" id="YbV-6m-kVC"/>
-                            <constraint firstItem="xcf-ic-uGo" firstAttribute="centerX" secondItem="GBj-4O-Whc" secondAttribute="centerX" id="ZCe-ld-yQW"/>
-                            <constraint firstItem="SPB-Sb-hjO" firstAttribute="bottom" secondItem="E6c-py-dvH" secondAttribute="bottom" id="fjf-Mj-ALG"/>
                             <constraint firstItem="9e0-zv-RiN" firstAttribute="leading" secondItem="E6c-py-dvH" secondAttribute="leading" constant="15" id="iIf-WZ-kZj"/>
                             <constraint firstItem="GBj-4O-Whc" firstAttribute="trailing" secondItem="E6c-py-dvH" secondAttribute="trailing" id="lHd-lf-g1u"/>
-                            <constraint firstItem="GBj-4O-Whc" firstAttribute="bottom" secondItem="xcf-ic-uGo" secondAttribute="bottom" constant="15" id="sOL-M5-nW8"/>
                             <constraint firstItem="q5A-xD-w2H" firstAttribute="trailing" secondItem="E6c-py-dvH" secondAttribute="trailing" id="uvV-bc-TtK"/>
                             <constraint firstItem="GBj-4O-Whc" firstAttribute="bottom" secondItem="j8v-6q-UBb" secondAttribute="bottom" constant="15" id="vm8-IH-8Qx"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="GBj-4O-Whc"/>
                     </view>
                     <connections>
-                        <outlet property="addObjectButton" destination="xcf-ic-uGo" id="uFa-W2-4Iu"/>
-                        <outlet property="contentStackButton" destination="xcf-ic-uGo" id="GUT-9S-bUF"/>
-                        <outlet property="contentStackHitArea" destination="SPB-Sb-hjO" id="kFg-Mx-mG6"/>
                         <outlet property="debugMessageLabel" destination="Cxm-GD-h1F" id="0BW-FJ-xmR"/>
                         <outlet property="featurePointCountLabel" destination="2ZI-fK-iax" id="wpJ-fJ-Kn2"/>
                         <outlet property="messageLabel" destination="Mqz-65-rAs" id="G3a-qn-5g9"/>
@@ -483,7 +453,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="add" width="48" height="48"/>
         <image name="restart" width="20" height="23"/>
         <image name="restartPressed" width="20" height="23"/>
         <image name="settings" width="41" height="48"/>

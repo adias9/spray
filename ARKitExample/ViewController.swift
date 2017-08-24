@@ -63,8 +63,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         
         setupButtonsForEditing()
+        
+        view.addSubview(addObjectButton)
+        addObjectButton.setImage(UIImage(named: "add"), for: .normal)
+        addObjectButton.addTarget(self, action: #selector(chooseObject), for: .touchUpInside)
+        addObjectButton.translatesAutoresizingMaskIntoConstraints = false
+        addObjectButton.widthAnchor.constraint(equalToConstant: 64).isActive = true
+        addObjectButton.heightAnchor.constraint(equalToConstant: 64).isActive = true
+        addObjectButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -15).isActive = true
+        addObjectButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+     
     }
-
+    
+    let addObjectButton = UIButton()
     let preview = UIImageView()
     
     
@@ -922,8 +933,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
 
-    @IBOutlet weak var addObjectButton: UIButton!
-
     var objLocation: Location?
     func loadVirtualObject(at index: Int) {
         resetVirtualObject()
@@ -977,7 +986,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
-    @IBAction func chooseObject(_ button: UIButton) {
+    @objc func chooseObject(_ button: UIButton) {
 //        showContentStack()
         
         let editBoard = EditBoard()
@@ -987,7 +996,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         view.addSubview(editBoard)
        
         
-        UIView.animate(withDuration: 3, delay: 0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 1, delay: 0, options: .curveEaseOut, animations: {
             let w = UIScreen.main.bounds.width
             let h = UIScreen.main.bounds.height
             editBoard.bounds = CGRect(x: 0, y: 0, width: 0.93*w, height: 0.93*w)
@@ -995,15 +1004,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             editBoard.alpha = 1
         }, completion: nil)
         
-        UIView.animate(withDuration: 3, delay: 0, options: .curveEaseOut, animations: {
-//            let w = self.addObjectButton.bounds.width
-//            let h = self.addObjectButton.bounds.height
-//            self.addObjectButton.bounds = CGRect(x: 0, y: 0, width: 1.5*w, height: 1.5*h)
-//            let originalCenter = self.addObjectButton.center
-//            self.addObjectButton.center = originalCenter + CGPoint.init(x: 0, y: 0.2 * originalCenter.y)
+        self.addObjectButton.widthAnchor.constraint(equalToConstant: 128).isActive = true
+        self.addObjectButton.heightAnchor.constraint(equalToConstant: 128).isActive = true
+        self.addObjectButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -50).isActive = true
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+            self.view.layoutIfNeeded()
             self.addObjectButton.alpha = 0
-            self.addObjectButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0.15*self.view.bounds.height)
-            
         }, completion: nil)
     }
 

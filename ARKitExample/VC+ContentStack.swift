@@ -43,8 +43,8 @@ extension ViewController {
         canvas.heightAnchor.constraint(equalToConstant: 320).isActive = true
     
         contentStack.addArrangedSubview(editBoard)
-        contentStack.addArrangedSubview(menuBar)
         contentStack.addArrangedSubview(container)
+        contentStack.addArrangedSubview(menuBar)
         
         let marginEditBoard = (UIScreen.main.bounds.width - editBoard.length) / 2
         contentStack.addConstraintsWithFormat("H:|-\(marginEditBoard)-[v0]-\(marginEditBoard)-|", views: editBoard)
