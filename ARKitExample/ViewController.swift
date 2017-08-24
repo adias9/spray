@@ -66,6 +66,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         view.addSubview(addObjectButton)
         addObjectButton.setImage(UIImage(named: "add"), for: .normal)
+        addObjectButton.setImage(UIImage(named: "addPressed"), for: .highlighted)
         addObjectButton.addTarget(self, action: #selector(chooseObject), for: .touchUpInside)
         addObjectButton.translatesAutoresizingMaskIntoConstraints = false
         addObjectButton.widthAnchor.constraint(equalToConstant: 64).isActive = true
@@ -990,26 +991,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     @objc func chooseObject(_ button: UIButton) {
         showContentStack()
         
-        editBoard.center = addObjectButton.center
-        editBoard.bounds = addObjectButton.bounds
-        editBoard.alpha = 0
+        let length = UIScreen.main.bounds.width * 0.90
+        let wMargin = (UIScreen.main.bounds.width - length) / 2
+        let hMargin = 3 * wMargin
         view.addSubview(editBoard)
+        view.addConstraintsWithFormat("H:|-\(wMargin)-[v0(\(length))]-\(wMargin)-|", views: editBoard)
+        view.addConstraintsWithFormat("V:|-\(hMargin)-[v0(\(length))]|", views: editBoard)
        
+        var translation = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height - hMargin)
+        var scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
+        editBoard.transform = scale.concatenating(translation)
         
-        UIView.animate(withDuration: 0.7, delay: 0, options: .curveEaseOut, animations: {
-            let w = UIScreen.main.bounds.width
-            let h = UIScreen.main.bounds.height
-            self.editBoard.bounds = CGRect(x: 0, y: 0, width: 0.93*w, height: 0.93*w)
-            self.editBoard.center = CGPoint(x: w/2, y: h/2 - 0.15*h)
-            self.editBoard.alpha = 1
-        }, completion: nil)
-        
-        self.addObjectButton.widthAnchor.constraint(equalToConstant: 128).isActive = true
-        self.addObjectButton.heightAnchor.constraint(equalToConstant: 128).isActive = true
-        self.addObjectButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -50).isActive = true
-        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-            self.view.layoutIfNeeded()
+
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
+            translation = CGAffineTransform(translationX: 0, y: -50)
+            scale = CGAffineTransform(scaleX: 1.5, y: 1.5)
+            self.addObjectButton.transform = scale.concatenating(translation)
             self.addObjectButton.alpha = 0
+        }, completion: nil)
+        UIView.animate(withDuration:
+            0.5, delay: 0, options: .curveEaseOut, animations: {
+                self.editBoard.transform = .identity
         }, completion: nil)
     }
 
