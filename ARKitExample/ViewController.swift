@@ -17,7 +17,7 @@ import FirebaseAuth
 import FirebaseDatabase
 import FirebaseStorage
 import MobileCoreServices
-
+import SwiftIconFont
 
 class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
@@ -61,6 +61,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
+    
         
         setupButtonsForEditing()
         
@@ -73,6 +74,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         addObjectButton.heightAnchor.constraint(equalToConstant: 64).isActive = true
         addObjectButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -15).isActive = true
         addObjectButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        
+        // ---
+        settingsButton.isHidden = true
+        restartExperienceButton.isHidden = true
+        screenshotButton.isHidden = true
+        
+        // ---
      
     }
     

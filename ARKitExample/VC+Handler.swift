@@ -49,6 +49,8 @@ extension ViewController {
     }
     
     @objc func handleDrawButton(sender: UIButton!) {
+        sender.isSelected = !sender.isSelected
+        
         switch editBoard.drawState {
             
         case .drawing:

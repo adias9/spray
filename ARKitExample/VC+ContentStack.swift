@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftIconFont
 
 extension ViewController {
     
@@ -20,13 +21,15 @@ extension ViewController {
     func setupMenuBar() {
         let buttonWidth: CGFloat = 64
         selectionButton.bounds = CGRect(x: 0, y: 0, width: buttonWidth, height: 0)
-        selectionButton.backgroundColor = UIColor.yellow
+        selectionButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
         selectionButton.widthAnchor.constraint(equalToConstant: buttonWidth).isActive = true
         selectionButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
         selectionButton.translatesAutoresizingMaskIntoConstraints = false
         selectionButton.addTarget(self, action: #selector(controlStack), for: .touchUpInside)
-        selectionButton.setImage(UIImage(named: "settings"), for: .normal)
-        selectionButton.setImage(UIImage(named: "settingsPressed"), for: .highlighted)
+        selectionButton.setImage(UIImage(named: "detailsBlack"), for: .normal)
+        selectionButton.setImage(UIImage(named: "triangleBlack"), for: .selected)
+        selectionButton.imageView?.contentMode = .scaleAspectFill
+        selectionButton.layer.cornerRadius = 0.05 * buttonWidth
 
         
         let container = UIView()
@@ -103,27 +106,31 @@ extension ViewController {
     }
     
     func setupButtonsForEditing(){
-        let hMargin: CGFloat = -0.2 * UIScreen.main.bounds.height
-        let wMargin: CGFloat = 32
+        let hMargin: CGFloat = -0.18 * UIScreen.main.bounds.height
+        let wMargin: CGFloat = 16
+        let buttonLength: CGFloat = 64
         
         view.addSubview(drawButton)
-        drawButton.setImage(UIImage(named: "draw"), for: .normal)
-        drawButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        drawButton.setImage(UIImage(named: "brushBlack"), for: .normal)
+        drawButton.setBackgroundImage(UIImage.from(color: UIColor.white.withAlphaComponent(0.9)), for: .normal)
+        drawButton.setBackgroundImage(UIImage.from(color: UIColor.gray.withAlphaComponent(0.9)), for: .selected)
         drawButton.addTarget(self, action: #selector(handleDrawButton), for: .touchUpInside)
-        drawButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        drawButton.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        drawButton.heightAnchor.constraint(equalToConstant: buttonLength).isActive = true
+        drawButton.widthAnchor.constraint(equalToConstant: buttonLength).isActive = true
+        drawButton.layer.cornerRadius = 0.5 * buttonLength
         drawButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: hMargin).isActive = true
         drawButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: wMargin).isActive = true
         drawButton.translatesAutoresizingMaskIntoConstraints = false
+        drawButton.clipsToBounds = true
         drawButton.alpha = 0
-       
         
         view.addSubview(finishButton)
-        finishButton.setImage(UIImage(named: "done"), for: .normal)
-        finishButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        finishButton.setImage(UIImage(named: "ic_check_white"), for: .normal)
+        finishButton.layer.cornerRadius = 0.5 * buttonLength
+        finishButton.backgroundColor = UIColor(hue: 202/360, saturation: 100/100, brightness: 100/100, alpha: 1.0)
         finishButton.addTarget(self, action: #selector(handleFinishButton), for: .touchUpInside)
-        finishButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        finishButton.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        finishButton.heightAnchor.constraint(equalToConstant: buttonLength).isActive = true
+        finishButton.widthAnchor.constraint(equalToConstant: buttonLength).isActive = true
         finishButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: hMargin).isActive = true
         finishButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -wMargin).isActive = true
         finishButton.translatesAutoresizingMaskIntoConstraints = false
@@ -131,11 +138,12 @@ extension ViewController {
       
         
         view.addSubview(textButton)
-        textButton.setImage(UIImage(named: "text"), for: .normal)
+        textButton.setImage(UIImage(named: "ic_closed_caption"), for: .normal)
+        textButton.layer.cornerRadius = 0.5 * buttonLength
         textButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
         textButton.addTarget(self, action: #selector(handleTextButton), for: .touchUpInside)
-        textButton.heightAnchor.constraint(equalToConstant: 32).isActive = true
-        textButton.widthAnchor.constraint(equalToConstant: 32).isActive = true
+        textButton.heightAnchor.constraint(equalToConstant: buttonLength).isActive = true
+        textButton.widthAnchor.constraint(equalToConstant: buttonLength).isActive = true
         textButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: hMargin).isActive = true
         textButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         textButton.translatesAutoresizingMaskIntoConstraints = false
@@ -144,18 +152,16 @@ extension ViewController {
         
         let scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
         textButton.transform = scale
-    
         let tX = UIScreen.main.bounds.width / 2 - wMargin
         var translation = CGAffineTransform(translationX: tX, y: 0)
         drawButton.transform = scale.concatenating(translation)
-        
         translation = CGAffineTransform(translationX: -tX, y: 0)
         finishButton.transform = scale.concatenating(translation)
         
         
         
         
-//        undoButton.setImage(UIImage(named: "undo"), for: .normal)
+//        undoButton.setImage(UIImage(named: "ic_undo_white"), for: .normal)
 //        undoButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
 //        undoButton.addTarget(self, action: #selector(handleUndoButton), for: .touchUpInside)
 //        undoButton.heightAnchor.constraint(equalToConstant: 16).isActive = true

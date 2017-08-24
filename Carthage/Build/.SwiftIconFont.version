@@ -1,0 +1,18 @@
+{
+  "iOS" : [
+    {
+      "hash" : "fa13bfdd6529622d570d523eef713297f62d7064388f8b36a76f5507483ece22",
+      "name" : "SwiftIconFont"
+    }
+  ],
+  "commitish" : "2.7.0",
+  "watchOS" : [
+
+  ],
+  "tvOS" : [
+
+  ],
+  "Mac" : [
+
+  ]
+}

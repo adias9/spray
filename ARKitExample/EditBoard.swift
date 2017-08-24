@@ -16,10 +16,10 @@ class EditBoard : UIView{
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        layer.cornerRadius = 0.05 * length
         backgroundColor = UIColor.black.withAlphaComponent(0.8)
         widthAnchor.constraint(equalToConstant: length).isActive = true
         heightAnchor.constraint(equalToConstant: length).isActive = true
-        
         clipsToBounds = true
         imageView.isHidden = true
         let pinchToScale = UIPinchGestureRecognizer(target: self, action: #selector(self.handlePinchToScale(recognizer:)))
