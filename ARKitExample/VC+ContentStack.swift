@@ -18,12 +18,11 @@ extension ViewController {
     }
     
     func setupMenuBar() {
-        let menuBar = MenuBar()
-        menuBar.viewController = self
-        libraryGrid.viewController = self
-        memeGrid.viewController = self
-        gifGrid.viewController = self
-        stickerGrid.viewController = self
+        let contentStackButton = UIButton()
+        contentStackButton.backgroundColor = UIColor.yellow
+        contentStackButton.widthAnchor.constraint(equalToConstant: 64).isActive = true
+        contentStackButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        contentStackButton.translatesAutoresizingMaskIntoConstraints = false
         
         let container = UIView()
         container.addSubview(libraryGrid)
@@ -39,18 +38,18 @@ extension ViewController {
         container.addConstraintsWithFormat("H:|[v0]|", views: stickerGrid)
         container.addConstraintsWithFormat("V:|[v0]|", views: stickerGrid)
         
-        canvas.backgroundColor = UIColor.white
-        canvas.heightAnchor.constraint(equalToConstant: 320).isActive = true
-    
-        contentStack.addArrangedSubview(editBoard)
+        let menuBar = MenuBar()
+        menuBar.viewController = self
+        libraryGrid.viewController = self
+        memeGrid.viewController = self
+        gifGrid.viewController = self
+        stickerGrid.viewController = self
+        
+        contentStack.addArrangedSubview(contentStackButton)
         contentStack.addArrangedSubview(container)
         contentStack.addArrangedSubview(menuBar)
         
-        let marginEditBoard = (UIScreen.main.bounds.width - editBoard.length) / 2
-        contentStack.addConstraintsWithFormat("H:|-\(marginEditBoard)-[v0]-\(marginEditBoard)-|", views: editBoard)
-        contentStack.addConstraintsWithFormat("H:|[v0]|", views: container)
-        contentStack.addConstraintsWithFormat("H:|[v0]|", views: menuBar)
-        
+        contentStack.addConstraintsWithFormat("H:|[v0(64)]|", views: contentStackButton)
         
         view.addSubview(contentStack)
         contentStack.translatesAutoresizingMaskIntoConstraints = false
@@ -60,11 +59,7 @@ extension ViewController {
         contentStack.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         contentStack.axis = .vertical
         contentStack.spacing = 0
-        contentStack.setCustomSpacing(marginEditBoard * 3, after: editBoard)
         contentStack.isLayoutMarginsRelativeArrangement = true
-        
-        
-        
         contentStack.transform = CGAffineTransform(translationX: 0, y: view.frame.height)
     }
     
@@ -82,7 +77,7 @@ extension ViewController {
     }
     
     func showContentStack() {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.contentStack.transform = .identity
         }, completion: nil)
         

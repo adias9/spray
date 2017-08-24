@@ -987,7 +987,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
     @objc func chooseObject(_ button: UIButton) {
-//        showContentStack()
+        showContentStack()
         
         let editBoard = EditBoard()
         editBoard.center = addObjectButton.center
@@ -996,7 +996,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         view.addSubview(editBoard)
        
         
-        UIView.animate(withDuration: 1, delay: 0, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.7, delay: 0, options: .curveEaseOut, animations: {
             let w = UIScreen.main.bounds.width
             let h = UIScreen.main.bounds.height
             editBoard.bounds = CGRect(x: 0, y: 0, width: 0.93*w, height: 0.93*w)
