@@ -61,6 +61,12 @@ extension ViewController {
             editBoard.beginDrawing()
             
         }
+        
+        if sender.isSelected {
+            showButtonsForDrawing()
+        } else {
+            hideButtonsForDrawing()
+        }
     }
     
     @objc func handleUndoButton(sender: UIButton!) {
@@ -75,16 +81,33 @@ extension ViewController {
     @objc func handleClearButton(sender: UIButton!) {
         editBoard.reset()
         hideContentStack()
+        
+        dismissEditBoard()
+        
+        UIView.animate(withDuration: 0.1, delay: 0.3, options: .curveEaseOut, animations: {
+            self.addObjectButton.alpha = 1
+            self.addObjectButton.transform = .identity
+        }, completion: nil)
+        
+        let selectionButton = contentStack.subviews[0] as! UIButton
+        selectionButton.isSelected = false
+    
     }
     
     @objc func handleFinishButton(sender: UIButton!) {
-        UIGraphicsBeginImageContextWithOptions(editBoard.bounds.size, false, UIScreen.main.scale)
-        editBoard.layer.render(in: UIGraphicsGetCurrentContext()!)
-        preview.image = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
+        if isGif {
+            setPreview(content: UIImage.gif(data: (content?.data)!)!)
+        } else {
         
+            UIGraphicsBeginImageContextWithOptions(editBoard.bounds.size, false, UIScreen.main.scale)
+            editBoard.layer.render(in: UIGraphicsGetCurrentContext()!)
+            let image = UIGraphicsGetImageFromCurrentImageContext()!
+            setPreview(content: image)
+            UIGraphicsEndImageContext()
+        }
         hideContentStack()
         showPreview()
+        dismissEditBoard() 
     }
     
     

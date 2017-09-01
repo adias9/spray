@@ -51,5 +51,10 @@ extension ViewController {
         showPlaceObjectButton(bool: true)
     }
     
+    func setPreview(content: UIImage) {
+        preview.image = content
+        input = content
+    }
+    
     
 }

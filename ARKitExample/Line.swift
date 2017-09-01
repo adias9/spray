@@ -11,6 +11,8 @@ import UIKit
 class Line {
     
     var segments: [Segment] = []
+    var color: CGColor = UIColor.red.cgColor
+    var drawn: Bool = false
     
     struct Segment {
         var start: CGPoint?

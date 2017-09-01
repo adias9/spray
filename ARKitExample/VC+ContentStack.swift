@@ -72,10 +72,48 @@ extension ViewController {
         contentStack.spacing = 0
         contentStack.isLayoutMarginsRelativeArrangement = true
         contentStack.transform = CGAffineTransform(translationX: 0, y: view.frame.height)
+        
+        setupEditBoard()
+        
+        setupButtonsForDrawing()
+    }
+    
+    func setupEditBoard() {
+        let length = UIScreen.main.bounds.width * 0.90
+        let wMargin = (UIScreen.main.bounds.width - length) / 2
+        let hMargin = 3 * wMargin
+        view.addSubview(editBoard)
+        view.addConstraintsWithFormat("H:|-\(wMargin)-[v0(\(length))]-\(wMargin)-|", views: editBoard)
+        view.addConstraintsWithFormat("V:|-\(hMargin)-[v0(\(length))]|", views: editBoard)
+        
+        let translation = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height - hMargin)
+        let scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
+        editBoard.transform = scale.concatenating(translation)
+        editBoard.alpha = 0
+    }
+    
+    func dismissEditBoard() {
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
+            let length = UIScreen.main.bounds.width * 0.90
+            let wMargin = (UIScreen.main.bounds.width - length) / 2
+            let hMargin = 3 * wMargin
+            let translation = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height - hMargin)
+            let scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
+            self.editBoard.transform = scale.concatenating(translation)
+            self.editBoard.alpha = 0
+        }, completion: nil)
+    }
+    
+    func showEditBoard() {
+        UIView.animate(withDuration:
+            0.5, delay: 0, options: .curveEaseOut, animations: {
+                self.editBoard.transform = .identity
+                self.editBoard.alpha = 1
+        }, completion: nil)
     }
     
     func showGrid(type : ContentType) {
-        let grid = contentStack.subviews[contentStack.subviews.count - 1]
+        let grid = contentStack.subviews[contentStack.subviews.count - 2]
         if type == .library {
             grid.bringSubview(toFront: libraryGrid)
         } else if type == .meme{
@@ -90,6 +128,7 @@ extension ViewController {
     func showContentStack() {
         UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.contentStack.transform = .identity
+            self.clearButton.isHidden = false
         }, completion: nil)
         
         configureGesturesForState(state: .selection)
@@ -99,6 +138,7 @@ extension ViewController {
     func hideContentStack() {
         UIView.animate(withDuration: 1.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.contentStack.transform = CGAffineTransform(translationX: 0, y: self.view.frame.height)
+            self.clearButton.isHidden = true
         }, completion: nil)
         
         configureGesturesForState(state: .view)
@@ -127,26 +167,34 @@ extension ViewController {
         view.addSubview(finishButton)
         finishButton.setImage(UIImage(named: "ic_check_white"), for: .normal)
         finishButton.layer.cornerRadius = 0.5 * buttonLength
-        finishButton.backgroundColor = UIColor(hue: 202/360, saturation: 100/100, brightness: 100/100, alpha: 1.0)
+        finishButton.setBackgroundImage(UIImage.from(color:
+            UIColor(hue: 202/360, saturation: 100/100, brightness: 100/100, alpha: 0.9)),
+                                        for: .normal)
+        finishButton.setBackgroundImage(UIImage.from(color:
+            UIColor(hue: 202/360, saturation: 100/100, brightness: 50/100, alpha: 0.9)),
+                                        for: .highlighted)
         finishButton.addTarget(self, action: #selector(handleFinishButton), for: .touchUpInside)
         finishButton.heightAnchor.constraint(equalToConstant: buttonLength).isActive = true
         finishButton.widthAnchor.constraint(equalToConstant: buttonLength).isActive = true
         finishButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: hMargin).isActive = true
         finishButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -wMargin).isActive = true
         finishButton.translatesAutoresizingMaskIntoConstraints = false
+        finishButton.clipsToBounds = true
         finishButton.alpha = 0
       
         
         view.addSubview(textButton)
         textButton.setImage(UIImage(named: "ic_closed_caption"), for: .normal)
         textButton.layer.cornerRadius = 0.5 * buttonLength
-        textButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        textButton.setBackgroundImage(UIImage.from(color: UIColor.white.withAlphaComponent(0.9)), for: .normal)
+        textButton.setBackgroundImage(UIImage.from(color: UIColor.gray.withAlphaComponent(0.9)), for: .highlighted)
         textButton.addTarget(self, action: #selector(handleTextButton), for: .touchUpInside)
         textButton.heightAnchor.constraint(equalToConstant: buttonLength).isActive = true
         textButton.widthAnchor.constraint(equalToConstant: buttonLength).isActive = true
         textButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: hMargin).isActive = true
         textButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         textButton.translatesAutoresizingMaskIntoConstraints = false
+        textButton.clipsToBounds = true
         textButton.alpha = 0
      
         
@@ -158,26 +206,15 @@ extension ViewController {
         translation = CGAffineTransform(translationX: -tX, y: 0)
         finishButton.transform = scale.concatenating(translation)
         
-        
-        
-        
-//        undoButton.setImage(UIImage(named: "ic_undo_white"), for: .normal)
-//        undoButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
-//        undoButton.addTarget(self, action: #selector(handleUndoButton), for: .touchUpInside)
-//        undoButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
-//        undoButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
-//        view.addSubview(undoButton)
-//        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: undoButton)
-//        undoButton.isHidden = true
-//
-//        clearButton.setImage(UIImage(named: "clear"), for: .normal)
-//        clearButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
-//        clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
-//        clearButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
-//        clearButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
-//        view.addSubview(clearButton)
-//        view.addConstraintsWithFormat("V:|-10-[v0(32)]|", views: clearButton)
-//        clearButton.isHidden = true
+        view.addSubview(clearButton)
+        clearButton.setImage(UIImage(named: "ic_clear_white"), for: .normal)
+        clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
+        clearButton.heightAnchor.constraint(equalToConstant: buttonLength).isActive = true
+        clearButton.widthAnchor.constraint(equalToConstant: buttonLength).isActive = true
+        clearButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: wMargin)
+        clearButton.topAnchor.constraint(equalTo: self.view.topAnchor, constant: wMargin)
+        clearButton.translatesAutoresizingMaskIntoConstraints = false
+        clearButton.isHidden = true
     }
     
     func showEditingButtons() {
@@ -233,5 +270,74 @@ extension ViewController {
         selectionButton.isSelected = !selectionButton.isSelected
     }
 
+    func setupButtonsForDrawing() {
+        let hMargin: CGFloat = -0.18 * UIScreen.main.bounds.height
+        let wMargin: CGFloat = 16
+        let buttonLength: CGFloat = 64
+        
+        colorSlider.orientation = .horizontal
+        colorSlider.previewEnabled = true
+        view.addSubview(colorSlider)
+        colorSlider.translatesAutoresizingMaskIntoConstraints = false
+        colorSlider.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        colorSlider.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: hMargin).isActive = true
+        colorSlider.widthAnchor.constraint(equalToConstant: 200).isActive = true
+        colorSlider.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        colorSlider.alpha = 0
+        colorSlider.delegate = editBoard.drawView
+        
+        view.addSubview(undoButton)
+        undoButton.setImage(UIImage(named: "undo"), for: .normal)
+        undoButton.layer.cornerRadius = 0.5 * (buttonLength / 2)
+        undoButton.setBackgroundImage(UIImage.from(color: UIColor.white.withAlphaComponent(0.9)), for: .normal)
+        undoButton.setBackgroundImage(UIImage.from(color: UIColor.gray.withAlphaComponent(0.9)), for: .selected)
+        undoButton.addTarget(self, action: #selector(handleUndoButton), for: .touchUpInside)
+        undoButton.heightAnchor.constraint(equalToConstant: buttonLength / 2).isActive = true
+        undoButton.widthAnchor.constraint(equalToConstant: buttonLength / 2).isActive = true
+        undoButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: hMargin).isActive = true
+        undoButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -wMargin).isActive = true
+        undoButton.translatesAutoresizingMaskIntoConstraints = false
+        undoButton.clipsToBounds = true
+        undoButton.alpha = 0
+        
+        
+        let scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
+        textButton.transform = scale
+        let tX = UIScreen.main.bounds.width / 2 - wMargin
+        let translation = CGAffineTransform(translationX: -tX, y: 0)
+        undoButton.transform = scale.concatenating(translation)
+        colorSlider.transform = scale.concatenating(translation)
+    }
     
+    func showButtonsForDrawing() {
+        UIView.animate(withDuration: 0.4, delay: 0.1, options: .curveEaseOut, animations: {
+            self.undoButton.transform = .identity
+            self.colorSlider.transform = .identity
+            
+            self.undoButton.alpha = 1
+            self.colorSlider.alpha = 1
+            
+            self.finishButton.isHidden = true
+            self.textButton.isHidden = true
+        }, completion: nil)
+        
+        finishButton.isHidden = true
+        textButton.isHidden = true
+    }
+    
+    func hideButtonsForDrawing() {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            let wMargin: CGFloat = 32
+            let scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
+            let tX = UIScreen.main.bounds.width / 2 - wMargin
+            let translation = CGAffineTransform(translationX: -tX, y: 0)
+            self.undoButton.transform = scale.concatenating(translation)
+            self.colorSlider.transform = scale.concatenating(translation)
+            self.undoButton.alpha = 0
+            self.colorSlider.alpha = 0
+            
+            self.finishButton.isHidden = false
+            self.textButton.isHidden = false
+        }, completion: nil)
+    }
 }

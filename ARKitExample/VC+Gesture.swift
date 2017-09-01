@@ -124,23 +124,31 @@ extension ViewController {
         editBoard.endEditing(true)
     }
     
+    
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
-        guard let obj = content else {
-            textManager.showMessage("Please select an output!!")
-            return
-        }
-        
-        // Set content
-        if (obj.type == .gif) { // content is gif
-            guard let data = obj.data else {return}
-            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-            createNode(content: content)
-        } else { // content is picture
-            guard let data = obj.data else {return}
-            let content = SKScene.makeSKSceneFromImage(data: data,
+//        guard let obj = content else {
+//            textManager.showMessage("Please select an output!!")
+//            return
+//        }
+        if isGif {
+            let cont = SKScene.makeSKSceneFromGif(data: (content?.data)!, size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+            createNode(content: cont)
+        }else {
+            let cont = SKScene.makeSKSceneFromImage(image: input!,
                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-            createNode(content: content)
+            createNode(content: cont)
         }
+        // Set content
+//        if (obj.type == .gif) { // content is gif
+//            guard let data = obj.data else {return}
+//            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+//            createNode(content: content)
+//        } else { // content is picture
+//            guard let data = obj.data else {return}
+//            let content = SKScene.makeSKSceneFromImage(data: data,
+//                                                       size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+//            createNode(content: content)
+//        }
         
         // ----------------------------------------------------------------------------------------------------
         

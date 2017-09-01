@@ -105,6 +105,11 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         if let content = cell?.info {
             viewController?.content = content
             viewController?.editBoard.setBackground(content: (cell?.info)!)
+            if content.type == .gif {
+                viewController!.isGif = true
+            } else {
+                viewController!.isGif = false
+            }
         }
 
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class EditBoard : UIView{
+class EditBoard : UIView, UITextViewDelegate{
     
     let length : CGFloat = UIScreen.main.bounds.width * 0.93
     let imageView = UIImageView()
@@ -77,7 +77,16 @@ class EditBoard : UIView{
     // MARK :- Drawing
     let drawView = Drawing()
     
-    var drawState: DrawState = .inactive
+    var drawState: DrawState = .inactive {
+        didSet{
+            if drawState == .drawing {
+//                imageView.isUserInteractionEnabled = false
+                bringSubview(toFront: drawView)
+            } else  {
+//                imageView.isUserInteractionEnabled = true
+            }
+        }
+    }
     enum DrawState {
         case drawing
         case paused
@@ -86,6 +95,7 @@ class EditBoard : UIView{
     
     func beginDrawing() {
         addSubview(drawView)
+        bringSubview(toFront: drawView)
         addConstraintsWithFormat("H:|[v0]|", views: drawView)
         addConstraintsWithFormat("V:|[v0]|", views: drawView)
         drawView.isActive = true
@@ -112,15 +122,17 @@ class EditBoard : UIView{
 
     
     // MARK :- Texts
-    let texts: [ResizableView] = []
-    
     func addText() {
         let text = ResizableView()
         text.frame = CGRect.init(x: 0, y: 0, width: 124, height: 62)
         text.center = self.center
-        text.text = "SAMPLE"
+        text.delegate = self
         addSubview(text)
+        bringSubview(toFront: text)
         
+    }
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        bringSubview(toFront: textView)
     }
     
     required init?(coder aDecoder: NSCoder) {

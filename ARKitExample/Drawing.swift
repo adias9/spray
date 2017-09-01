@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Drawing : UIView {
+class Drawing : UIView, ColorSliderDelegate {
     
     var lines : [Line] = []
     var lastPoint : CGPoint?
@@ -25,6 +25,7 @@ class Drawing : UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if isActive {
             currentLine = Line()
+            currentLine?.color = color
             lines.append(currentLine!)
             lastPoint = touches.first?.location(in: self)
         }
@@ -46,11 +47,12 @@ class Drawing : UIView {
         context?.setLineCap(.round)
         context?.setLineWidth(5)
         for line in lines {
+            // draw the line
             for segment in line.segments {
                 context?.beginPath()
                 context?.move(to: segment.start!)
                 context?.addLine(to: segment.end!)
-                context?.setStrokeColor(UIColor.red.cgColor)
+                context?.setStrokeColor(line.color)
                 context?.strokePath()
             }
         }
@@ -68,6 +70,11 @@ class Drawing : UIView {
         setNeedsDisplay()
     }
     
+    // Update color when ColorSlider color is changed
+    private var color : CGColor = UIColor.red.cgColor
+    func updateColor(_ color: UIColor?) {
+        self.color = (color?.cgColor)!
+    }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

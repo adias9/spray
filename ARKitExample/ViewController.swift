@@ -81,23 +81,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         screenshotButton.isHidden = true
         
         // ---
-     
     }
     
     let addObjectButton = UIButton()
     let preview = UIImageView()
-    
+    var input: UIImage?
+    var isGif: Bool = false
     
     
     @objc func previewToContentStack(gestureRecognize: UITapGestureRecognizer) {
         hidePreview()
         showContentStack()
+        showEditBoard()
+        let selectionButton = contentStack.subviews[0] as! UIButton
+        selectionButton.isSelected = false
     }
     
     func showPlaceObjectButton(bool : Bool) {
-        contentStackButton.isEnabled = bool
-        contentStackHitArea.isEnabled = bool
-        contentStackButton.isHidden = !bool
+//        contentStackButton.isEnabled = bool
+//        contentStackHitArea.isEnabled = bool
+//        contentStackButton.isHidden = !bool
     }
 
     var contentStackBotAnchor : NSLayoutConstraint?
@@ -997,30 +1000,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // MARK: - Image Picker and Delegate
     var tapDismissContentStack : UITapGestureRecognizer?
     @objc func chooseObject(_ button: UIButton) {
-        showContentStack()
-        
-        let length = UIScreen.main.bounds.width * 0.90
-        let wMargin = (UIScreen.main.bounds.width - length) / 2
-        let hMargin = 3 * wMargin
-        view.addSubview(editBoard)
-        view.addConstraintsWithFormat("H:|-\(wMargin)-[v0(\(length))]-\(wMargin)-|", views: editBoard)
-        view.addConstraintsWithFormat("V:|-\(hMargin)-[v0(\(length))]|", views: editBoard)
-       
-        var translation = CGAffineTransform(translationX: 0, y: UIScreen.main.bounds.height - hMargin)
-        var scale = CGAffineTransform(scaleX: 0.2, y: 0.2)
-        editBoard.transform = scale.concatenating(translation)
-        
-
         UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut, animations: {
-            translation = CGAffineTransform(translationX: 0, y: -50)
-            scale = CGAffineTransform(scaleX: 1.5, y: 1.5)
+            let translation = CGAffineTransform(translationX: 0, y: -50)
+            let scale = CGAffineTransform(scaleX: 1.5, y: 1.5)
             self.addObjectButton.transform = scale.concatenating(translation)
             self.addObjectButton.alpha = 0
         }, completion: nil)
-        UIView.animate(withDuration:
-            0.5, delay: 0, options: .curveEaseOut, animations: {
-                self.editBoard.transform = .identity
-        }, completion: nil)
+        
+        showEditBoard()
+        
+        showContentStack()
+        view.bringSubview(toFront: contentStack)
     }
 
 
@@ -1280,6 +1270,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     let textButton = UIButton()
     let clearButton = UIButton()
     let finishButton = UIButton()
+    let colorSlider = ColorSlider()
 
 
     

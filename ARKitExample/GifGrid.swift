@@ -44,8 +44,9 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: UICollectionViewScrollPosition())
         
         let searchBar = UISearchBar()
-        searchBar.tintColor = UIColor.green
-        searchBar.barTintColor = UIColor.green
+        searchBar.tintColor = UIColor.black
+//        searchBar.barTintColor = UIColor.black
+        searchBar.showsCancelButton = true
         searchBar.delegate = self
         addSubview(searchBar)
         searchBar.bottomAnchor.constraint(equalTo: collectionView.topAnchor).isActive = true
@@ -154,6 +155,16 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         }
         searchBar.endEditing(true)
     }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" {
+            searchBar.showsCancelButton = true
+        } else {
+            searchBar.showsCancelButton = false
+        }
+    }
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+    }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -165,7 +176,9 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         if let content = cell?.info {
             viewController?.content = content
         }
-        viewController?.contentStack.isHidden = true
-        viewController?.showPreview()
+//        viewController?.contentStack.isHidden = true
+        viewController?.editBoard.setBackground(content: (cell?.info)!)
+        viewController?.isGif = true
+//        viewController?.showPreview()
     }
 }

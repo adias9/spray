@@ -77,7 +77,6 @@ class ResizableView: UITextView, UITextViewDelegate, UIGestureRecognizerDelegate
         delegate = self
         font = UIFont(name: "Helvetica", size: 20)
         
-        text = "THIS IS A PLACEHOLDER"
         textColor = UIColor.white
         textAlignment = .center
         
