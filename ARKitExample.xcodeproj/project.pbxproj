@@ -19,7 +19,6 @@
 		39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */; };
 		39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */; };
 		59292F8EEC3432BFBD2D18B6 /* Pods_ARKitExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */; };
-		6A11FFB01F199A430042F4F6 /* ImagePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A11FFAF1F199A430042F4F6 /* ImagePickerViewController.swift */; };
 		6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A25DA4D1F159D3F00DD7AFC /* Location.swift */; };
 		6A3F5A271F3242860013A67D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3F5A261F3242860013A67D /* Extensions.swift */; };
 		6A3F5A2D1F3244DA0013A67D /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */; };
@@ -32,7 +31,11 @@
 		6AD0869E1F339FC10035B6BC /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AD0869D1F339FC10035B6BC /* SwiftyJSON.framework */; };
 		6AD0869F1F33BF310035B6BC /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AD0869B1F338BFF0035B6BC /* Alamofire.framework */; };
 		6AD086A11F33E1210035B6BC /* GifGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD086A01F33E1210035B6BC /* GifGrid.swift */; };
-		B99B4D871F23EADD004324BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B99B4D861F23EADD004324BC /* GoogleService-Info.plist */; };
+		B91FA0F01F438C5C00FE1D73 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */; };
+		B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */; };
+		B92632321F45189A00894CA7 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B92632311F45189A00894CA7 /* Login.storyboard */; };
+		B92632351F451AC200894CA7 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92632341F451AC200894CA7 /* RegisterViewController.swift */; };
+		B95313761F4C1D0B00D760E0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9C88E8E1F4C1BA100B1C084 /* GoogleService-Info.plist */; };
 		C41366B91EB80DD400EC054A /* TextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41366B81EB80DD400EC054A /* TextManager.swift */; };
 		C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */; };
 /* End PBXBuildFile section */
@@ -53,7 +56,6 @@
 		39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneDebugVisualization.swift; sourceTree = "<group>"; };
 		39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ARKitExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6A11FFAF1F199A430042F4F6 /* ImagePickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewController.swift; sourceTree = "<group>"; };
 		6A25DA4D1F159D3F00DD7AFC /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		6A3F5A261F3242860013A67D /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
@@ -69,7 +71,13 @@
 		6AD086A01F33E1210035B6BC /* GifGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifGrid.swift; sourceTree = "<group>"; };
 		6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.debug.xcconfig"; sourceTree = "<group>"; };
 		B90A8E131F2BCE7B00064CDA /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
-		B99B4D861F23EADD004324BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		B91FA0F11F43A5E800FE1D73 /* ARKitExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ARKitExample.entitlements; sourceTree = "<group>"; };
+		B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowHandler.swift; sourceTree = "<group>"; };
+		B92632311F45189A00894CA7 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
+		B92632341F451AC200894CA7 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
+		B9C7210C1F8E7EE6006BB31D /* brick.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = brick.jpg; sourceTree = "<group>"; };
+		B9C88E8E1F4C1BA100B1C084 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C41366B81EB80DD400EC054A /* TextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextManager.swift; sourceTree = "<group>"; };
 		C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARCameraTrackingState.swift; sourceTree = "<group>"; };
 		C7F76951F8992F473202F831 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -127,11 +135,13 @@
 		3929C48A1E89EC2C00E00B60 /* ARKitExample */ = {
 			isa = PBXGroup;
 			children = (
-				6A3F5A2A1F3244160013A67D /* Modal */,
+				B91FA0F11F43A5E800FE1D73 /* ARKitExample.entitlements */,
+				6A3F5A2A1F3244160013A67D /* Model */,
 				6A3F5A281F3243B40013A67D /* View */,
 				6A3F5A291F3243C40013A67D /* Controller */,
 				6A25DA4D1F159D3F00DD7AFC /* Location.swift */,
 				3929C48B1E89EC2C00E00B60 /* AppDelegate.swift */,
+				B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */,
 				6A3F5A2B1F3244240013A67D /* Helper */,
 				113B64D01ECA81CA0071CBD1 /* UI Elements */,
 				C41366B81EB80DD400EC054A /* TextManager.swift */,
@@ -139,13 +149,14 @@
 				C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */,
 				39C0B9581E9C6B1F003FCA0C /* Utilities.swift */,
 				B90A8E131F2BCE7B00064CDA /* delete.png */,
+				B9C7210C1F8E7EE6006BB31D /* brick.jpg */,
 				3929C49E1E89EE4400E00B60 /* Models.scnassets */,
 				3929C4921E89EC2C00E00B60 /* Assets.xcassets */,
-				B99B4D861F23EADD004324BC /* GoogleService-Info.plist */,
+				B9C88E8E1F4C1BA100B1C084 /* GoogleService-Info.plist */,
 				3929C4971E89EC2C00E00B60 /* Info.plist */,
 				3929C48F1E89EC2C00E00B60 /* Main.storyboard */,
+				B92632311F45189A00894CA7 /* Login.storyboard */,
 				39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */,
-				6A11FFAF1F199A430042F4F6 /* ImagePickerViewController.swift */,
 			);
 			path = ARKitExample;
 			sourceTree = "<group>";
@@ -172,18 +183,19 @@
 		6A3F5A291F3243C40013A67D /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				B92632331F451A6C00894CA7 /* LoginControllers */,
 				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
 				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
 		};
-		6A3F5A2A1F3244160013A67D /* Modal */ = {
+		6A3F5A2A1F3244160013A67D /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				6ABA87591F38EDEA00D7782C /* Content.swift */,
 			);
-			name = Modal;
+			name = Model;
 			sourceTree = "<group>";
 		};
 		6A3F5A2B1F3244240013A67D /* Helper */ = {
@@ -201,6 +213,15 @@
 				C7F76951F8992F473202F831 /* LICENSE.txt */,
 			);
 			path = LICENSE;
+			sourceTree = "<group>";
+		};
+		B92632331F451A6C00894CA7 /* LoginControllers */ = {
+			isa = PBXGroup;
+			children = (
+				B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */,
+				B92632341F451AC200894CA7 /* RegisterViewController.swift */,
+			);
+			name = LoginControllers;
 			sourceTree = "<group>";
 		};
 		CC6CF3D48B06681D66F6DE20 /* Configuration */ = {
@@ -257,9 +278,14 @@
 				TargetAttributes = {
 					3929C4871E89EC2C00E00B60 = {
 						CreatedOnToolsVersion = 9.0;
-						DevelopmentTeam = SDC3SVN734;
+						DevelopmentTeam = 3JQ473334H;
 						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -288,9 +314,10 @@
 			files = (
 				3929C49F1E89EE4400E00B60 /* Models.scnassets in Resources */,
 				39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */,
-				B99B4D871F23EADD004324BC /* GoogleService-Info.plist in Resources */,
+				B92632321F45189A00894CA7 /* Login.storyboard in Resources */,
 				3929C4931E89EC2C00E00B60 /* Assets.xcassets in Resources */,
 				3929C4911E89EC2C00E00B60 /* Main.storyboard in Resources */,
+				B95313761F4C1D0B00D760E0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +376,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B91FA0F01F438C5C00FE1D73 /* LoginViewController.swift in Sources */,
+				B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */,
 				39C0B9511E9C63CB003FCA0C /* HitTestVisualization.swift in Sources */,
 				3929C48E1E89EC2C00E00B60 /* ViewController.swift in Sources */,
 				C41366B91EB80DD400EC054A /* TextManager.swift in Sources */,
@@ -357,8 +386,8 @@
 				6ABA875A1F38EDEA00D7782C /* Content.swift in Sources */,
 				392BB82C1EA19A7C00FBBAC8 /* Plane.swift in Sources */,
 				6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */,
-				6A11FFB01F199A430042F4F6 /* ImagePickerViewController.swift in Sources */,
 				6AD086A11F33E1210035B6BC /* GifGrid.swift in Sources */,
+				B92632351F451AC200894CA7 /* RegisterViewController.swift in Sources */,
 				39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */,
 				39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */,
 				6AD086991F3273110035B6BC /* LibraryGrid.swift in Sources */,
@@ -498,13 +527,14 @@
 			baseConfigurationReference = 6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ARKitExample/ARKitExample.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = SDC3SVN734;
+				DEVELOPMENT_TEAM = 3JQ473334H;
 				INFOPLIST_FILE = ARKitExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias9.Spray;
+				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias9.Picto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -518,13 +548,14 @@
 			baseConfigurationReference = D6297B48C7926B95F793A435 /* Pods-ARKitExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ARKitExample/ARKitExample.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = SDC3SVN734;
+				DEVELOPMENT_TEAM = 3JQ473334H;
 				INFOPLIST_FILE = ARKitExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias9.Spray;
+				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias9.Picto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;

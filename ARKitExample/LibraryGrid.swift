@@ -64,7 +64,6 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         fetchOptions.sortDescriptors =  [NSSortDescriptor.init(key: "creationDate", ascending: true)]
         let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: fetchOptions)
         if fetchResult.count > 0 {
-            var data : Data?
             manager.requestImageData(for: fetchResult.object(at: fetchResult.count - 1 - indexPath.row) as PHAsset, options: PHImageRequestOptions(), resultHandler: {contentData, string, orientation, hashable in
                 if let data = contentData {
                     let info = Content()

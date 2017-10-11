@@ -7,21 +7,21 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>952137252265-n958p4qa147lg2nr55g3t13ttqjvpqra.apps.googleusercontent.com</string>
+	<string>132832694802-rfgd882i37ul0vjm76aonrftabagf8vp.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.952137252265-n958p4qa147lg2nr55g3t13ttqjvpqra</string>
+	<string>com.googleusercontent.apps.132832694802-rfgd882i37ul0vjm76aonrftabagf8vp</string>
 	<key>API_KEY</key>
-	<string>AIzaSyB1ChAZIc8wcW2APQt51lbU9crj-sg08gE</string>
+	<string>AIzaSyA-_0cjQ6X5P1YeF269h0PPx_BVD1i-MPQ</string>
 	<key>GCM_SENDER_ID</key>
-	<string>952137252265</string>
+	<string>132832694802</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.andreasdias9.Spray</string>
+	<string>com.andreasdias9.Picto</string>
 	<key>PROJECT_ID</key>
-	<string>spray-12e31</string>
+	<string>picto-90489</string>
 	<key>STORAGE_BUCKET</key>
-	<string>spray-12e31.appspot.com</string>
+	<string>picto-90489.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<true/>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -33,8 +33,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:952137252265:ios:0da7a036ecd511c5</string>
+	<string>1:132832694802:ios:f4dd006b550b51d2</string>
 	<key>DATABASE_URL</key>
-	<string>https://spray-12e31.firebaseio.com</string>
+	<string>https://picto-90489.firebaseio.com</string>
 </dict>
 </plist>

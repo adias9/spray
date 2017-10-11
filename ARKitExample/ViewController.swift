@@ -310,7 +310,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         print("simdtransform array \(wrapperNode.simdTransform)")
 
-
+        
         // MARK: Andreas's Code
 
         // Save Node and Pictures to Database
@@ -439,9 +439,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             let point = shortPress.location(in: view)
             let scnHitTestResults = sceneView.hitTest(point, options: nil)
             if let result = scnHitTestResults.first {
-                skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
-                let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
-                skScene!.childNode(withName: "content")?.run(darken)
+                if result.node.name != "distinct_cube" {
+                    skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
+                    let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
+                    skScene!.childNode(withName: "content")?.run(darken)
+                }
             }
         }
 
@@ -450,9 +452,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 let point = shortPress.location(in: view)
                 let scnHitTestResults = sceneView.hitTest(point, options: nil)
                 if let result = scnHitTestResults.first {
-                    skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
-                    let darken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
-                    skScene!.childNode(withName: "content")?.run(darken)
+                    if result.node.name != "distinct_cube" {
+                        skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
+                        let darken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
+                        skScene!.childNode(withName: "content")?.run(darken)
+                    }
                 }
             }
         }
@@ -466,28 +470,30 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             let point = longPress.location(in: view)
             let scnHitTestResults = sceneView.hitTest(point, options: nil)
             if let result = scnHitTestResults.first {
-                let geometry = result.node.geometry! as! SCNPlane
+                if result.node.name != "distinct_cube" {
+                    let geometry = result.node.geometry! as! SCNPlane
 
-                // Add delete button
-                let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
-                let delete = SKSpriteNode.init(imageNamed: "delete.png")
-                delete.name = "delete"
-                delete.size = CGSize.init(width: skScene.frame.width * 0.15, height: skScene.frame.width * 0.15)
-                delete.position = CGPoint.init(x: skScene.frame.width * 0.90, y: skScene.frame.height * 0.90)
-                delete.isUserInteractionEnabled = true
-                skScene.addChild(delete)
+                    // Add delete button
+                    let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
+                    let delete = SKSpriteNode.init(imageNamed: "delete.png")
+                    delete.name = "delete"
+                    delete.size = CGSize.init(width: skScene.frame.width * 0.15, height: skScene.frame.width * 0.15)
+                    delete.position = CGPoint.init(x: skScene.frame.width * 0.90, y: skScene.frame.height * 0.90)
+                    delete.isUserInteractionEnabled = true
+                    skScene.addChild(delete)
 
 
-                configureGesturesForState(state: .delete)
+                    configureGesturesForState(state: .delete)
 
-                // Delete - Tap gesture recognizer change
-//                tapDelete = UITapGestureRecognizer(target: self, action:
-//                    #selector(self.deleteNode(tap:)))
-                target = result.node
-//                view.addGestureRecognizer(tapDelete!)
+                    // Delete - Tap gesture recognizer change
+    //                tapDelete = UITapGestureRecognizer(target: self, action:
+    //                    #selector(self.deleteNode(tap:)))
+                    target = result.node
+    //                view.addGestureRecognizer(tapDelete!)
 
-                // Vibrate phone
-                AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+                    // Vibrate phone
+                    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+                }
             }
         }
 
@@ -545,103 +551,108 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                     if snapshot.exists() {
                         outsideGroup.enter()
                         // remove node from root
-                        let nodeDict = snapshot.value as! NSDictionary
+                        DispatchQueue.main.async (group: outsideGroup) {
+                            let nodeDict = snapshot.value as! NSDictionary
 
-                        var rootID : String = ""
-                        var userID : String = ""
-                        var picID : String = ""
-                        var nodeDist : Double = 0.0
-                        for (key, value) in nodeDict {
-                            if (key as? String == "root") {
-                                rootID = value as! String
-                            } else if (key as? String == "user") {
-                                userID = value as! String
-                            } else if (key as? String == "picture") {
-                                picID = value as! String
-                            }else if (key as? String == "distance") {
-                                nodeDist = value as! Double
-                            } else {
-                            }
-                        }
-
-                        databaseRef.child("/roots/\(rootID)").observeSingleEvent(of: .value, with: { (snapshot) in
-                            let rootDict = snapshot.value as! NSDictionary
-                            var dbNodes : NSDictionary = ["":true]
-                            var dbRadius : Double = 0.0
-                            for (key, value) in rootDict {
-                                if (key as? String == "nodes") {
-                                    dbNodes = value as! NSDictionary
-                                } else if (key as? String == "radius") {
-                                    dbRadius = value as! Double
+                            var rootID : String = ""
+                            var userID : String = ""
+                            var picID : String = ""
+                            var nodeDist : Double = 0.0
+                            for (key, value) in nodeDict {
+                                if (key as? String == "root") {
+                                    rootID = value as! String
+                                } else if (key as? String == "user") {
+                                    userID = value as! String
+                                } else if (key as? String == "picture") {
+                                    picID = value as! String
+                                }else if (key as? String == "distance") {
+                                    nodeDist = value as! Double
+                                } else {
                                 }
                             }
 
-                            let group = DispatchGroup()
+                            databaseRef.child("/roots/\(rootID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                                let rootDict = snapshot.value as! NSDictionary
+                                var dbNodes : NSDictionary = ["":true]
+                                var dbRadius : Double = 0.0
+                                for (key, value) in rootDict {
+                                    if (key as? String == "nodes") {
+                                        dbNodes = value as! NSDictionary
+                                    } else if (key as? String == "radius") {
+                                        dbRadius = value as! Double
+                                    }
+                                }
 
-                            // Update the radius of the root
-                            if dbNodes.count == 1 {
-                                databaseRef.child("/roots/\(rootID)/radius").setValue(0.0)
-                            } else if nodeDist != dbRadius {
-                                // Don't need to change the radius if this node is not the max radius
-                            } else {
-                                var nodeRadius = 0.0
+                                let group = DispatchGroup()
+                                
+                                // Update the radius of the root
+                                if dbNodes.count == 1 {
+                                    databaseRef.child("/roots/\(rootID)/radius").setValue(0.0)
+                                } else if nodeDist != dbRadius {
+                                    // Don't need to change the radius if this node is not the max radius
+                                } else {
+                                    var nodeRadius = 0.0
 
-                                for (nodeID,_) in dbNodes {
-                                    group.enter()
-                                    databaseRef.child("/nodes/\(nodeID)").observeSingleEvent(of: .value, with: { (snapshot) in
-                                        let allNodesDict = snapshot.value as! NSDictionary
+                                    for (nodeID,_) in dbNodes {
+                                        group.enter()
+                                        DispatchQueue.main.async (group: group) {
+                                            databaseRef.child("/nodes/\(nodeID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                                                let allNodesDict = snapshot.value as! NSDictionary
 
-                                        var givenNodeDist : Double = 0.0
-                                        for (key, value) in allNodesDict {
-                                            if (key as? String == "distance") {
-                                                givenNodeDist = value as! Double
-                                                break
-                                            }
+                                                var givenNodeDist : Double = 0.0
+                                                for (key, value) in allNodesDict {
+                                                    if (key as? String == "distance") {
+                                                        givenNodeDist = value as! Double
+                                                        break
+                                                    }
+                                                }
+                                                if givenNodeDist > nodeRadius {
+                                                    nodeRadius = givenNodeDist
+                                                }
+                                                group.leave()
+                                            })
                                         }
-                                        if givenNodeDist > nodeRadius {
-                                            nodeRadius = givenNodeDist
-                                        }
-                                        group.leave()
-                                    })
+                                    }
+                                    // Set the new radius of root
+                                    group.notify(queue: .main) {
+                                        databaseRef.child("/roots/\(rootID)/radius").setValue(nodeRadius)
+                                    }
                                 }
-                                // Set the new radius of root
-                                group.notify(queue: .main) {
-                                    databaseRef.child("/roots/\(rootID)/radius").setValue(nodeRadius)
-                                }
-                            }
 
-                            // remove the node from the root
-                            databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error,_  in
+                                // remove the node from the root
+                                databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error,_  in
+                                    if error != nil {
+                                        print("error \(error!)")
+                                    }
+                                }
+                            })
+
+                            // remove node from user
+                            databaseRef.child("/users/\(userID)/lastPicture").removeValue { error,_ in
                                 if error != nil {
                                     print("error \(error!)")
                                 }
                             }
-                        })
 
-                        // remove node from user
-                        databaseRef.child("/users/\(userID)/lastPicture").removeValue { error,_ in
-                            if error != nil {
-                                print("error \(error!)")
+                            // remove pic
+                            databaseRef.child("/pictures/\(picID)").removeValue { error,_ in
+                                if error != nil {
+                                    print("error \(error!)")
+                                }
                             }
-                        }
 
-                        // remove pic
-                        databaseRef.child("/pictures/\(picID)").removeValue { error,_ in
-                            if error != nil {
-                                print("error \(error!)")
+                            // remove pic from storage
+                            let picRef = storageRef.child("/pictures/").child(picID)
+                            picRef.delete { error in
+                                if let error = error {
+                                    print("Error occurred: \(error)")
+                                } else {
+                                    // File deleted successfully
+                                }
                             }
+                            outsideGroup.leave()
                         }
-
-                        // remove pic from storage
-                        let picRef = storageRef.child("/pictures/").child(picID)
-                        picRef.delete { error in
-                            if let error = error {
-                                print("Error occurred: \(error)")
-                            } else {
-                                // File deleted successfully
-                            }
-                        }
-                        outsideGroup.leave()
+                        
 
                         outsideGroup.notify(queue: .main) {
                             // remove node
@@ -722,8 +733,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
-        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -732,52 +741,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         session.pause()
 
-        // Remove Auth Listener for User Sign in State
-        Auth.auth().removeStateDidChangeListener(handle!)
     }
 
     // MARK: - Firebase Initialization
     func setupFirebase() {
-        // Sign in User with Firebase Auth
-        print("User Auth")
-        if Auth.auth().currentUser != nil {
-            print("User is already logged in anonymously with uid:" + Auth.auth().currentUser!.uid)
-        } else {
-            do {
-                try Auth.auth().signOut();
-                print("signed out")
-            } catch {
-                print("Error signing out")
-            }
-            Auth.auth().signInAnonymously() { (user, error) in
-                if error != nil {
-                    print("This is the error msg:")
-                    print(error!)
-                    print("Here ends the error msg.")
-                    return
-                }
-
-                if user!.isAnonymous {
-                    print("User has logged in anonymously with uid:" + user!.uid)
-                }
-            }
-
-
-            // Code to set the user's displayName
-            //            let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-            //            let displayName = "adias"
-            //            changeRequest?.displayName = displayName
-            //            changeRequest?.commitChanges { (error) in
-            //                if error != nil {
-            //                    print(error!)
-            //                    return
-            //                }
-            //                 print("The user's displayName has been added")
-            //            }
-        }
-
-        print("getcurrentLocation in setupFirebase: \(currentLocation)")
-        print("getrootNodeLocation in setupFirebase: \(rootNodeLocation)")
+        
 
 
         // Initialize Firebase Database
@@ -806,15 +774,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         let userChildUpdates: [String: Any] = ["/users/\(Auth.auth().currentUser!.uid)/lastRoot": currentRootID]
         databaseRef.updateChildValues(userChildUpdates)
+        self.locationManager.stopUpdatingLocation()
+    }
+    
+    // MARK: - Add Object to Post Images To
+    // Drop down 3d object to scene
+    func addPostObjectToScene() {
+        guard let currentFrame = sceneView.session.currentFrame else{
+            return
+        }
+        //change this to box
+        let box = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0)
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor(red:0.00, green:0.25, blue:0.50, alpha:1.0)  //UIImage(named: "brick.jpg")
+        box.materials = [material]
+        let cubeNode = SCNNode(geometry: box)
+        cubeNode.name = "distinct_cube"
+        cubeNode.position = SCNVector3(0, 0, -1.0)
+        sceneView.scene.rootNode.addChildNode(cubeNode)
+        
+//        let modelScene = SCNScene(named: "Models.scnassets/test/test.dae")!
+//        print(modelScene.rootNode.childNodes)
+//        let nodeModel = modelScene.rootNode.childNode(withName: "pCube1", recursively: true)!
+//
+//        // 10 cm in front of camera
+//        var translation = matrix_identity_float4x4
+//        translation.columns.3.z = -3.0
+//        //rotate chair upright
+//        var rotation = matrix_identity_float4x4
+//        rotation.columns.0.x = Float(cos(CGFloat.pi * -3/2))
+//        rotation.columns.0.y = Float(sin(CGFloat.pi * -3/2))
+//        rotation.columns.1.x = Float(-sin(CGFloat.pi * -3/2))
+//        rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
+//        nodeModel.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
+//        sceneView.scene.rootNode.addChildNode(nodeModel)
     }
 
     // MARK: - Populate Nearby Areas with Existent Nodes
     private func getRadiansFrom(degrees: Double) -> Double {
         return degrees * .pi / 180
-    }
-
-    private func getMagnitudeOf() {
-
     }
 
     private func getSCNVectorComponentsBetween(currLocation: CLLocation, prevLocation: CLLocation) -> (Double, Double, Double) {
@@ -837,7 +835,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let xcom = distance * cos(radiansBearing)
         let ycom = distance * sin(radiansBearing)
 
-        let zcom = currLocation.altitude - prevLocation.altitude
+        let zcom = altitude
 
         return (xcom, zcom, ycom)
     }
@@ -921,89 +919,91 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
                                         for (nodeID, _) in dbNodes {
                                             group.enter()
-                                            print("got in node loop with nodeID: \(nodeID)")
-                                            let nodeRef = databaseRef.child("/nodes/\(nodeID)")
-                                            nodeRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                                                if snapshot.exists() {
-                                                    let nodeDict = snapshot.valueInExportFormat() as! NSDictionary
+                                            DispatchQueue.main.async (group: group) {
+                                                print("got in node loop with nodeID: \(nodeID)")
+                                                let nodeRef = databaseRef.child("/nodes/\(nodeID)")
+                                                nodeRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                                                    if snapshot.exists() {
+                                                        let nodeDict = snapshot.valueInExportFormat() as! NSDictionary
 
-                                                    print("nodeDict: \(nodeDict)")
+                                                        print("nodeDict: \(nodeDict)")
 
-                                                    var dbNodeTransformDict : NSDictionary = [:]
-                                                    var dbNodePicture : String = ""
-                                                    for (key, value) in nodeDict {
-                                                        if (key as? String == "transformArray") {
-                                                            dbNodeTransformDict = value as! NSDictionary
-                                                        } else if (key as? String == "picture") {
-                                                            dbNodePicture = value as! String
-                                                        } else {
+                                                        var dbNodeTransformDict : NSDictionary = [:]
+                                                        var dbNodePicture : String = ""
+                                                        for (key, value) in nodeDict {
+                                                            if (key as? String == "transformArray") {
+                                                                dbNodeTransformDict = value as! NSDictionary
+                                                            } else if (key as? String == "picture") {
+                                                                dbNodePicture = value as! String
+                                                            } else {
 
+                                                            }
                                                         }
-                                                    }
 
 
-                                                    let picRef = databaseRef.child("/pictures/\(dbNodePicture)/url")
-                                                    picRef.observeSingleEvent(of: .value, with :{ (snapshot) in
-                                                        if snapshot.exists() {
-                                                            let imagePlane = SCNPlane(width: self.stdLen, height: self.stdLen)
-                                                            let picUrl = snapshot.valueInExportFormat() as! String
+                                                        let picRef = databaseRef.child("/pictures/\(dbNodePicture)/url")
+                                                        picRef.observeSingleEvent(of: .value, with :{ (snapshot) in
+                                                            if snapshot.exists() {
+                                                                let imagePlane = SCNPlane(width: self.stdLen, height: self.stdLen)
+                                                                let picUrl = snapshot.valueInExportFormat() as! String
 
-                                                            // initialize this correctly and make sure of corner cases
-                                                            var skimage = SKScene()
+                                                                // initialize this correctly and make sure of corner cases
+                                                                var skimage = SKScene()
 
-                                                            do {
-                                                                let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
-                                                                if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
-                                                                    skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                                                                } else if input.imageFormat == .GIF {
-                                                                    skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                                                                } else {
-                                                                    print("not acceptable format of image")
+                                                                do {
+                                                                    let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
+                                                                    if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
+                                                                        skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+                                                                    } else if input.imageFormat == .GIF {
+                                                                        skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+                                                                    } else {
+                                                                        print("not acceptable format of image")
+                                                                    }
+                                                                } catch {
+                                                                    print("Error in converting picurl to NSData")
                                                                 }
-                                                            } catch {
-                                                                print("Error in converting picurl to NSData")
+
+                                                                imagePlane.firstMaterial?.diffuse.contents = skimage
+                                                                imagePlane.firstMaterial?.lightingModel = .constant
+                                                                imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
+                                                                imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
+                                                                imagePlane.firstMaterial?.isDoubleSided = true
+
+                                                                let childNode = SCNNode(geometry: imagePlane)
+                                                                var transformArray : simd_float4x4
+
+                                                                var columns = [float4].init()
+                                                                for key in 0...3 {
+                                                                    let tempDict = dbNodeTransformDict.value(forKey: "\(key)") as! NSDictionary
+                                                                    print("tempDict: \(tempDict)")
+                                                                    var temp = [Float].init()
+                                                                    temp.append((tempDict.value(forKey: "0") as! NSNumber).floatValue)
+                                                                    print("temp0: \(temp)")
+                                                                    print(tempDict.value(forKey: "1")!)
+                                                                    temp.append((tempDict.value(forKey: "1") as! NSNumber).floatValue)
+                                                                    print("temp1: \(temp)")
+                                                                    temp.append((tempDict.value(forKey: "2") as! NSNumber).floatValue)
+                                                                    print("temp2: \(temp)")
+                                                                    temp.append((tempDict.value(forKey: "3") as! NSNumber).floatValue)
+                                                                    print("temp3: \(temp)")
+                                                                    let floatFour = float4.init(temp)
+                                                                    columns.append(floatFour)
+                                                                }
+                                                                transformArray = simd_float4x4.init(columns)
+                                                                print("Transform Array addPrev: \(transformArray)")
+                                                                childNode.simdTransform = transformArray
+                                                                childNode.name = "\(nodeID)"
+                                                                prevRootNode.addChildNode(childNode)
+                                                                group.leave()
+                                                            } else {
+                                                                print("snapshot of pictures does not exist")
                                                             }
-
-                                                            imagePlane.firstMaterial?.diffuse.contents = skimage
-                                                            imagePlane.firstMaterial?.lightingModel = .constant
-                                                            imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
-                                                            imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
-                                                            imagePlane.firstMaterial?.isDoubleSided = true
-
-                                                            let childNode = SCNNode(geometry: imagePlane)
-                                                            var transformArray : simd_float4x4
-
-                                                            var columns = [float4].init()
-                                                            for key in 0...3 {
-                                                                let tempDict = dbNodeTransformDict.value(forKey: "\(key)") as! NSDictionary
-                                                                print("tempDict: \(tempDict)")
-                                                                var temp = [Float].init()
-                                                                temp.append((tempDict.value(forKey: "0") as! NSNumber).floatValue)
-                                                                print("temp0: \(temp)")
-                                                                print(tempDict.value(forKey: "1")!)
-                                                                temp.append((tempDict.value(forKey: "1") as! NSNumber).floatValue)
-                                                                print("temp1: \(temp)")
-                                                                temp.append((tempDict.value(forKey: "2") as! NSNumber).floatValue)
-                                                                print("temp2: \(temp)")
-                                                                temp.append((tempDict.value(forKey: "3") as! NSNumber).floatValue)
-                                                                print("temp3: \(temp)")
-                                                                let floatFour = float4.init(temp)
-                                                                columns.append(floatFour)
-                                                            }
-                                                            transformArray = simd_float4x4.init(columns)
-                                                            print("Transform Array addPrev: \(transformArray)")
-                                                            childNode.simdTransform = transformArray
-                                                            childNode.name = "\(nodeID)"
-                                                            prevRootNode.addChildNode(childNode)
-                                                            group.leave()
-                                                        } else {
-                                                            print("snapshot of pictures does not exist")
-                                                        }
-                                                    })
-                                                } else {
-                                                    print("snapshot of nodes does not exist")
-                                                }
-                                            })
+                                                        })
+                                                    } else {
+                                                        print("snapshot of nodes does not exist")
+                                                    }
+                                                })
+                                            }
                                         }
                                         group.notify(queue: .main) {
                                             let components = self.getSCNVectorComponentsBetween(currLocation: self.rootNodeLocation, prevLocation: prevRootLocation)
@@ -1052,7 +1052,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         locationManager.activityType = CLActivityType.fitness
 
         //Start getting User Location
-        locationManager.startUpdatingLocation()
+        DispatchQueue.main.async {
+            self.locationManager.startUpdatingLocation()
+        }
         print("getcurrentLocation in location settings: \(currentLocation)")
     }
 
@@ -1071,10 +1073,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             if rootNodeLocation.coordinate.latitude == 0 && rootNodeLocation.coordinate.longitude == 0 {
                 rootNodeLocation = locations[locations.count-1] as CLLocation
                 // Setup the firebase
-                setupFirebase()
+                DispatchQueue.main.async {
+                    self.setupFirebase()
+                }
             }
-            // Start checking for Nodes
-            addPrevNodesToScene()
+            
         }
     }
 
@@ -1084,17 +1087,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     // MARK: - ARKit / ARSCNView
     let session = ARSession()
-    var sessionConfig = ARWorldTrackingSessionConfiguration()
+    var sessionConfig = ARWorldTrackingConfiguration()
 
 
     var use3DOFTracking = false {
         didSet {
             if use3DOFTracking {
-                sessionConfig = ARSessionConfiguration() as! ARWorldTrackingSessionConfiguration
+                sessionConfig = ARWorldTrackingConfiguration()
             }
             sessionConfig.isLightEstimationEnabled = UserDefaults.standard.bool(for: .ambientLightEstimation)
             sessionConfig.worldAlignment = .gravityAndHeading
-            sessionConfig.worldAlignment = ARSessionConfiguration.WorldAlignment.gravityAndHeading
+            sessionConfig.worldAlignment = ARConfiguration.WorldAlignment.gravityAndHeading
             session.run(sessionConfig)
 
         }
@@ -1193,6 +1196,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             if use3DOFTrackingFallback && trackingFallbackTimer != nil {
                 trackingFallbackTimer!.invalidate()
                 trackingFallbackTimer = nil
+            }
+            // Start checking for Nodes
+            DispatchQueue.main.async {
+                self.addPostObjectToScene()
+//                self.addPrevNodesToScene()
             }
         }
     }
@@ -1501,7 +1509,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func restartPlaneDetection() {
 
         // configure session
-        if let worldSessionConfig = sessionConfig as? ARWorldTrackingSessionConfiguration {
+        if let worldSessionConfig = sessionConfig as? ARWorldTrackingConfiguration {
             //            worldSessionConfig.planeDetection = .horizontal
             print(worldSessionConfig.planeDetection)
             session.run(worldSessionConfig, options: [.resetTracking, .removeExistingAnchors])
@@ -1548,7 +1556,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
 
         DispatchQueue.main.async {
-            self.featurePointCountLabel.text = "Features: \(cloud.count)".uppercased()
+            self.featurePointCountLabel.text = "Features: \(cloud)".uppercased()
         }
     }
 

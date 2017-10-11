@@ -75,7 +75,7 @@ class Picture: SCNNode, UIImagePickerControllerDelegate, UINavigationControllerD
 //        wrapperNode.rotation = SCNVector4.init(0, 1, 0, CGFloat.pi * 3/2)
         
         // this code does not work
-        let cameraPos = SCNVector3.positionFromTransform(currentFrame.camera.transform)
+//        let cameraPos = SCNVector3.positionFromTransform(currentFrame.camera.transform)
 //        currentFrame.camera.transform
 //        wrapperNode.position = cameraPos
 //        wrapperNode.simdEulerAngles.x = currentFrame.camera.eulerAngles.x

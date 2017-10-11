@@ -56,18 +56,6 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
     }
     
     func fetchContent() {
-//        let host = "api.giphy.com"
-//        let path = "/v1/stickers/search"
-//        let q = "doge"
-//        let apiKey = "80a8f5bf38594d7eb0bdf8289966b948"
-//        let url = "http://\(host)/\(path)?q=\(q)&api_key=\(apiKey)"
-//
-//        Alamofire.request(url).responseData(completionHandler: {(responseData) -> Void in
-//            if (responseData.data != nil) {
-//                self.parseData(data: responseData.data!)
-//                print(responseData.data!)
-//            }
-//        })
         
         //Sending a /guggify request with no sentence param will return trending results
         if let text = searchText {
@@ -82,12 +70,14 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
                 "apiKey" : apiKey
             ]
             
-            Alamofire.request(url!, method: .post, parameters:  parameters, encoding: JSONEncoding.default, headers: headers).responseData(completionHandler: {(responseData) -> Void in
-                if (responseData.data != nil) {
-                    self.sources.removeAll()
-                    self.parseData(data: responseData.data!)
-                }
-            })
+            DispatchQueue.main.async {
+                Alamofire.request(url!, method: .post, parameters:  parameters, encoding: JSONEncoding.default, headers: headers).responseData(completionHandler: {(responseData) -> Void in
+                    if (responseData.data != nil) {
+                        self.sources.removeAll()
+                        self.parseData(data: responseData.data!)
+                    }
+                })
+            }
         }
         
     }
