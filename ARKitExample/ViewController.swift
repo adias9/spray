@@ -670,7 +670,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             }
             sessionConfig.isLightEstimationEnabled = UserDefaults.standard.bool(for: .ambientLightEstimation)
             sessionConfig.worldAlignment = .gravityAndHeading
-            sessionConfig.worldAlignment = ARSessionConfiguration.WorldAlignment.gravityAndHeading
             session.run(sessionConfig)
 
         }
