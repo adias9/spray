@@ -1018,7 +1018,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func restartPlaneDetection() {
 
         // configure session
-        if let worldSessionConfig = sessionConfig as? ARWorldTrackingSessionConfiguration {
+        if let worldSessionConfig = sessionConfig as? ARWorldTrackingConfiguration {
             //            worldSessionConfig.planeDetection = .horizontal
             session.run(worldSessionConfig, options: [.resetTracking, .removeExistingAnchors])
         }
