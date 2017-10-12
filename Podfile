@@ -13,5 +13,6 @@ target 'ARKitExample' do
   pod 'SwiftyJSON'
   pod 'Alamofire', '~> 4.4'
   pod 'SwiftIconFont', '~> 2.7'
+  pod 'iOSPhotoEditor'
   
 end
