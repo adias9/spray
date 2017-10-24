@@ -21,7 +21,7 @@ class MenuBar: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UIC
         return cv
     }()
     let cellId = "cellId"
-    let imageNames = ["photo", "meme", "gif", "sticker"]
+    let imageNames = ["sticker", "photo", "meme", "gif"]
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -56,13 +56,13 @@ class MenuBar: UIView, UICollectionViewDataSource, UICollectionViewDelegate, UIC
     var viewController : ViewController?
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if (indexPath.item == 0) {
-            viewController?.showGrid(type: .library)
+            viewController?.showGrid(type: .plain)
         } else if (indexPath.item == 1) {
-            viewController?.showGrid(type: .meme)
+            viewController?.showGrid(type: .library)
         } else if (indexPath.item == 2) {
-            viewController?.showGrid(type: .gif)
+            viewController?.showGrid(type: .meme)
         } else  {
-            viewController?.showGrid(type: .sticker)
+            viewController?.showGrid(type: .gif)
         }
     }
     

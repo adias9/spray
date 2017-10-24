@@ -26,8 +26,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var currentRootID : String = ""
     var handle: AuthStateDidChangeListenerHandle?
     var deleteMode: Bool = false
-    var tapAdd: UITapGestureRecognizer?
-    var tapDelete: UITapGestureRecognizer?
     var longPressDelete: UILongPressGestureRecognizer?
     var longPressDarken: UILongPressGestureRecognizer?
     var tapPreviewToStack : UITapGestureRecognizer?
@@ -36,6 +34,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let len = self.sceneView.bounds.height / 3000
         return len
     }()
+    /// Properties that keeps track of the location where the drop operation was performed & the transform
+    var dropPoint = CGPoint.zero
+    var dropPointTransform = CGAffineTransform.identity
 
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -148,26 +149,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     enum ContentType {
+        case plain
         case library
         case meme
         case gif
-        case sticker
     }
 
     let contentStack = UIStackView()
+    let plainGrid = PlainGrid()
     let libraryGrid = LibraryGrid()
-    let memeGrid = LibraryGrid()
+    let memeGrid = MemeGrid()
     let gifGrid = GifGrid()
-    let stickerGrid = LibraryGrid()
     func setupMenuBar() {
         let menuBar = MenuBar()
         menuBar.viewController = self
         libraryGrid.viewController = self
         memeGrid.viewController = self
         gifGrid.viewController = self
-        stickerGrid.viewController = self
+        plainGrid.viewController = self
 
         let container = UIView()
+        container.addSubview(plainGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: plainGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: plainGrid)
         container.addSubview(libraryGrid)
         container.addConstraintsWithFormat("H:|[v0]|", views: libraryGrid)
         container.addConstraintsWithFormat("V:|[v0]|", views: libraryGrid)
@@ -177,9 +181,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         container.addSubview(gifGrid)
         container.addConstraintsWithFormat("H:|[v0]|", views: gifGrid)
         container.addConstraintsWithFormat("V:|[v0]|", views: gifGrid)
-        container.addSubview(stickerGrid)
-        container.addConstraintsWithFormat("H:|[v0]|", views: stickerGrid)
-        container.addConstraintsWithFormat("V:|[v0]|", views: stickerGrid)
 
         contentStack.addArrangedSubview(menuBar)
         contentStack.addArrangedSubview(container)
@@ -197,26 +198,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
     func showGrid(type : ContentType) {
         let grid = contentStack.subviews[1]
-        if type == .library {
+        if type == .plain {
+            grid.bringSubview(toFront: plainGrid)
+        } else if type == .library {
             grid.bringSubview(toFront: libraryGrid)
-        } else if type == .meme{
+        } else if type == .meme {
             grid.bringSubview(toFront: memeGrid)
-        } else if type == .gif{
-            grid.bringSubview(toFront: gifGrid)
         } else {
-            grid.bringSubview(toFront: stickerGrid)
+            grid.bringSubview(toFront: gifGrid)
         }
     }
 
     func setupGestures() {
-        tapDelete = UITapGestureRecognizer(target: self, action:
-            #selector(self.deleteNode(tap:)))
-        view.addGestureRecognizer(tapDelete!)
-
-        tapAdd = UITapGestureRecognizer(target: self, action:
-            #selector(self.placeObject(gestureRecognize:)))
-        view.addGestureRecognizer(tapAdd!)
-
+        // Add drop interaction
+        let dropInteraction = UIDropInteraction(delegate: self)
+        sceneView.addInteraction(dropInteraction)
+        
+        // Add drag interaction
+        let dragInteraction = UIDragInteraction(delegate: self)
+        dragInteraction.isEnabled = true
+        preview.addInteraction(dragInteraction)
+        
+        // delete interaction
         longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
         longPressDelete!.minimumPressDuration = 1.5 //*undarken
         view.addGestureRecognizer(longPressDelete!)
@@ -249,6 +252,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let grid = contentStack.arrangedSubviews[1]
         grid.endEditing(true)
     }
+    
+    // Load Prev Obj
+    func loadImage(_ itemProvider: NSItemProvider, nodeName: String) {
+        itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
+            DispatchQueue.main.async {
+                let image = object as! UIImage
+                self.newPictureView(image: image, nodeName: nodeName)
+                
+//                self.images.append(image)
+            }
+        }
+    }
+    
+    func newPictureView(image: UIImage, nodeName: String) {
+        
+        // Set content and for now no gif
+//        if (image.type == .gif) { // content is gif
+//            guard let data = image.data else {return}
+//            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+//            createNode(content: content)
+//        } else {
+        // content is picture
+        let data = UIImagePNGRepresentation(image)!
+        let content = SKScene.makeSKSceneFromImage(data: data,
+                                                       size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+        editNode(content: content, nodeName: nodeName)
+//        }
+    }
+    
+    // fading objects on dragging and dropping
+    func fade(items: [UIDragItem], alpha: CGFloat) {
+        for item in items {
+            if let nodeName = item.localObject as? String {
+                let childNode = sceneView.scene.rootNode.childNode(withName: nodeName, recursively: true)!
+                let view = childNode.geometry?.firstMaterial?.diffuse.contents as? UIImageView
+                view?.alpha = alpha
+            }
+        }
+    }
 
     // Adding Objects
     @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
@@ -280,6 +322,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     }
 
+    func editNode(content: SKScene, nodeName: String) {
+        let pix = SCNPlane(width: 1/4, height: 1/4)
+        pix.firstMaterial?.diffuse.contents = content
+        pix.firstMaterial?.lightingModel = .constant
+        
+        let targetNode = sceneView.scene.rootNode.childNode(withName: nodeName, recursively: true)
+        targetNode?.geometry = pix
+    }
+    
     func createNode(content: SKScene) {
         guard let currentFrame = sceneView.session.currentFrame else{
             return
@@ -439,7 +490,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             let point = shortPress.location(in: view)
             let scnHitTestResults = sceneView.hitTest(point, options: nil)
             if let result = scnHitTestResults.first {
-                if result.node.name != "distinct_cube" {
+                print(result.node.name!)
+                if result.node.name != "distinct_cube" && result.node.name?.range(of:"pix") == nil && result.node.name?.range(of:"side") == nil {
                     skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
                     let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
                     skScene!.childNode(withName: "content")?.run(darken)
@@ -452,7 +504,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 let point = shortPress.location(in: view)
                 let scnHitTestResults = sceneView.hitTest(point, options: nil)
                 if let result = scnHitTestResults.first {
-                    if result.node.name != "distinct_cube" {
+                    if result.node.name != "distinct_cube" && result.node.name?.range(of:"pix") == nil && result.node.name?.range(of:"side") == nil {
                         skScene = result.node.geometry?.firstMaterial?.diffuse.contents as? SKScene
                         let darken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
                         skScene!.childNode(withName: "content")?.run(darken)
@@ -470,7 +522,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             let point = longPress.location(in: view)
             let scnHitTestResults = sceneView.hitTest(point, options: nil)
             if let result = scnHitTestResults.first {
-                if result.node.name != "distinct_cube" {
+                if result.node.name != "distinct_cube" && result.node.name?.range(of:"pix") == nil && result.node.name?.range(of:"side") == nil {
                     let geometry = result.node.geometry! as! SCNPlane
 
                     // Add delete button
@@ -485,11 +537,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
                     configureGesturesForState(state: .delete)
 
-                    // Delete - Tap gesture recognizer change
-    //                tapDelete = UITapGestureRecognizer(target: self, action:
-    //                    #selector(self.deleteNode(tap:)))
                     target = result.node
-    //                view.addGestureRecognizer(tapDelete!)
 
                     // Vibrate phone
                     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
@@ -779,10 +827,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     // MARK: - Add Object to Post Images To
     // Drop down 3d object to scene
+    func generateRandomColor() -> UIColor {
+        let hue : CGFloat = CGFloat(arc4random() % 256) / 256 // use 256 to get full range from 0.0 to 1.0
+        let saturation : CGFloat = CGFloat(arc4random() % 128) / 256 + 0.5 // from 0.5 to 1.0 to stay away from white
+        let brightness : CGFloat = CGFloat(arc4random() % 128) / 256 + 0.5 // from 0.5 to 1.0 to stay away from black
+        
+        return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: 1)
+    }
+    
     func addPostObjectToScene() {
-        guard let currentFrame = sceneView.session.currentFrame else{
-            return
-        }
+        
         //change this to box
         let box = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0)
         let material = SCNMaterial()
@@ -790,8 +844,116 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         box.materials = [material]
         let cubeNode = SCNNode(geometry: box)
         cubeNode.name = "distinct_cube"
-        cubeNode.position = SCNVector3(0, 0, -1.0)
+        cubeNode.position = SCNVector3(0, 0, -4.0)
+        // cube was upside down
+        cubeNode.rotation = SCNVector4(0, 0, 1, (Float.pi))
         sceneView.scene.rootNode.addChildNode(cubeNode)
+        
+        // add four side of children (image planes?, skscnenes?)
+        let side = SCNPlane(width: 1.0, height: 1.0)
+//        side.materials = [material]
+        side.firstMaterial?.diffuse.contents = UIColor.green
+        for i in 1...4 {
+            let sideNode = SCNNode(geometry: side)
+            sideNode.name = "side" + String(i)
+            // this position shud be relative to parent
+            if i == 1 {
+                sideNode.position.z = 0.5 + 0.01
+            } else if i == 2 {
+                sideNode.position.x = -0.5 - 0.01
+                sideNode.rotation.y = 1
+                sideNode.rotation.w = Float(CGFloat.pi * 3/2)
+//                simd_float4x4(SCNMatrix4MakeRotation(_360degrees, 0, 1, 0))
+            } else if i == 3 {
+                sideNode.position.z = -0.5 - 0.01
+                sideNode.rotation.y = 1
+                sideNode.rotation.w = Float(CGFloat.pi)
+            } else {
+                sideNode.position.x = 0.5 + 0.01
+                sideNode.rotation.y = 1
+                sideNode.rotation.w = Float(CGFloat.pi * 1/2)
+            }
+            cubeNode.addChildNode(sideNode)
+            for j in 1...16 {
+                let pix = SCNPlane(width: (1/4), height: (1/4))
+//                let picUrl = snapshot.valueInExportFormat() as! String
+                
+//                var skimage = SKScene()
+//                do {
+//                    let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
+//                    if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
+//                        skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+//                    } else if input.imageFormat == .GIF {
+//                        skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+//                    } else {
+//                        print("not acceptable format of image")
+//                    }
+//                } catch {
+//                    print("Error in converting picurl to NSData")
+//                }
+                
+//                pix.firstMaterial?.diffuse.contents = skimage
+                pix.firstMaterial?.diffuse.contents = generateRandomColor()
+                pix.firstMaterial?.lightingModel = .constant
+                
+                // add Node for each square
+                let pixNode = SCNNode(geometry: pix)
+                pixNode.name = "pix" + String(j) + sideNode.name!
+                pixNode.position.z = 0.01
+                if j == 1 {
+                    pixNode.position.x = -(3/8)
+                    pixNode.position.y = (3/8)
+                } else if j == 2 {
+                    pixNode.position.x = -(1/8)
+                    pixNode.position.y = (3/8)
+                } else if j == 3 {
+                    pixNode.position.x = (1/8)
+                    pixNode.position.y = (3/8)
+                } else if j == 4 {
+                    pixNode.position.x = (3/8)
+                    pixNode.position.y = (3/8)
+                } else if j == 5 {
+                    pixNode.position.x = -(3/8)
+                    pixNode.position.y = (1/8)
+                } else if j == 6 {
+                    pixNode.position.x = -(1/8)
+                    pixNode.position.y = (1/8)
+                } else if j == 7 {
+                    pixNode.position.x = (1/8)
+                    pixNode.position.y = (1/8)
+                } else if j == 8 {
+                    pixNode.position.x = (3/8)
+                    pixNode.position.y = (1/8)
+                } else if j == 9 {
+                    pixNode.position.x = -(3/8)
+                    pixNode.position.y = -(1/8)
+                } else if j == 10 {
+                    pixNode.position.x = -(1/8)
+                    pixNode.position.y = -(1/8)
+                } else if j == 11 {
+                    pixNode.position.x = (1/8)
+                    pixNode.position.y = -(1/8)
+                } else if j == 12 {
+                    pixNode.position.x = (3/8)
+                    pixNode.position.y = -(1/8)
+                } else if j == 13 {
+                    pixNode.position.x = -(3/8)
+                    pixNode.position.y = -(3/8)
+                } else if j == 14 {
+                    pixNode.position.x = -(1/8)
+                    pixNode.position.y = -(3/8)
+                } else if j == 15 {
+                    pixNode.position.x = (1/8)
+                    pixNode.position.y = -(3/8)
+                } else {
+                    pixNode.position.x = (3/8)
+                    pixNode.position.y = -(3/8)
+                }
+                
+                sideNode.addChildNode(pixNode)
+            }
+        }
+    
         
 //        let modelScene = SCNScene(named: "Models.scnassets/test/test.dae")!
 //        print(modelScene.rootNode.childNodes)
@@ -1436,8 +1598,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             longPressDarken?.isEnabled = true
             longPressDelete?.isEnabled = true
 
-            tapAdd?.isEnabled = false
-            tapDelete?.isEnabled = false
             tapDismissContentStack?.isEnabled = false
             tapDismissKeyboard?.isEnabled = false
             tapPreviewToStack?.isEnabled = false
@@ -1446,33 +1606,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false
-            tapAdd?.isEnabled = false
-            tapDelete?.isEnabled = false
             tapDismissKeyboard?.isEnabled = false
             tapPreviewToStack?.isEnabled = false
         } else if state == .place {
-            tapAdd?.isEnabled = true
             longPressDarken?.isEnabled = true
             longPressDelete?.isEnabled = true
             tapPreviewToStack?.isEnabled = true
 
             tapDismissContentStack?.isEnabled = false
-            tapDelete?.isEnabled = false
             tapDismissKeyboard?.isEnabled = false
         } else if state == .keyboard {
             tapDismissKeyboard?.isEnabled = true
 
-            tapAdd?.isEnabled = false
             tapDismissContentStack?.isEnabled = false
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false
-            tapDelete?.isEnabled = false
             tapPreviewToStack?.isEnabled = false
         } else if state == .delete {
-            tapDelete?.isEnabled = true
 
             tapDismissKeyboard?.isEnabled = false
-            tapAdd?.isEnabled = false
             tapDismissContentStack?.isEnabled = false
             longPressDarken?.isEnabled = false
             longPressDelete?.isEnabled = false

@@ -10,7 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 
-class RegisterViewController: UIViewController {
+class RegisterViewController: UIViewController, UITextFieldDelegate {
     
     let inputsContainerView: UIView = {
         let view = UIView()
@@ -23,7 +23,7 @@ class RegisterViewController: UIViewController {
     
     let loginRegisterButton: UIButton = {
         let button = UIButton(type: .system)
-        button.backgroundColor = UIColor(r: 80, g: 101, b: 161)
+        button.backgroundColor = UIColor.black //UIColor(r: 252, g: 64, b: 64)
         button.setTitle("Register", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor.white, for: .normal)
@@ -38,19 +38,54 @@ class RegisterViewController: UIViewController {
         let tf = UITextField()
         tf.placeholder = "Username"
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.enablesReturnKeyAutomatically = false
         return tf
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor(r: 61, g: 91, b: 151)
+        view.backgroundColor = UIColor.lightGray // UIColor(r: 61, g: 91, b: 151)
         
         view.addSubview(inputsContainerView)
         view.addSubview(loginRegisterButton)
         
+        self.hideKeyboard()
+        
+        let loginWelcome = UILabel()
+        loginWelcome.text = "How do you want to be seen?"
+        loginWelcome.numberOfLines = 0
+        loginWelcome.lineBreakMode = .byWordWrapping
+        loginWelcome.textColor = UIColor.black
+        loginWelcome.font = loginWelcome.font.withSize(30)
+        loginWelcome.frame = CGRect(x: 16, y: view.frame.height/12, width: view.frame.width - 32, height: 100)
+        view.addSubview(loginWelcome)
+        
+        self.usernameTextField.delegate = self
+        
         setupInputsContainerView()
         setupLoginRegisterButton()
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == usernameTextField {
+            textField.resignFirstResponder()
+            self.addUsername()
+            return false
+        }
+        return true
+    }
+    
+    func hideKeyboard() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(self.dismissKeyboard))
+        
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     func setupInputsContainerView() {
@@ -58,14 +93,14 @@ class RegisterViewController: UIViewController {
         inputsContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         inputsContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         inputsContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24).isActive = true
-        inputsContainerView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        inputsContainerView.heightAnchor.constraint(equalToConstant: 75).isActive = true
         
         inputsContainerView.addSubview(usernameTextField)
         //need x, y, width, height constraints
         usernameTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor, constant: 12).isActive = true
         usernameTextField.topAnchor.constraint(equalTo: inputsContainerView.topAnchor).isActive = true
         usernameTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        usernameTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/3).isActive = true
+        usernameTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1).isActive = true
     }
     
     func setupLoginRegisterButton() {
@@ -85,7 +120,17 @@ class RegisterViewController: UIViewController {
             print("Field cannot be empty")
             return
         }
-        
+        if usernameTextField.text!.count >= 10 {
+            print("username must be less than 11 characters")
+            return
+        }
+        let letters = NSCharacterSet.letters
+        let range = usernameTextField.text!.rangeOfCharacter(from: letters)
+        if let test = range {
+        } else {
+            print("username must contain letters")
+            return
+        }
         
         let databaseRef = Database.database().reference()
         Auth.auth().addStateDidChangeListener { (auth, user) in

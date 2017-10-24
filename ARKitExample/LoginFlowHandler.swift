@@ -30,7 +30,6 @@ extension LoginFlowHandler {
     }
     
     func handleLogout(withWindow window: UIWindow?) {
-        
         do {
             try Auth.auth().signOut();
             print("signed out")

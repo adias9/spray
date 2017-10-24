@@ -1,5 +1,5 @@
 //
-//  SelectionGrid.swift
+//  LibraryGrid.swift
 //  ARKitExample
 //
 //  Created by Andrew Jay Zhou on 8/2/17.
