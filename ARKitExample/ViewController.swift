@@ -851,8 +851,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         // add four side of children (image planes?, skscnenes?)
         let side = SCNPlane(width: 1.0, height: 1.0)
-//        side.materials = [material]
-        side.firstMaterial?.diffuse.contents = UIColor.green
+        side.materials = [material]
         for i in 1...4 {
             let sideNode = SCNNode(geometry: side)
             sideNode.name = "side" + String(i)
@@ -863,7 +862,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 sideNode.position.x = -0.5 - 0.01
                 sideNode.rotation.y = 1
                 sideNode.rotation.w = Float(CGFloat.pi * 3/2)
-//                simd_float4x4(SCNMatrix4MakeRotation(_360degrees, 0, 1, 0))
             } else if i == 3 {
                 sideNode.position.z = -0.5 - 0.01
                 sideNode.rotation.y = 1
