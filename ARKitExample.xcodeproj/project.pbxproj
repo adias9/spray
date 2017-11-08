@@ -35,6 +35,7 @@
 		B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */; };
 		B92632321F45189A00894CA7 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B92632311F45189A00894CA7 /* Login.storyboard */; };
 		B92632351F451AC200894CA7 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92632341F451AC200894CA7 /* RegisterViewController.swift */; };
+		B926F22C1FA84E6B00DE0A3C /* VC+iOSPhotoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B926F22B1FA84E6B00DE0A3C /* VC+iOSPhotoEditor.swift */; };
 		B92A276D1F99384400865B85 /* ViewController+Drag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92A276C1F99384400865B85 /* ViewController+Drag.swift */; };
 		B92A276F1F993DE500865B85 /* ViewController+Drop.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92A276E1F993DE500865B85 /* ViewController+Drop.swift */; };
 		B92F516F1F972D55008EA2F6 /* MemeGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92F516E1F972D55008EA2F6 /* MemeGrid.swift */; };
@@ -42,6 +43,13 @@
 		B95313761F4C1D0B00D760E0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9C88E8E1F4C1BA100B1C084 /* GoogleService-Info.plist */; };
 		B9B1F89D1F9708AF001AC14E /* PlainGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B1F89C1F9708AE001AC14E /* PlainGrid.swift */; };
 		B9B1F89F1F971A42001AC14E /* gradients in Resources */ = {isa = PBXBuildFile; fileRef = B9B1F89E1F971A40001AC14E /* gradients */; };
+		B9E9DF4E1FB0F9920062EC1C /* picto.png in Resources */ = {isa = PBXBuildFile; fileRef = B9E9DF4D1FB0F9920062EC1C /* picto.png */; };
+		B9E9DF511FB2D5100062EC1C /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E9DF501FB2D50F0062EC1C /* WelcomeViewController.swift */; };
+		B9E9DF531FB2DD5F0062EC1C /* draw.gif in Resources */ = {isa = PBXBuildFile; fileRef = B9E9DF521FB2DD5F0062EC1C /* draw.gif */; };
+		B9E9DF551FB2E25B0062EC1C /* WelcomeViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E9DF541FB2E25B0062EC1C /* WelcomeViewController2.swift */; };
+		B9E9DF571FB2E26B0062EC1C /* WelcomeViewController3.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E9DF561FB2E26B0062EC1C /* WelcomeViewController3.swift */; };
+		B9E9DF591FB2E4250062EC1C /* wow.gif in Resources */ = {isa = PBXBuildFile; fileRef = B9E9DF581FB2E4250062EC1C /* wow.gif */; };
+		B9E9DF5B1FB2E48A0062EC1C /* draganddrop.gif in Resources */ = {isa = PBXBuildFile; fileRef = B9E9DF5A1FB2E48A0062EC1C /* draganddrop.gif */; };
 		C41366B91EB80DD400EC054A /* TextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41366B81EB80DD400EC054A /* TextManager.swift */; };
 		C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */; };
 /* End PBXBuildFile section */
@@ -82,6 +90,7 @@
 		B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowHandler.swift; sourceTree = "<group>"; };
 		B92632311F45189A00894CA7 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		B92632341F451AC200894CA7 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
+		B926F22B1FA84E6B00DE0A3C /* VC+iOSPhotoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VC+iOSPhotoEditor.swift"; sourceTree = "<group>"; };
 		B92A276C1F99384400865B85 /* ViewController+Drag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Drag.swift"; sourceTree = "<group>"; };
 		B92A276E1F993DE500865B85 /* ViewController+Drop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Drop.swift"; sourceTree = "<group>"; };
 		B92F516E1F972D55008EA2F6 /* MemeGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeGrid.swift; sourceTree = "<group>"; };
@@ -90,6 +99,13 @@
 		B9B1F89E1F971A40001AC14E /* gradients */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gradients; sourceTree = "<group>"; };
 		B9C7210C1F8E7EE6006BB31D /* brick.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = brick.jpg; sourceTree = "<group>"; };
 		B9C88E8E1F4C1BA100B1C084 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B9E9DF4D1FB0F9920062EC1C /* picto.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = picto.png; sourceTree = "<group>"; };
+		B9E9DF501FB2D50F0062EC1C /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
+		B9E9DF521FB2DD5F0062EC1C /* draw.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = draw.gif; sourceTree = "<group>"; };
+		B9E9DF541FB2E25B0062EC1C /* WelcomeViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController2.swift; sourceTree = "<group>"; };
+		B9E9DF561FB2E26B0062EC1C /* WelcomeViewController3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController3.swift; sourceTree = "<group>"; };
+		B9E9DF581FB2E4250062EC1C /* wow.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = wow.gif; sourceTree = "<group>"; };
+		B9E9DF5A1FB2E48A0062EC1C /* draganddrop.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = draganddrop.gif; sourceTree = "<group>"; };
 		C41366B81EB80DD400EC054A /* TextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextManager.swift; sourceTree = "<group>"; };
 		C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARCameraTrackingState.swift; sourceTree = "<group>"; };
 		C7F76951F8992F473202F831 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -171,6 +187,7 @@
 				3929C48F1E89EC2C00E00B60 /* Main.storyboard */,
 				B92632311F45189A00894CA7 /* Login.storyboard */,
 				39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */,
+				B9E9DF4F1FB0F9A00062EC1C /* Images */,
 			);
 			path = ARKitExample;
 			sourceTree = "<group>";
@@ -201,6 +218,7 @@
 			children = (
 				B92632331F451A6C00894CA7 /* LoginControllers */,
 				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
+				B926F22B1FA84E6B00DE0A3C /* VC+iOSPhotoEditor.swift */,
 				B92A276C1F99384400865B85 /* ViewController+Drag.swift */,
 				B92A276E1F993DE500865B85 /* ViewController+Drop.swift */,
 				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
@@ -238,8 +256,22 @@
 			children = (
 				B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */,
 				B92632341F451AC200894CA7 /* RegisterViewController.swift */,
+				B9E9DF501FB2D50F0062EC1C /* WelcomeViewController.swift */,
+				B9E9DF541FB2E25B0062EC1C /* WelcomeViewController2.swift */,
+				B9E9DF561FB2E26B0062EC1C /* WelcomeViewController3.swift */,
 			);
 			name = LoginControllers;
+			sourceTree = "<group>";
+		};
+		B9E9DF4F1FB0F9A00062EC1C /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				B9E9DF521FB2DD5F0062EC1C /* draw.gif */,
+				B9E9DF5A1FB2E48A0062EC1C /* draganddrop.gif */,
+				B9E9DF4D1FB0F9920062EC1C /* picto.png */,
+				B9E9DF581FB2E4250062EC1C /* wow.gif */,
+			);
+			name = Images;
 			sourceTree = "<group>";
 		};
 		CC6CF3D48B06681D66F6DE20 /* Configuration */ = {
@@ -330,11 +362,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9E9DF591FB2E4250062EC1C /* wow.gif in Resources */,
+				B9E9DF5B1FB2E48A0062EC1C /* draganddrop.gif in Resources */,
 				3929C49F1E89EE4400E00B60 /* Models.scnassets in Resources */,
 				B9B1F89F1F971A42001AC14E /* gradients in Resources */,
+				B9E9DF531FB2DD5F0062EC1C /* draw.gif in Resources */,
 				39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */,
 				B92632321F45189A00894CA7 /* Login.storyboard in Resources */,
 				B92F51711F972FED008EA2F6 /* memes in Resources */,
+				B9E9DF4E1FB0F9920062EC1C /* picto.png in Resources */,
 				3929C4931E89EC2C00E00B60 /* Assets.xcassets in Resources */,
 				3929C4911E89EC2C00E00B60 /* Main.storyboard in Resources */,
 				B95313761F4C1D0B00D760E0 /* GoogleService-Info.plist in Resources */,
@@ -415,11 +451,15 @@
 				39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */,
 				6AD086991F3273110035B6BC /* LibraryGrid.swift in Sources */,
 				6A6159361F105E7200715603 /* Picture.swift in Sources */,
+				B9E9DF511FB2D5100062EC1C /* WelcomeViewController.swift in Sources */,
 				3929C48C1E89EC2C00E00B60 /* AppDelegate.swift in Sources */,
+				B9E9DF571FB2E26B0062EC1C /* WelcomeViewController3.swift in Sources */,
 				C4FBC02B1EC6438B003F7864 /* ARCameraTrackingState.swift in Sources */,
 				6A3F5A271F3242860013A67D /* Extensions.swift in Sources */,
 				6A3F5A2D1F3244DA0013A67D /* MenuBar.swift in Sources */,
+				B926F22C1FA84E6B00DE0A3C /* VC+iOSPhotoEditor.swift in Sources */,
 				B92A276D1F99384400865B85 /* ViewController+Drag.swift in Sources */,
+				B9E9DF551FB2E25B0062EC1C /* WelcomeViewController2.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -551,6 +591,7 @@
 			baseConfigurationReference = 6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = ARKitExample/ARKitExample.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -572,6 +613,7 @@
 			baseConfigurationReference = D6297B48C7926B95F793A435 /* Pods-ARKitExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = ARKitExample/ARKitExample.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

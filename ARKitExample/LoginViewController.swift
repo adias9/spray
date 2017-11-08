@@ -11,65 +11,73 @@ import FBSDKLoginKit
 import FirebaseAuth
 import FirebaseDatabase
 
-class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
+class LoginViewController: UIViewController {
+    
+//    , FBSDKLoginButtonDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.white
         
-        let loginWelcome = UILabel()
-        loginWelcome.text = "Welcome to Picto!"
-        loginWelcome.textColor = UIColor.black
-        loginWelcome.font = loginWelcome.font.withSize(30)
-        loginWelcome.frame = CGRect(x: 16, y: view.frame.height/12, width: view.frame.width - 32, height: 100)
-        view.addSubview(loginWelcome)
+        let logo = UIImageView(frame: CGRect(x: 16, y: view.frame.height/4, width: view.frame.width - 32, height: 100))
+        logo.image = UIImage.init(named: "picto.png")
+        logo.contentMode = .scaleAspectFit
+        view.addSubview(logo)
         
-        let loginButton = FBSDKLoginButton()
-        view.addSubview(loginButton)
-        // add constraints not frames
-        loginButton.frame = CGRect(x: 16, y: view.frame.height/2 - 50, width: view.frame.width - 32, height: 70)
-        
-        loginButton.delegate = self
-        loginButton.readPermissions = ["email", "public_profile"]
-        
-//        //add our custom fb login button here
-//        let customFBButton = UIButton(type: .system)
-//        customFBButton.backgroundColor = .blue
-//        customFBButton.frame = CGRect(x: 16, y: 116, width: view.frame.width - 32, height: 50)
-//        customFBButton.setTitle("Custom FB Login here", for: .normal)
-//        customFBButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
-//        customFBButton.setTitleColor(.white, for: .normal)
-//        view.addSubview(customFBButton)
+//        let loginButton = FBSDKLoginButton()
+//        view.addSubview(loginButton)
+//        // add constraints not frames
+//        loginButton.frame = CGRect(x: 16, y: view.frame.height/2 - 50, width: view.frame.width - 32, height: 70)
 //
-//        customFBButton.addTarget(self, action: #selector(handleCustomFBLogin), for: .touchUpInside)
+//        loginButton.delegate = self
+//        loginButton.readPermissions = ["email", "public_profile"]
+        
+        //add our custom fb login button here
+        let customFBButton = UIButton(type: .system)
+        customFBButton.backgroundColor = UIColor.init(r: 77, g: 218, b: 238)
+        customFBButton.frame = CGRect(x: 16, y: view.frame.height/2, width: view.frame.width - 32, height: 50)
+        customFBButton.setTitle("Login with Facebook", for: .normal)
+        customFBButton.titleLabel?.font = UIFont.init(name: "Arial", size: 20)
+        customFBButton.setTitleColor(.white, for: .normal)
+        view.addSubview(customFBButton)
+        
+        let termsText = UILabel()
+        termsText.text = "By Logging in You Agree to Our Terms and Privacy Policy"
+        termsText.textColor = .black
+        termsText.font = UIFont.init(name: "Arial", size: 12)
+        termsText.textAlignment = .center
+        termsText.frame = CGRect(x: 16, y: view.frame.height/2 + 50, width: view.frame.width - 32, height: 20)
+        view.addSubview(termsText)
+        
+        
+
+        customFBButton.addTarget(self, action: #selector(handleCustomFBLogin), for: .touchUpInside)
     }
     
-//    @objc func handleCustomFBLogin() {
-//        FBSDKLoginManager().logIn(withReadPermissions: ["email", "public_profile"], from: self) { (result, err) in
-//            if err != nil {
-//                print("Custom FB Login failed:", err!)
-//                return
-//            }
-//
-//            self.startSignIn()
-//            let registerViewController = RegisterViewController()
-//            self.present(registerViewController, animated: true, completion: nil)
-//        }
-//    }
-    
-    func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
-        print("Did log out of facebook")
-    }
-    
-    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
-        if error != nil {
-            print(error)
-            return
+    @objc func handleCustomFBLogin() {
+        FBSDKLoginManager().logIn(withReadPermissions: ["email", "public_profile"], from: self) { (result, err) in
+            if err != nil {
+                print("Custom FB Login failed:", err!)
+                return
+            }
+
+            self.startSignIn()
         }
-        
-        startSignIn()
     }
+    
+//    func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
+//        print("Did log out of facebook")
+//    }
+//
+//    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
+//        if error != nil {
+//            print(error)
+//            return
+//        }
+//
+//        startSignIn()
+//    }
     
     func startSignIn() {
         let accessToken = FBSDKAccessToken.current()

@@ -26,7 +26,7 @@ extension LoginFlowHandler {
             //No user information, show login flow
             self.showLogin(withWindow: window)
         }
-    
+//        self.showRegister(withWindow: window)
     }
     
     func handleLogout(withWindow window: UIWindow?) {
@@ -47,6 +47,17 @@ extension LoginFlowHandler {
         window?.rootViewController = loginStoryboard.instantiateViewController(withIdentifier: "LoginViewController")
         window?.makeKeyAndVisible()
     }
+    
+    //delete -- this is only for testing
+//    func showRegister(withWindow window: UIWindow?) {
+//        window?.subviews.forEach { $0.removeFromSuperview() }
+//        window?.rootViewController = nil
+//        let loginStoryboard: UIStoryboard = UIStoryboard(name: "Login", bundle: nil)
+//        window?.rootViewController = loginStoryboard.instantiateViewController(withIdentifier: "WelcomeViewController")
+//        window?.makeKeyAndVisible()
+//    }
+    
+    
     
     func showMainApp(withWindow window: UIWindow?) {
         window?.rootViewController = nil

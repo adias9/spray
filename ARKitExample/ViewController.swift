@@ -55,6 +55,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        
+        // ---
+        settingsButton.isHidden = true
+        restartExperienceButton.isHidden = true
+//        screenshotButton.isHidden = true
+        
+        // ---
     }
 
     let preview = UIImageView()
@@ -76,6 +83,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
     @objc func previewToContentStack(gestureRecognize: UITapGestureRecognizer) {
         hidePreview()
+        
+        // edit the image
+        openPhotoEditor(data: self.content!.data!)
+        
         showContentStack()
     }
 
@@ -85,18 +96,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     func showPreview() {
-        guard let content = self.content else {
-            return
-        }
-        if content.type == .gif {
-            if let data = content.data {
-                preview.image = UIImage.gif(data: data)
-            }
-        } else {
-            if let data = content.data {
-                preview.image = UIImage(data: data)
-            }
-        }
+//        guard let content = self.content else {
+//            return
+//        }
+//        if content.type == .gif {
+//            if let data = content.data {
+//                preview.image = UIImage.gif(data: data)
+//            }
+//        } else {
+//            if let data = content.data {
+//                preview.image = UIImage(data: data)
+//            }
+//        }
 
         configureGesturesForState(state: .place)
         contentStackButton.isEnabled = false
@@ -259,8 +270,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             DispatchQueue.main.async {
                 let image = object as! UIImage
                 self.newPictureView(image: image, nodeName: nodeName)
-                
-//                self.images.append(image)
             }
         }
     }
@@ -278,6 +287,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let content = SKScene.makeSKSceneFromImage(data: data,
                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
         editNode(content: content, nodeName: nodeName)
+        
+        DispatchQueue.main.async {
+            // save node in backend
+        }
 //        }
     }
     
@@ -323,7 +336,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     func editNode(content: SKScene, nodeName: String) {
-        let pix = SCNPlane(width: 1/4, height: 1/4)
+        let pix = SCNPlane(width: 2/4, height: 2/4)
         pix.firstMaterial?.diffuse.contents = content
         pix.firstMaterial?.lightingModel = .constant
         
@@ -838,42 +851,42 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func addPostObjectToScene() {
         
         //change this to box
-        let box = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0)
+        let box = SCNBox(width: 2.0, height: 2.0, length: 2.0, chamferRadius: 0)
         let material = SCNMaterial()
         material.diffuse.contents = UIColor(red:0.00, green:0.25, blue:0.50, alpha:1.0)  //UIImage(named: "brick.jpg")
         box.materials = [material]
         let cubeNode = SCNNode(geometry: box)
         cubeNode.name = "distinct_cube"
-        cubeNode.position = SCNVector3(0, 0, -4.0)
+        cubeNode.position = SCNVector3(0, 0, -2.0)
         // cube was upside down
         cubeNode.rotation = SCNVector4(0, 0, 1, (Float.pi))
         sceneView.scene.rootNode.addChildNode(cubeNode)
         
         // add four side of children (image planes?, skscnenes?)
-        let side = SCNPlane(width: 1.0, height: 1.0)
+        let side = SCNPlane(width: 2.0, height: 2.0)
         side.materials = [material]
         for i in 1...4 {
             let sideNode = SCNNode(geometry: side)
             sideNode.name = "side" + String(i)
             // this position shud be relative to parent
             if i == 1 {
-                sideNode.position.z = 0.5 + 0.01
+                sideNode.position.z = 1.0 + 0.01
             } else if i == 2 {
-                sideNode.position.x = -0.5 - 0.01
+                sideNode.position.x = -1.0 - 0.01
                 sideNode.rotation.y = 1
                 sideNode.rotation.w = Float(CGFloat.pi * 3/2)
             } else if i == 3 {
-                sideNode.position.z = -0.5 - 0.01
+                sideNode.position.z = -1.0 - 0.01
                 sideNode.rotation.y = 1
                 sideNode.rotation.w = Float(CGFloat.pi)
             } else {
-                sideNode.position.x = 0.5 + 0.01
+                sideNode.position.x = 1.0 + 0.01
                 sideNode.rotation.y = 1
                 sideNode.rotation.w = Float(CGFloat.pi * 1/2)
             }
             cubeNode.addChildNode(sideNode)
             for j in 1...16 {
-                let pix = SCNPlane(width: (1/4), height: (1/4))
+                let pix = SCNPlane(width: (2/4), height: (2/4))
 //                let picUrl = snapshot.valueInExportFormat() as! String
                 
 //                var skimage = SKScene()
@@ -899,53 +912,53 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 pixNode.name = "pix" + String(j) + sideNode.name!
                 pixNode.position.z = 0.01
                 if j == 1 {
-                    pixNode.position.x = -(3/8)
-                    pixNode.position.y = (3/8)
+                    pixNode.position.x = -(6/8)
+                    pixNode.position.y = (6/8)
                 } else if j == 2 {
-                    pixNode.position.x = -(1/8)
-                    pixNode.position.y = (3/8)
+                    pixNode.position.x = -(2/8)
+                    pixNode.position.y = (6/8)
                 } else if j == 3 {
-                    pixNode.position.x = (1/8)
-                    pixNode.position.y = (3/8)
+                    pixNode.position.x = (2/8)
+                    pixNode.position.y = (6/8)
                 } else if j == 4 {
-                    pixNode.position.x = (3/8)
-                    pixNode.position.y = (3/8)
+                    pixNode.position.x = (6/8)
+                    pixNode.position.y = (6/8)
                 } else if j == 5 {
-                    pixNode.position.x = -(3/8)
-                    pixNode.position.y = (1/8)
+                    pixNode.position.x = -(6/8)
+                    pixNode.position.y = (2/8)
                 } else if j == 6 {
-                    pixNode.position.x = -(1/8)
-                    pixNode.position.y = (1/8)
+                    pixNode.position.x = -(2/8)
+                    pixNode.position.y = (2/8)
                 } else if j == 7 {
-                    pixNode.position.x = (1/8)
-                    pixNode.position.y = (1/8)
+                    pixNode.position.x = (2/8)
+                    pixNode.position.y = (2/8)
                 } else if j == 8 {
-                    pixNode.position.x = (3/8)
-                    pixNode.position.y = (1/8)
+                    pixNode.position.x = (6/8)
+                    pixNode.position.y = (2/8)
                 } else if j == 9 {
-                    pixNode.position.x = -(3/8)
-                    pixNode.position.y = -(1/8)
+                    pixNode.position.x = -(6/8)
+                    pixNode.position.y = -(2/8)
                 } else if j == 10 {
-                    pixNode.position.x = -(1/8)
-                    pixNode.position.y = -(1/8)
+                    pixNode.position.x = -(2/8)
+                    pixNode.position.y = -(2/8)
                 } else if j == 11 {
-                    pixNode.position.x = (1/8)
-                    pixNode.position.y = -(1/8)
+                    pixNode.position.x = (2/8)
+                    pixNode.position.y = -(2/8)
                 } else if j == 12 {
-                    pixNode.position.x = (3/8)
-                    pixNode.position.y = -(1/8)
+                    pixNode.position.x = (6/8)
+                    pixNode.position.y = -(2/8)
                 } else if j == 13 {
-                    pixNode.position.x = -(3/8)
-                    pixNode.position.y = -(3/8)
+                    pixNode.position.x = -(6/8)
+                    pixNode.position.y = -(6/8)
                 } else if j == 14 {
-                    pixNode.position.x = -(1/8)
-                    pixNode.position.y = -(3/8)
+                    pixNode.position.x = -(2/8)
+                    pixNode.position.y = -(6/8)
                 } else if j == 15 {
-                    pixNode.position.x = (1/8)
-                    pixNode.position.y = -(3/8)
+                    pixNode.position.x = (2/8)
+                    pixNode.position.y = -(6/8)
                 } else {
-                    pixNode.position.x = (3/8)
-                    pixNode.position.y = -(3/8)
+                    pixNode.position.x = (6/8)
+                    pixNode.position.y = -(6/8)
                 }
                 
                 sideNode.addChildNode(pixNode)
@@ -1359,8 +1372,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             }
             // Start checking for Nodes
             DispatchQueue.main.async {
-                self.addPostObjectToScene()
+                if self.sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true) == nil {
+                    self.addPostObjectToScene()
 //                self.addPrevNodesToScene()
+                }
             }
         }
     }
@@ -1642,7 +1657,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     @objc func dismissContentStack(gestureRecognize: UITapGestureRecognizer){
-        print("this is a freaking joke?")
         let point = gestureRecognize.location(in: view)
         let safety = CGFloat(10.0)
 
@@ -1784,39 +1798,39 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 	@IBOutlet weak var screenshotButton: UIButton!
 
 	@IBAction func takeScreenshot() {
-//        guard screenshotButton.isEnabled else {
-//            return
-//        }
-//
-//        let takeScreenshotBlock = {
-//            UIImageWriteToSavedPhotosAlbum(self.sceneView.snapshot(), nil, nil, nil)
-//            DispatchQueue.main.async {
-//                // Briefly flash the screen.
-//                let flashOverlay = UIView(frame: self.sceneView.frame)
-//                flashOverlay.backgroundColor = UIColor.white
-//                self.sceneView.addSubview(flashOverlay)
-//                UIView.animate(withDuration: 0.25, animations: {
-//                    flashOverlay.alpha = 0.0
-//                }, completion: { _ in
-//                    flashOverlay.removeFromSuperview()
-//                })
-//            }
-//        }
-//
-//        switch PHPhotoLibrary.authorizationStatus() {
-//        case .authorized:
-//            takeScreenshotBlock()
-//        case .restricted, .denied:
-//            let title = "Photos access denied"
-//            let message = "Please enable Photos access for this application in Settings > Privacy to allow saving screenshots."
-//            textManager.showAlert(title: title, message: message)
-//        case .notDetermined:
-//            PHPhotoLibrary.requestAuthorization({ (authorizationStatus) in
-//                if authorizationStatus == .authorized {
-//                    takeScreenshotBlock()
-//                }
-//            })
-//        }
+        guard screenshotButton.isEnabled else {
+            return
+        }
+
+        let takeScreenshotBlock = {
+            UIImageWriteToSavedPhotosAlbum(self.sceneView.snapshot(), nil, nil, nil)
+            DispatchQueue.main.async {
+                // Briefly flash the screen.
+                let flashOverlay = UIView(frame: self.sceneView.frame)
+                flashOverlay.backgroundColor = UIColor.white
+                self.sceneView.addSubview(flashOverlay)
+                UIView.animate(withDuration: 0.25, animations: {
+                    flashOverlay.alpha = 0.0
+                }, completion: { _ in
+                    flashOverlay.removeFromSuperview()
+                })
+            }
+        }
+
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .authorized:
+            takeScreenshotBlock()
+        case .restricted, .denied:
+            let title = "Photos access denied"
+            let message = "Please enable Photos access for this application in Settings > Privacy to allow saving screenshots."
+            textManager.showAlert(title: title, message: message)
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization({ (authorizationStatus) in
+                if authorizationStatus == .authorized {
+                    takeScreenshotBlock()
+                }
+            })
+        }
 
 
 //       sceneView.scene.rootNode.

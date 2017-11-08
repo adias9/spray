@@ -10,6 +10,7 @@ import UIKit
 import ImageIO
 import MobileCoreServices
 import SpriteKit
+import FirebaseAuth
 
 extension UIImageView {
     
@@ -342,9 +343,9 @@ extension SKNode {
         nameTag.position = CGPoint(x: 50, y: 10)
         
         // text
-        let text = SKLabelNode(text: "AndrewJayZhou")
-        text.fontName = "GillSans"
-        text.fontSize = CGFloat(20)
+        let text = SKLabelNode(text: name)
+        text.fontName = "Futura"
+        text.fontSize = CGFloat(40)
         text.fontColor = UIColor.white
         
         // background
@@ -359,20 +360,22 @@ extension SKNode {
 }
 
 extension SKScene {
-    public class func makeSKSceneFromImage(image: UIImage, size: CGSize) -> SKScene {
+    public class func makeSKSceneFromImage(image: UIImage, size: CGSize, username: String) -> SKScene {
         let skScene = SKScene(size: size)
-        
+
         // Create Image Node
         let texture = SKTexture.init(image: image.fixOrientation()!)
         let imageNode = SKSpriteNode.init(texture: texture)
+        imageNode.xScale = -1
         imageNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
         imageNode.size = size
         imageNode.name = "content"
         skScene.addChild(imageNode)
         
         // Create Name Tag
-        let nameTag = createNameTag(name: "username")
-        skScene.addChild(nameTag)
+//        let nameTag = createNameTag(name: username)
+//        nameTag.xScale = -1
+//        skScene.addChild(nameTag)
         
         
         return skScene
@@ -380,7 +383,7 @@ extension SKScene {
     
     public class func makeSKSceneFromImage(data: Data, size: CGSize) -> SKScene {
         guard let image = UIImage.init(data: data) else {return SKScene()}
-        return makeSKSceneFromImage(image: image, size: size)
+        return makeSKSceneFromImage(image: image, size: size, username: Auth.auth().currentUser!.displayName!)
     }
     
     public class func makeSKSceneFromImage(url: NSURL, size: CGSize) -> SKScene {

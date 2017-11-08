@@ -41,6 +41,7 @@ extension ViewController : UIDropInteractionDelegate {
                 for dragItem in session.items {
                     loadImage(dragItem.itemProvider, nodeName: dropName)
                 }
+                hidePreview()
             }
         }
     }

@@ -10,7 +10,11 @@ import UIKit
 
 extension ViewController : UIDragInteractionDelegate {
     
+    
+    
     func dragInteraction(_ interaction: UIDragInteraction, itemsForBeginning session: UIDragSession) -> [UIDragItem] {
+        
+        
         guard let image = preview.image else {
             return []
         }

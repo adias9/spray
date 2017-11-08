@@ -23,11 +23,11 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
     
     let loginRegisterButton: UIButton = {
         let button = UIButton(type: .system)
-        button.backgroundColor = UIColor.black //UIColor(r: 252, g: 64, b: 64)
-        button.setTitle("Register", for: .normal)
+        button.backgroundColor = UIColor.init(r: 77, g: 218, b: 238)
+        button.setTitle("Next", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(UIColor.white, for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.titleLabel?.font = UIFont.init(name: "Arial", size: 20)
         
         button.addTarget(self, action: #selector(addUsername), for: .touchUpInside)
         
@@ -39,13 +39,16 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
         tf.placeholder = "Username"
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.enablesReturnKeyAutomatically = false
+        tf.borderStyle = .none
+        tf.font = UIFont.init(name: "Arial", size: 30)
+        tf.textAlignment = .center
         return tf
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor.lightGray // UIColor(r: 61, g: 91, b: 151)
+        view.backgroundColor = .white
         
         view.addSubview(inputsContainerView)
         view.addSubview(loginRegisterButton)
@@ -53,12 +56,13 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
         self.hideKeyboard()
         
         let loginWelcome = UILabel()
-        loginWelcome.text = "How do you want to be seen?"
+        loginWelcome.text = "Create a Username"
         loginWelcome.numberOfLines = 0
         loginWelcome.lineBreakMode = .byWordWrapping
         loginWelcome.textColor = UIColor.black
-        loginWelcome.font = loginWelcome.font.withSize(30)
-        loginWelcome.frame = CGRect(x: 16, y: view.frame.height/12, width: view.frame.width - 32, height: 100)
+        loginWelcome.textAlignment = .center
+        loginWelcome.font = loginWelcome.font.withSize(20)
+        loginWelcome.frame = CGRect(x: 16, y: view.frame.height/2 - 50, width: view.frame.width - 32, height: 20)
         view.addSubview(loginWelcome)
         
         self.usernameTextField.delegate = self
@@ -97,7 +101,7 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
         
         inputsContainerView.addSubview(usernameTextField)
         //need x, y, width, height constraints
-        usernameTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor, constant: 12).isActive = true
+        usernameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         usernameTextField.topAnchor.constraint(equalTo: inputsContainerView.topAnchor).isActive = true
         usernameTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         usernameTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1).isActive = true
@@ -143,9 +147,8 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
-        let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        let mainViewController = mainStoryboard.instantiateInitialViewController()
-        present(mainViewController!, animated: true, completion: nil)
+        let welcomeViewController = WelcomeViewController()
+        present(welcomeViewController, animated: true, completion: nil)
     }
 }
 

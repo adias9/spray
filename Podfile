@@ -14,6 +14,7 @@ target 'ARKitExample' do
   pod 'SwiftGifOrigin', '~> 1.6.1'
   pod 'SwiftyJSON'
   pod 'Alamofire', '~> 4.4'
+  pod 'iOSPhotoEditor'
   # FB SDK pods
   
   pod 'Bolts'

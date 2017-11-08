@@ -97,9 +97,9 @@ class PlainGrid : UIView, UICollectionViewDataSource, UICollectionViewDelegate, 
         let cell = collectionView.cellForItem(at: indexPath) as? GridCell
         if let content = cell?.info {
             viewController?.content = content
+            // edit the image
+            viewController?.openPhotoEditor(data: content.data!)
         }
-        viewController?.contentStack.isHidden = true
-        viewController?.showPreview()
     }
 }
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13178.6" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13526" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13156.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13524"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -37,10 +37,64 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <viewLayoutGuide key="safeArea" id="kNn-aS-0Ei"/>
                     </view>
+                    <connections>
+                        <segue destination="kc2-DQ-hQE" kind="show" id="3Yq-5l-EEV"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tko-iA-TW3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-18" y="99"/>
+        </scene>
+        <!--WelcomeViewController-->
+        <scene sceneID="jQv-nN-SdP">
+            <objects>
+                <viewController restorationIdentifier="WelcomeViewController" storyboardIdentifier="WelcomeViewController" title="WelcomeViewController" id="kc2-DQ-hQE" userLabel="WelcomeViewController" customClass="WelcomeViewController" customModule="ARKitExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="YuX-IQ-AeX">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <viewLayoutGuide key="safeArea" id="Sl4-NT-oeD"/>
+                    </view>
+                    <connections>
+                        <segue destination="mzT-Mg-Agc" kind="show" id="cdb-Br-gyq"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Cey-FT-wYs" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="707" y="98"/>
+        </scene>
+        <!--WelcomeViewController2-->
+        <scene sceneID="olF-28-Apk">
+            <objects>
+                <viewController restorationIdentifier="WelcomeViewController2" storyboardIdentifier="WelcomeViewController2" title="WelcomeViewController2" id="mzT-Mg-Agc" userLabel="WelcomeViewController2" customClass="WelcomeViewController2" customModule="ARKitExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="axw-je-Pxk">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <viewLayoutGuide key="safeArea" id="xS9-o9-eAa"/>
+                    </view>
+                    <connections>
+                        <segue destination="Ibc-fB-e1M" kind="show" id="DOb-RX-d4a"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5Z2-SE-Uhm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1418" y="97"/>
+        </scene>
+        <!--WelcomeViewController3-->
+        <scene sceneID="Sou-oR-nlS">
+            <objects>
+                <viewController restorationIdentifier="WelcomeViewController3" storyboardIdentifier="WelcomeViewController3" title="WelcomeViewController3" id="Ibc-fB-e1M" userLabel="WelcomeViewController3" customClass="WelcomeViewController3" customModule="ARKitExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Q59-Sm-d2o">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <viewLayoutGuide key="safeArea" id="pl0-jI-Gfv"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RdE-Gc-4IT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2114" y="96"/>
         </scene>
     </scenes>
 </document>
