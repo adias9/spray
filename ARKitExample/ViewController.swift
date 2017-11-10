@@ -234,6 +234,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let dragInteraction = UIDragInteraction(delegate: self)
         dragInteraction.isEnabled = true
         preview.addInteraction(dragInteraction)
+        
+        let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(didRotate(_:)))
+        rotationGesture.delegate = self
+        sceneView.addGestureRecognizer(rotationGesture)
 
         tapDismissContentStack = UITapGestureRecognizer(target: self, action: #selector(self.dismissContentStack(gestureRecognize:)))
         view.addGestureRecognizer(tapDismissContentStack!)
@@ -503,8 +507,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let cubeNode = SCNNode(geometry: box)
         cubeNode.name = "distinct_cube"
         cubeNode.position = SCNVector3(0, 0, -2.0)
-        // cube was upside down
-        cubeNode.rotation = SCNVector4(0, 0, 1, (Float.pi))
         sceneView.scene.rootNode.addChildNode(cubeNode)
         
         // add four side of children (image planes?, skscnenes?)

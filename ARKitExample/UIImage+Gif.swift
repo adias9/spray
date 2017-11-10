@@ -33,7 +33,8 @@ extension UIImage {
             return nil
         }
         
-        if self.imageOrientation == UIImageOrientation.up {
+        //changed this cuz images were upside down
+        if self.imageOrientation == UIImageOrientation.down {
             return self
         }
         
@@ -42,10 +43,12 @@ extension UIImage {
         
         var transform = CGAffineTransform.identity
         
+        print("imageOrientation:")
+        print(self.imageOrientation)
+        
         switch self.imageOrientation {
         case .down, .downMirrored:
-            transform = transform.translatedBy(x: width, y: height)
-            transform = transform.rotated(by: CGFloat.pi)
+            break
             
         case .left, .leftMirrored:
             transform = transform.translatedBy(x: width, y: 0)
@@ -56,7 +59,8 @@ extension UIImage {
             transform = transform.rotated(by: -0.5*CGFloat.pi)
             
         case .up, .upMirrored:
-            break
+            transform = transform.translatedBy(x: width, y: height)
+            transform = transform.rotated(by: CGFloat.pi)
         }
         
         switch self.imageOrientation {
@@ -362,7 +366,7 @@ extension SKNode {
 extension SKScene {
     public class func makeSKSceneFromImage(image: UIImage, size: CGSize, username: String) -> SKScene {
         let skScene = SKScene(size: size)
-
+        
         // Create Image Node
         let texture = SKTexture.init(image: image.fixOrientation()!)
         let imageNode = SKSpriteNode.init(texture: texture)
@@ -383,6 +387,7 @@ extension SKScene {
     
     public class func makeSKSceneFromImage(data: Data, size: CGSize) -> SKScene {
         guard let image = UIImage.init(data: data) else {return SKScene()}
+
         return makeSKSceneFromImage(image: image, size: size, username: Auth.auth().currentUser!.displayName!)
     }
     
