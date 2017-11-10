@@ -31,6 +31,8 @@
 		6AD0869E1F339FC10035B6BC /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AD0869D1F339FC10035B6BC /* SwiftyJSON.framework */; };
 		6AD0869F1F33BF310035B6BC /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AD0869B1F338BFF0035B6BC /* Alamofire.framework */; };
 		6AD086A11F33E1210035B6BC /* GifGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AD086A01F33E1210035B6BC /* GifGrid.swift */; };
+		B919116F1FB42A0C005BE2CE /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B919116E1FB42A0C005BE2CE /* ProfileViewController.swift */; };
+		B91911711FB4CCA7005BE2CE /* VC+CubeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91911701FB4CCA7005BE2CE /* VC+CubeManager.swift */; };
 		B91FA0F01F438C5C00FE1D73 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */; };
 		B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */; };
 		B92632321F45189A00894CA7 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B92632311F45189A00894CA7 /* Login.storyboard */; };
@@ -85,6 +87,8 @@
 		6AD086A01F33E1210035B6BC /* GifGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifGrid.swift; sourceTree = "<group>"; };
 		6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.debug.xcconfig"; sourceTree = "<group>"; };
 		B90A8E131F2BCE7B00064CDA /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
+		B919116E1FB42A0C005BE2CE /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		B91911701FB4CCA7005BE2CE /* VC+CubeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VC+CubeManager.swift"; sourceTree = "<group>"; };
 		B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		B91FA0F11F43A5E800FE1D73 /* ARKitExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ARKitExample.entitlements; sourceTree = "<group>"; };
 		B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowHandler.swift; sourceTree = "<group>"; };
@@ -218,10 +222,12 @@
 			children = (
 				B92632331F451A6C00894CA7 /* LoginControllers */,
 				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
+				B91911701FB4CCA7005BE2CE /* VC+CubeManager.swift */,
 				B926F22B1FA84E6B00DE0A3C /* VC+iOSPhotoEditor.swift */,
 				B92A276C1F99384400865B85 /* ViewController+Drag.swift */,
 				B92A276E1F993DE500865B85 /* ViewController+Drop.swift */,
 				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
+				B919116E1FB42A0C005BE2CE /* ProfileViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -433,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9B1F89D1F9708AF001AC14E /* PlainGrid.swift in Sources */,
+				B91911711FB4CCA7005BE2CE /* VC+CubeManager.swift in Sources */,
 				B91FA0F01F438C5C00FE1D73 /* LoginViewController.swift in Sources */,
 				B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */,
 				39C0B9511E9C63CB003FCA0C /* HitTestVisualization.swift in Sources */,
@@ -445,6 +452,7 @@
 				6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */,
 				B92A276F1F993DE500865B85 /* ViewController+Drop.swift in Sources */,
 				6AD086A11F33E1210035B6BC /* GifGrid.swift in Sources */,
+				B919116F1FB42A0C005BE2CE /* ProfileViewController.swift in Sources */,
 				B92632351F451AC200894CA7 /* RegisterViewController.swift in Sources */,
 				B92F516F1F972D55008EA2F6 /* MemeGrid.swift in Sources */,
 				39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */,

@@ -19,7 +19,7 @@ extension ViewController : PhotoEditorDelegate {
         photoEditor.image =  UIImage(data:data,scale:1.0)
         
         //Stickers that the user will choose from to add on the image
-        photoEditor.stickers.append(UIImage(named: "sticker" )!)
+//        photoEditor.stickers.append(UIImage(named: "sticker" )!)
         
         //possible controls .clear, .crop, .draw, .save, .share, sticker, .text
         photoEditor.hiddenControls = [.share]
@@ -32,11 +32,7 @@ extension ViewController : PhotoEditorDelegate {
     }
     
     func doneEditing(image: UIImage) {
-//        if isGif {
-//            setPreview(content: UIImage.gif(data: (content?.data)!)!)
-//        } else {
-            setPreview(content: image)
-//        }
+        setPreview(content: image)
         showPreview()
         contentStack.isHidden = true
     }

@@ -20,11 +20,12 @@ import MobileCoreServices
 
 class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
+    var cubeUpdateRef: DatabaseReference!
+    var cubeUpdateHandlerArr: [UInt] = [UInt]()
     var locationManager = CLLocationManager()
     var rootNodeLocation = CLLocation()
     var currentLocation = CLLocation()
     var currentRootID : String = ""
-    var handle: AuthStateDidChangeListenerHandle?
     var deleteMode: Bool = false
     var longPressDelete: UILongPressGestureRecognizer?
     var longPressDarken: UILongPressGestureRecognizer?
@@ -65,6 +66,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     }
 
     let preview = UIImageView()
+    var isGif = false
     func setupPreview() {
         preview.backgroundColor = UIColor.black
         view.addSubview(preview)
@@ -85,7 +87,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         hidePreview()
         
         // edit the image
-        openPhotoEditor(data: self.content!.data!)
+        let data = UIImagePNGRepresentation(preview.image!)!
+        if !isGif {
+            openPhotoEditor(data: data)
+        }
         
         showContentStack()
     }
@@ -180,9 +185,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         plainGrid.viewController = self
 
         let container = UIView()
-        container.addSubview(plainGrid)
-        container.addConstraintsWithFormat("H:|[v0]|", views: plainGrid)
-        container.addConstraintsWithFormat("V:|[v0]|", views: plainGrid)
         container.addSubview(libraryGrid)
         container.addConstraintsWithFormat("H:|[v0]|", views: libraryGrid)
         container.addConstraintsWithFormat("V:|[v0]|", views: libraryGrid)
@@ -192,6 +194,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         container.addSubview(gifGrid)
         container.addConstraintsWithFormat("H:|[v0]|", views: gifGrid)
         container.addConstraintsWithFormat("V:|[v0]|", views: gifGrid)
+        container.addSubview(plainGrid)
+        container.addConstraintsWithFormat("H:|[v0]|", views: plainGrid)
+        container.addConstraintsWithFormat("V:|[v0]|", views: plainGrid)
 
         contentStack.addArrangedSubview(menuBar)
         contentStack.addArrangedSubview(container)
@@ -229,17 +234,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let dragInteraction = UIDragInteraction(delegate: self)
         dragInteraction.isEnabled = true
         preview.addInteraction(dragInteraction)
-        
-        // delete interaction
-        longPressDelete = UILongPressGestureRecognizer(target: self, action: #selector(initiateDeletion(longPress:)))
-        longPressDelete!.minimumPressDuration = 1.5 //*undarken
-        view.addGestureRecognizer(longPressDelete!)
-        longPressDelete!.delegate = self
-
-        longPressDarken = UILongPressGestureRecognizer(target:self, action: #selector(darkenObject(shortPress:)))
-        longPressDarken!.minimumPressDuration = 0.2
-        view.addGestureRecognizer(longPressDarken!)
-        longPressDarken!.delegate = self
 
         tapDismissContentStack = UITapGestureRecognizer(target: self, action: #selector(self.dismissContentStack(gestureRecognize:)))
         view.addGestureRecognizer(tapDismissContentStack!)
@@ -290,6 +284,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         DispatchQueue.main.async {
             // save node in backend
+            self.saveNode(nodeName: nodeName)
         }
 //        }
     }
@@ -305,36 +300,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
 
-    // Adding Objects
-    @objc func placeObject(gestureRecognize: UITapGestureRecognizer){
-        guard let obj = content else {
-            textManager.showMessage("Please select an output!!")
-            return
-        }
-
-        // Set content
-        if (obj.type == .gif) { // content is gif
-            guard let data = obj.data else {return}
-            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-            createNode(content: content)
-        } else { // content is picture
-            guard let data = obj.data else {return}
-            let content = SKScene.makeSKSceneFromImage(data: data,
-                                                        size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-             createNode(content: content)
-        }
-
-        // ----------------------------------------------------------------------------------------------------
-
-//        //file:///var/mobile/Media/PhotoStreamsData/1020202307/100APPLE/IMG_0153.JPG
-//        let obj = NSURL(string: "assets-library://asset/asset.JPG?id=EA05C3C1-0FE4-43B9-8A10-2AE932CDDE4D&ext=JPG")
-//        let content = SKScene.makeSKSceneFromImage(url: obj!,
-//                                                   size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-//        createNode(content: content)
-
-
-    }
-
     func editNode(content: SKScene, nodeName: String) {
         let pix = SCNPlane(width: 2/4, height: 2/4)
         pix.firstMaterial?.diffuse.contents = content
@@ -344,41 +309,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         targetNode?.geometry = pix
     }
     
-    func createNode(content: SKScene) {
-        guard let currentFrame = sceneView.session.currentFrame else{
-            return
-        }
-        // Image Plane
-
-        let imagePlane = SCNPlane(width: stdLen, height: stdLen)
-        imagePlane.firstMaterial?.lightingModel = .constant
-        imagePlane.firstMaterial?.diffuse.contents = content
-        // Flip content horizontally
-        imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
-        imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
-        imagePlane.firstMaterial?.isDoubleSided = true
-
-
-        // Node transform
-        let wrapperNode = SCNNode(geometry: imagePlane)
-        // 10 cm in front of camera
-        var translation = matrix_identity_float4x4
-        translation.columns.3.z = -0.1
-        // Rotate to correct orientation
-        var rotation = matrix_identity_float4x4
-        rotation.columns.0.x = Float(cos(CGFloat.pi * -3/2))
-        rotation.columns.0.y = Float(sin(CGFloat.pi * -3/2))
-        rotation.columns.1.x = Float(-sin(CGFloat.pi * -3/2))
-        rotation.columns.1.y = Float(cos(CGFloat.pi * -3/2))
-        wrapperNode.simdTransform = matrix_multiply(matrix_multiply(currentFrame.camera.transform, translation), rotation)
-
-        print("simdtransform array \(wrapperNode.simdTransform)")
-
-        
-        // MARK: Andreas's Code
+    func saveNode(nodeName: String) {
 
         // Save Node and Pictures to Database
-        let data = self.content!.data!
+        let data = UIImagePNGRepresentation(preview.image!)!
         
         var databaseRef: DatabaseReference!
         databaseRef = Database.database().reference()
@@ -403,10 +337,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let rootID = self.currentRootID
         let picID = databaseRef.child("/pictures/").childByAutoId().key
         let nodeID = databaseRef.child("/nodes/").childByAutoId().key
-        //set the name of the node in the scene & add to scene
-        wrapperNode.name = nodeID
-        sceneView.scene.rootNode.addChildNode(wrapperNode)
 
+        //come back
+        
         let picturesRef = storageRef.child("/pictures/\(picID)")
 
         picturesRef.putData(data, metadata: metaData) { (metadata, error) in
@@ -424,63 +357,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 dateFormatter.locale = Locale(identifier: "en_US")
                 let timestamp = dateFormatter.string(from:date as Date)
 
-
-                // check if node distance is new radius
-                let newDistance = Double(wrapperNode.position.length())
-
-                let rootsRef = databaseRef.child("/roots/\(rootID)")
-                rootsRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                    let currRoot = snapshot.valueInExportFormat() as! NSDictionary
-
-                    var currRadius : Double = 0.0
-                    for (key, value) in currRoot {
-                        if (key as? String == "radius") {
-                            currRadius = value as! Double
-                        }
-                    }
-
-                    if newDistance > currRadius {
-                        let rootChildUpdates: [String: Any] = ["/roots/\(rootID)/radius": newDistance]
-                        databaseRef.updateChildValues(rootChildUpdates)
-                    }
-                })
-
                 //store downloadURL at database
                 let picture: [String: Any] = ["url": downloadURL, "timestamp": timestamp]
                 let picChildUpdates: [String: Any] = ["/pictures/\(picID)": picture, "/users/\(userID)/lastPicture": picID]
                 databaseRef.updateChildValues(picChildUpdates)
                 databaseRef.child("/pictures/\(picID)/nodes/\(nodeID)").setValue(true);
                 databaseRef.child("/pictures/\(picID)/users/\(userID)").setValue(true);
-
-                var transformArray: [[Float]] = [[],[],[],[]]
-                for index in 0...3 {
-                    if index == 0 {
-                        transformArray[0].append(wrapperNode.simdTransform.columns.0.x)
-                        transformArray[0].append(wrapperNode.simdTransform.columns.0.y)
-                        transformArray[0].append(wrapperNode.simdTransform.columns.0.z)
-                        transformArray[0].append(wrapperNode.simdTransform.columns.0.w)
-                    } else if index == 1 {
-                        transformArray[1].append(wrapperNode.simdTransform.columns.1.x)
-                        transformArray[1].append(wrapperNode.simdTransform.columns.1.y)
-                        transformArray[1].append(wrapperNode.simdTransform.columns.1.z)
-                        transformArray[1].append(wrapperNode.simdTransform.columns.1.w)
-                    } else if index == 2 {
-                        transformArray[2].append(wrapperNode.simdTransform.columns.2.x)
-                        transformArray[2].append(wrapperNode.simdTransform.columns.2.y)
-                        transformArray[2].append(wrapperNode.simdTransform.columns.2.z)
-                        transformArray[2].append(wrapperNode.simdTransform.columns.2.w)
-                    } else {
-                        transformArray[3].append(wrapperNode.simdTransform.columns.3.x)
-                        transformArray[3].append(wrapperNode.simdTransform.columns.3.y)
-                        transformArray[3].append(wrapperNode.simdTransform.columns.3.z)
-                        transformArray[3].append(wrapperNode.simdTransform.columns.3.w)
-                    }
-                }
-                print("Transform Array (simd) create: \(wrapperNode.simdTransform)")
-                print("Transform Array create: \(transformArray)")
-
-                let node : [String : Any] = ["distance": newDistance,
-                                             "transformArray": transformArray,
+                
+                let node : [String : Any] = ["cube_pos": nodeName,
                                              "picture": picID,
                                              "root": rootID,
                                              "user": userID,
@@ -488,10 +372,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 let nodeChildUpdates: [String: Any] = ["/nodes/\(nodeID)": node]
                 databaseRef.updateChildValues(nodeChildUpdates)
                 databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").setValue(true);
+                
+                // assumes only four sides for side Index
+                let sideIndex = nodeName.index(nodeName.endIndex, offsetBy: -1)
+                let pixIndex = nodeName.index(nodeName.startIndex, offsetBy: 3)
+                let pixIndex2 = nodeName.index(nodeName.startIndex, offsetBy: 5)
+                let side = nodeName[sideIndex]
+                var pix = String(nodeName[pixIndex ..< pixIndex2])
+                if pix.contains("s") {
+                    pix = String(nodeName[pixIndex])
+                }
+                let pixPic : [String: Any] = ["picture": picID]
+                let cubeChildUpdates: [String: Any] = ["/cubes/sproul/side\(side)/pix\(pix)": pixPic]
+                databaseRef.updateChildValues(cubeChildUpdates)
             }
         }
-
-        //-------------
     }
 
     // Deleting Object
@@ -527,261 +422,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
 
-    @objc func initiateDeletion(longPress:UILongPressGestureRecognizer) {
-        if longPress.state == .began {
-            longPressDeleteFired = true
-
-            // hit test
-            let point = longPress.location(in: view)
-            let scnHitTestResults = sceneView.hitTest(point, options: nil)
-            if let result = scnHitTestResults.first {
-                if result.node.name != "distinct_cube" && result.node.name?.range(of:"pix") == nil && result.node.name?.range(of:"side") == nil {
-                    let geometry = result.node.geometry! as! SCNPlane
-
-                    // Add delete button
-                    let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
-                    let delete = SKSpriteNode.init(imageNamed: "delete.png")
-                    delete.name = "delete"
-                    delete.size = CGSize.init(width: skScene.frame.width * 0.15, height: skScene.frame.width * 0.15)
-                    delete.position = CGPoint.init(x: skScene.frame.width * 0.90, y: skScene.frame.height * 0.90)
-                    delete.isUserInteractionEnabled = true
-                    skScene.addChild(delete)
-
-
-                    configureGesturesForState(state: .delete)
-
-                    target = result.node
-
-                    // Vibrate phone
-                    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
-                }
-            }
-        }
-
-        //*undarken
-        if longPress.state == .ended {
-            let point = longPress.location(in: view)
-            let scnHitTestResults = sceneView.hitTest(point, options: nil)
-            if let result = scnHitTestResults.first {
-                let geometry = result.node.geometry! as! SCNPlane
-                let skScene = geometry.firstMaterial?.diffuse.contents as! SKScene
-                let darken = SKAction.colorize(with: .black, colorBlendFactor: 0.4, duration: 0)
-                skScene.childNode(withName: "content")?.run(darken)
-            }
-        }
-    }
-
-    var target: SCNNode?
-    @objc func deleteNode(tap: UITapGestureRecognizer) {
-        guard let node = target else {
-            return
-        }
-        let skScene = node.geometry?.firstMaterial?.diffuse.contents as! SKScene
-        let deleteButton = skScene.childNode(withName: "delete")
-
-        let point = tap.location(in: view)
-        skScene.view?.hitTest(point, with: nil)
-
-        let scnHitTestResults = sceneView.hitTest(point, options: nil)
-        if let result = scnHitTestResults.first {
-
-            let currentNode = result.node
-            if (currentNode == node && deleteIsClicked(localCoordinates: result.localCoordinates)){
-                deleteButton?.removeFromParent()
-                currentNode.removeFromParentNode()
-                if preview.isHidden {
-                    configureGesturesForState(state: .view)
-                } else {
-                    configureGesturesForState(state: .place)
-                }
-
-                longPressDeleteFired = false
-
-                // MARK: Andreas' code to delete a node from db
-
-                let nodeID : String = currentNode.name!
-                print("Node Id: \(nodeID)")
-
-                // Code to remove node from db
-                let storageRef = Storage.storage().reference()
-                let databaseRef = Database.database().reference()
-                let outsideGroup = DispatchGroup()
-
-                //access node
-                databaseRef.child("/nodes/\(nodeID)/").observeSingleEvent(of: .value, with: { (snapshot) in
-                    if snapshot.exists() {
-                        outsideGroup.enter()
-                        // remove node from root
-                        DispatchQueue.main.async (group: outsideGroup) {
-                            let nodeDict = snapshot.value as! NSDictionary
-
-                            var rootID : String = ""
-                            var userID : String = ""
-                            var picID : String = ""
-                            var nodeDist : Double = 0.0
-                            for (key, value) in nodeDict {
-                                if (key as? String == "root") {
-                                    rootID = value as! String
-                                } else if (key as? String == "user") {
-                                    userID = value as! String
-                                } else if (key as? String == "picture") {
-                                    picID = value as! String
-                                }else if (key as? String == "distance") {
-                                    nodeDist = value as! Double
-                                } else {
-                                }
-                            }
-
-                            databaseRef.child("/roots/\(rootID)").observeSingleEvent(of: .value, with: { (snapshot) in
-                                let rootDict = snapshot.value as! NSDictionary
-                                var dbNodes : NSDictionary = ["":true]
-                                var dbRadius : Double = 0.0
-                                for (key, value) in rootDict {
-                                    if (key as? String == "nodes") {
-                                        dbNodes = value as! NSDictionary
-                                    } else if (key as? String == "radius") {
-                                        dbRadius = value as! Double
-                                    }
-                                }
-
-                                let group = DispatchGroup()
-                                
-                                // Update the radius of the root
-                                if dbNodes.count == 1 {
-                                    databaseRef.child("/roots/\(rootID)/radius").setValue(0.0)
-                                } else if nodeDist != dbRadius {
-                                    // Don't need to change the radius if this node is not the max radius
-                                } else {
-                                    var nodeRadius = 0.0
-
-                                    for (nodeID,_) in dbNodes {
-                                        group.enter()
-                                        DispatchQueue.main.async (group: group) {
-                                            databaseRef.child("/nodes/\(nodeID)").observeSingleEvent(of: .value, with: { (snapshot) in
-                                                let allNodesDict = snapshot.value as! NSDictionary
-
-                                                var givenNodeDist : Double = 0.0
-                                                for (key, value) in allNodesDict {
-                                                    if (key as? String == "distance") {
-                                                        givenNodeDist = value as! Double
-                                                        break
-                                                    }
-                                                }
-                                                if givenNodeDist > nodeRadius {
-                                                    nodeRadius = givenNodeDist
-                                                }
-                                                group.leave()
-                                            })
-                                        }
-                                    }
-                                    // Set the new radius of root
-                                    group.notify(queue: .main) {
-                                        databaseRef.child("/roots/\(rootID)/radius").setValue(nodeRadius)
-                                    }
-                                }
-
-                                // remove the node from the root
-                                databaseRef.child("/roots/\(rootID)/nodes/\(nodeID)").removeValue { error,_  in
-                                    if error != nil {
-                                        print("error \(error!)")
-                                    }
-                                }
-                            })
-
-                            // remove node from user
-                            databaseRef.child("/users/\(userID)/lastPicture").removeValue { error,_ in
-                                if error != nil {
-                                    print("error \(error!)")
-                                }
-                            }
-
-                            // remove pic
-                            databaseRef.child("/pictures/\(picID)").removeValue { error,_ in
-                                if error != nil {
-                                    print("error \(error!)")
-                                }
-                            }
-
-                            // remove pic from storage
-                            let picRef = storageRef.child("/pictures/").child(picID)
-                            picRef.delete { error in
-                                if let error = error {
-                                    print("Error occurred: \(error)")
-                                } else {
-                                    // File deleted successfully
-                                }
-                            }
-                            outsideGroup.leave()
-                        }
-                        
-
-                        outsideGroup.notify(queue: .main) {
-                            // remove node
-                            databaseRef.child("/nodes/\(nodeID)").removeValue { error,_ in
-                                if error != nil {
-                                    print("error \(error!)")
-                                }
-                                print("removed Node")
-                            }
-                        }
-                    } else {
-                        print("removenode snapshot empty")
-                    }
-                })
-
-            } else {
-                // Cancel deletion process if user taps out
-                deleteButton?.removeFromParent()
-                if preview.isHidden {
-                    configureGesturesForState(state: .view)
-                } else {
-                    configureGesturesForState(state: .place)
-                }
-                // Undarken
-                let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
-                skScene.childNode(withName: "content")?.run(undarken)
-                longPressDeleteFired = false
-            }
-        } else {
-            // Cancel deletion process if user taps out
-            deleteButton?.removeFromParent()
-            if preview.isHidden {
-                configureGesturesForState(state: .view)
-            } else {
-                configureGesturesForState(state: .place)
-            }
-            // Undarken
-            let undarken = SKAction.colorize(with: .black, colorBlendFactor: 0, duration: 0)
-            skScene.childNode(withName: "content")?.run(undarken)
-            longPressDeleteFired = false
-        }
-    }
-
-    func deleteIsClicked(localCoordinates: SCNVector3) -> Bool {
-        let x = CGFloat(localCoordinates.x)
-        let y = CGFloat(localCoordinates.y)
-
-        print("input x: \(x) , comparision range \(stdLen * 0.3) to \(stdLen * 0.5)")
-        print("input y: \(y) , comparision range \(stdLen*0.5) to \(stdLen/2)")
-
-        if (x > (stdLen * 0.3) && x < (stdLen * 0.5) && y > (stdLen * 0.3) && (y < stdLen / 0.5)){
-             return true
-        }
-        return false
-
-    }
-
-    // Gesture Recognizer Delegates
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer is UILongPressGestureRecognizer &&
-            otherGestureRecognizer is UILongPressGestureRecognizer {
-            return true
-        }
-        return false
-    }
-
-
-
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -791,9 +431,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         // Start the ARSession.
         restartPlaneDetection()
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        DispatchQueue.global().async {
+            self.stopUpdatingCubeImages()
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -806,8 +453,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     // MARK: - Firebase Initialization
     func setupFirebase() {
-        
-
 
         // Initialize Firebase Database
         let databaseRef = Database.database().reference()
@@ -887,24 +532,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             cubeNode.addChildNode(sideNode)
             for j in 1...16 {
                 let pix = SCNPlane(width: (2/4), height: (2/4))
-//                let picUrl = snapshot.valueInExportFormat() as! String
                 
-//                var skimage = SKScene()
-//                do {
-//                    let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
-//                    if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
-//                        skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-//                    } else if input.imageFormat == .GIF {
-//                        skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-//                    } else {
-//                        print("not acceptable format of image")
-//                    }
-//                } catch {
-//                    print("Error in converting picurl to NSData")
-//                }
-                
-//                pix.firstMaterial?.diffuse.contents = skimage
-                pix.firstMaterial?.diffuse.contents = generateRandomColor()
+                pix.firstMaterial?.diffuse.contents = self.generateRandomColor()
                 pix.firstMaterial?.lightingModel = .constant
                 
                 // add Node for each square
@@ -983,226 +612,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 //        sceneView.scene.rootNode.addChildNode(nodeModel)
     }
 
-    // MARK: - Populate Nearby Areas with Existent Nodes
-    private func getRadiansFrom(degrees: Double) -> Double {
-        return degrees * .pi / 180
-    }
-
-    private func getSCNVectorComponentsBetween(currLocation: CLLocation, prevLocation: CLLocation) -> (Double, Double, Double) {
-
-        let distance = currLocation.distance(from: prevLocation)
-        let altitude = currLocation.altitude - prevLocation.altitude
-
-        let lat1 = self.getRadiansFrom(degrees: currLocation.coordinate.latitude)
-        let lon1 = self.getRadiansFrom(degrees: currLocation.coordinate.longitude)
-
-        let lat2 = self.getRadiansFrom(degrees: prevLocation.coordinate.latitude)
-        let lon2 = self.getRadiansFrom(degrees: prevLocation.coordinate.longitude)
-
-        let dLon = lon2 - lon1
-
-        let y = sin(dLon) * cos(lat2)
-        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
-        let radiansBearing = atan2(y, x)
-
-        let xcom = distance * cos(radiansBearing)
-        let ycom = distance * sin(radiansBearing)
-
-        let zcom = altitude
-
-        return (xcom, zcom, ycom)
-    }
-
-    // Since I did not use cloning here I'm not sure that the original stays intact for multiple usage.
-    func addPrevNodesToScene() {
-        let databaseRef = Database.database().reference()
-        let rootsRef = databaseRef.child("/roots/")
-
-        rootsRef.observe(.value, with: { (snapshot) in
-            if snapshot.exists() {
-                let enumerator = snapshot.children
-                while let dbRoot = enumerator.nextObject() as? DataSnapshot {
-                    let rootDict = dbRoot.valueInExportFormat() as! NSDictionary
-
-                    print("dbRoot: \(dbRoot)")
-                    print("dbRoot.key: \(dbRoot.key)")
-
-                    var dbLatitude : Double = 0.0
-                    var dbLongitude : Double = 0.0
-                    var dbAltitude : Double = 0.0
-                    var dbHorizontalAccuracy : Double = 0.0
-                    var dbVerticalAccuracy : Double = 0.0
-                    var dbTimestamp : Date = Date.distantPast
-                    var dbRadius : Double = 0.0
-                    var dbNodes : NSDictionary = ["":true]
-                    for (key, value) in rootDict {
-                        if (key as? String == "latitude") {
-                            dbLatitude = value as! Double
-                        } else if (key as? String == "longitude") {
-                            dbLongitude = value as! Double
-                        } else if (key as? String == "altitude") {
-                            dbAltitude = value as! Double
-                        } else if (key as? String == "horizontalAccuracy") {
-                            dbHorizontalAccuracy = value as! Double
-                        } else if (key as? String == "verticalAccuracy") {
-                            dbVerticalAccuracy = value as! Double
-                        } else if (key as? String == "timestamp") {
-                            let dateFormatter = DateFormatter()
-                            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-                            dateFormatter.locale = Locale(identifier: "en_US")
-                            let timestamp = dateFormatter.date(from: value as! String)
-                            dbTimestamp = timestamp!
-                        } else if (key as? String == "radius") {
-                            dbRadius = value as! Double
-                        } else if (key as? String == "nodes") {
-                            dbNodes = value as! NSDictionary
-                        } else {
-                        }
-                    }
-
-                    let prevRootCoordinates = CLLocationCoordinate2D.init(latitude: dbLatitude, longitude: dbLongitude)
-                    print("this is prevRootCoordinates: \(prevRootCoordinates)")
-                    let prevRootLocation = CLLocation.init(coordinate: prevRootCoordinates, altitude: dbAltitude, horizontalAccuracy: dbHorizontalAccuracy, verticalAccuracy: dbVerticalAccuracy, timestamp: dbTimestamp)
-                    print("this is prevRootLocation: \(prevRootLocation)")
-
-                    if (dbRoot.key != self.currentRootID) {
-                        // Add Posted Scene if within 20 meters from furthest node of a previous scene & if a session had a picture added
-                        // & if root hasn't already been added
-                        if (self.currentLocation.distance(from: prevRootLocation) <= (dbRadius + 20) && dbRadius != 0) {
-                            databaseRef.child("/roots/\(self.currentRootID)/addedRoots").observeSingleEvent(of: .value, with: { (snapshot) in
-                                print("snapshot value: \(snapshot.valueInExportFormat()!)")
-                                var hasRootBeenSeen = false
-                                if let addedRootsDict = snapshot.valueInExportFormat()! as? NSDictionary {
-                                    print("addedRootsDict: \(addedRootsDict)")
-                                    print("addedRootsDict.object: \(addedRootsDict.object(forKey: dbRoot.key)!)")
-                                    if addedRootsDict[dbRoot.key] != nil {
-                                        hasRootBeenSeen = true
-                                    } else {
-                                        hasRootBeenSeen = false
-                                    }
-                                } else {
-                                    hasRootBeenSeen = false
-                                }
-                                if (!hasRootBeenSeen) {
-                                    print("I'm within 20 meters")
-                                    do {
-                                        let prevRootNode = SCNNode()
-
-                                        let group = DispatchGroup()
-
-                                        for (nodeID, _) in dbNodes {
-                                            group.enter()
-                                            DispatchQueue.main.async (group: group) {
-                                                print("got in node loop with nodeID: \(nodeID)")
-                                                let nodeRef = databaseRef.child("/nodes/\(nodeID)")
-                                                nodeRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                                                    if snapshot.exists() {
-                                                        let nodeDict = snapshot.valueInExportFormat() as! NSDictionary
-
-                                                        print("nodeDict: \(nodeDict)")
-
-                                                        var dbNodeTransformDict : NSDictionary = [:]
-                                                        var dbNodePicture : String = ""
-                                                        for (key, value) in nodeDict {
-                                                            if (key as? String == "transformArray") {
-                                                                dbNodeTransformDict = value as! NSDictionary
-                                                            } else if (key as? String == "picture") {
-                                                                dbNodePicture = value as! String
-                                                            } else {
-
-                                                            }
-                                                        }
-
-
-                                                        let picRef = databaseRef.child("/pictures/\(dbNodePicture)/url")
-                                                        picRef.observeSingleEvent(of: .value, with :{ (snapshot) in
-                                                            if snapshot.exists() {
-                                                                let imagePlane = SCNPlane(width: self.stdLen, height: self.stdLen)
-                                                                let picUrl = snapshot.valueInExportFormat() as! String
-
-                                                                // initialize this correctly and make sure of corner cases
-                                                                var skimage = SKScene()
-
-                                                                do {
-                                                                    let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
-                                                                    if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
-                                                                        skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                                                                    } else if input.imageFormat == .GIF {
-                                                                        skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                                                                    } else {
-                                                                        print("not acceptable format of image")
-                                                                    }
-                                                                } catch {
-                                                                    print("Error in converting picurl to NSData")
-                                                                }
-
-                                                                imagePlane.firstMaterial?.diffuse.contents = skimage
-                                                                imagePlane.firstMaterial?.lightingModel = .constant
-                                                                imagePlane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(1,-1,1);
-                                                                imagePlane.firstMaterial?.diffuse.wrapT = SCNWrapMode.init(rawValue: 2)!;
-                                                                imagePlane.firstMaterial?.isDoubleSided = true
-
-                                                                let childNode = SCNNode(geometry: imagePlane)
-                                                                var transformArray : simd_float4x4
-
-                                                                var columns = [float4].init()
-                                                                for key in 0...3 {
-                                                                    let tempDict = dbNodeTransformDict.value(forKey: "\(key)") as! NSDictionary
-                                                                    print("tempDict: \(tempDict)")
-                                                                    var temp = [Float].init()
-                                                                    temp.append((tempDict.value(forKey: "0") as! NSNumber).floatValue)
-                                                                    print("temp0: \(temp)")
-                                                                    print(tempDict.value(forKey: "1")!)
-                                                                    temp.append((tempDict.value(forKey: "1") as! NSNumber).floatValue)
-                                                                    print("temp1: \(temp)")
-                                                                    temp.append((tempDict.value(forKey: "2") as! NSNumber).floatValue)
-                                                                    print("temp2: \(temp)")
-                                                                    temp.append((tempDict.value(forKey: "3") as! NSNumber).floatValue)
-                                                                    print("temp3: \(temp)")
-                                                                    let floatFour = float4.init(temp)
-                                                                    columns.append(floatFour)
-                                                                }
-                                                                transformArray = simd_float4x4.init(columns)
-                                                                print("Transform Array addPrev: \(transformArray)")
-                                                                childNode.simdTransform = transformArray
-                                                                childNode.name = "\(nodeID)"
-                                                                prevRootNode.addChildNode(childNode)
-                                                                group.leave()
-                                                            } else {
-                                                                print("snapshot of pictures does not exist")
-                                                            }
-                                                        })
-                                                    } else {
-                                                        print("snapshot of nodes does not exist")
-                                                    }
-                                                })
-                                            }
-                                        }
-                                        group.notify(queue: .main) {
-                                            let components = self.getSCNVectorComponentsBetween(currLocation: self.rootNodeLocation, prevLocation: prevRootLocation)
-                                            print("check if components are switched")
-                                            print("components: \(components)")
-                                            let childPosition = SCNVector3(components.0, components.1, components.2)
-                                            print("childPosition: \(childPosition)")
-                                            prevRootNode.position = childPosition
-
-                                            self.sceneView.scene.rootNode.addChildNode(prevRootNode)
-                                            // Add this to seen
-                                            databaseRef.child("/roots/\(self.currentRootID)/addedRoots/\(dbRoot.key)").setValue(true)
-                                        }
-                                    } catch {
-                                        print(error)
-                                    }
-                                }
-                            })
-                        }
-                    }
-                }
-            } else {
-                print("Error in retrieving snapshot")
-            }
-        })
-    }
 
     // MARK: - Location Functions
     func setupLocationSettings() {
@@ -1347,6 +756,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
     var trackingFallbackTimer: Timer?
 
+    var cubeNotSetup: Bool = true
+    
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
         textManager.showTrackingQualityInfo(for: camera.trackingState, autoHide: !self.showDebugVisuals)
 
@@ -1370,11 +781,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 trackingFallbackTimer!.invalidate()
                 trackingFallbackTimer = nil
             }
-            // Start checking for Nodes
-            DispatchQueue.main.async {
-                if self.sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true) == nil {
-                    self.addPostObjectToScene()
-//                self.addPrevNodesToScene()
+            // Add cube to scene
+            DispatchQueue.global(qos: .background).async {
+                if self.cubeNotSetup {
+                    self.startUpdatingCubeImages()
+                    self.cubeNotSetup = false
+                }
+                DispatchQueue.global().async {
+                    if self.sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true) == nil {
+                        self.addPostObjectToScene()
+                    }
                 }
             }
         }

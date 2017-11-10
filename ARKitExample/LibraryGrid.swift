@@ -100,6 +100,7 @@ class LibraryGrid: UIView, UICollectionViewDataSource, UICollectionViewDelegate,
         if let content = cell?.info {
             viewController?.content = content
             // edit the image
+            viewController?.isGif = false
             viewController?.openPhotoEditor(data: content.data!)
         }
     }

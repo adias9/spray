@@ -155,7 +155,11 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         if let content = cell?.info {
             viewController?.content = content
             // edit the image
-            viewController?.openPhotoEditor(data: content.data!)
+            
+            viewController?.isGif = true
+            viewController?.setPreview(content: UIImage.gif(data: content.data!)!)
+            viewController?.showPreview()
+            viewController?.contentStack.isHidden = true
         }
     }
 }
