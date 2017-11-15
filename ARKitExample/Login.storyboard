@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13526" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13770" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13770"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -30,7 +30,7 @@
         <!--RegisterViewController-->
         <scene sceneID="V2p-Vd-YRm">
             <objects>
-                <viewController restorationIdentifier="RegisterViewController" storyboardIdentifier="RegisterViewController" id="nQT-sd-5Hp" userLabel="RegisterViewController" customClass="RegisterViewController" customModule="ARKitExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController restorationIdentifier="RegisterViewController" storyboardIdentifier="RegisterViewController" title="RegisterViewController" id="nQT-sd-5Hp" userLabel="RegisterViewController" customClass="RegisterViewController" customModule="ARKitExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="UNf-6M-HtA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -38,7 +38,7 @@
                         <viewLayoutGuide key="safeArea" id="kNn-aS-0Ei"/>
                     </view>
                     <connections>
-                        <segue destination="kc2-DQ-hQE" kind="show" id="3Yq-5l-EEV"/>
+                        <segue destination="IE8-8l-U1l" kind="show" id="uEk-Tt-VQN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tko-iA-TW3" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -61,7 +61,25 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Cey-FT-wYs" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="707" y="98"/>
+            <point key="canvasLocation" x="1439" y="99"/>
+        </scene>
+        <!--RegisterViewController2-->
+        <scene sceneID="egQ-HV-Dg5">
+            <objects>
+                <viewController restorationIdentifier="RegisterViewController2" storyboardIdentifier="RegisterViewController2" title="RegisterViewController2" id="IE8-8l-U1l" userLabel="RegisterViewController2" customClass="RegisterViewController2" customModule="ARKitExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VaS-zF-hwu">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <viewLayoutGuide key="safeArea" id="UZF-WN-nwC"/>
+                    </view>
+                    <connections>
+                        <segue destination="kc2-DQ-hQE" kind="show" id="WDb-tI-zsU"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Knt-r8-1Cs" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="719" y="99"/>
         </scene>
         <!--WelcomeViewController2-->
         <scene sceneID="olF-28-Apk">
@@ -79,7 +97,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Z2-SE-Uhm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1418" y="97"/>
+            <point key="canvasLocation" x="2169" y="99"/>
         </scene>
         <!--WelcomeViewController3-->
         <scene sceneID="Sou-oR-nlS">
@@ -94,7 +112,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RdE-Gc-4IT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2114" y="96"/>
+            <point key="canvasLocation" x="2926" y="99"/>
         </scene>
     </scenes>
 </document>

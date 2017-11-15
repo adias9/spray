@@ -147,8 +147,8 @@ class RegisterViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
-        let welcomeViewController = WelcomeViewController()
-        present(welcomeViewController, animated: true, completion: nil)
+        let registerViewController = RegisterViewController2()
+        present(registerViewController, animated: true, completion: nil)
     }
 }
 

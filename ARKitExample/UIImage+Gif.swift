@@ -43,9 +43,6 @@ extension UIImage {
         
         var transform = CGAffineTransform.identity
         
-        print("imageOrientation:")
-        print(self.imageOrientation)
-        
         switch self.imageOrientation {
         case .down, .downMirrored:
             break
@@ -447,6 +444,9 @@ extension SKScene {
         let gifNode = SKSpriteNode.init(texture: frames[0])
         gifNode.position = CGPoint(x: skScene.size.width / 2.0, y: skScene.size.height / 2.0)
         gifNode.name = "content"
+        gifNode.size = size
+        gifNode.zRotation = CGFloat.pi
+        gifNode.xScale = -1
         
         
         // Add animation to scene
@@ -456,8 +456,8 @@ extension SKScene {
         
         
         // Create Name Tag
-        let nameTag = createNameTag(name: "username")
-        skScene.addChild(nameTag)
+//        let nameTag = createNameTag(name: "username")
+//        skScene.addChild(nameTag)
         
         
         return skScene

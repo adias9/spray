@@ -6,7 +6,9 @@
 //  Copyright © 2017 Apple. All rights reserved.
 //
 
+import Foundation
 import UIKit
+import ARKit
 
 extension ViewController {
     @objc
@@ -20,9 +22,46 @@ extension ViewController {
          flip the sign of the angle depending on whether the object is above or below the camera...
          */
         let postObject = sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true)
+        if let object = objectInteracting(with: gesture, in: sceneView) {
+            if let interactObject = postObject?.childNode(withName: object, recursively: true) {
+                postObject?.eulerAngles.y -= Float(gesture.rotation)
+                
+                gesture.rotation = 0
+            }
+        }
+    }
+    
+    /// A helper method to return the first object that is found under the provided `gesture`s touch locations.
+    /// - Tag: TouchTesting
+    private func objectInteracting(with gesture: UIGestureRecognizer, in view: ARSCNView) -> String? {
+        for index in 0..<gesture.numberOfTouches {
+            let touchLocation = gesture.location(ofTouch: index, in: view)
+            
+            // Look for an object directly under the `touchLocation`.
+            if let node = imageNodeName(at: touchLocation) {
+                return node
+            }
+        }
         
-        postObject?.eulerAngles.y -= Float(gesture.rotation)
+        // As a last resort look for an object under the center of the touches.
+        return imageNodeName(at: gesture.center(in: view))
+    }
+    
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//        // Allow objects to be translated and rotated at the same time.
+//        return true
+//    }
+    
+}
+
+extension UIGestureRecognizer {
+    func center(in view: UIView) -> CGPoint {
+        let first = CGRect(origin: location(ofTouch: 0, in: view), size: .zero)
         
-        gesture.rotation = 0
+        let touchBounds = (1..<numberOfTouches).reduce(first) { touchBounds, index in
+            return touchBounds.union(CGRect(origin: location(ofTouch: index, in: view), size: .zero))
+        }
+        
+        return CGPoint(x: touchBounds.midX, y: touchBounds.midY)
     }
 }

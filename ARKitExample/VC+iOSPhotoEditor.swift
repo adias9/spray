@@ -32,13 +32,26 @@ extension ViewController : PhotoEditorDelegate {
     }
     
     func doneEditing(image: UIImage) {
-        setPreview(content: image)
+        content?.data = UIImagePNGRepresentation(image)
+        content?.type = .image
+        setPreview(content: content!)
         showPreview()
         contentStack.isHidden = true
     }
     
-    func setPreview(content: UIImage) {
-        preview.image = content
+    func setPreview(content: Content) {
+        guard let content = self.content else {
+            return
+        }
+        if content.type == .gif {
+            if let data = content.data {
+                preview.image = UIImage.gif(data: data)
+            }
+        } else {
+            if let data = content.data {
+                preview.image = UIImage(data: data)
+            }
+        }
     }
     
     func canceledEditing() {

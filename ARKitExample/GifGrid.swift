@@ -44,8 +44,8 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
         collectionView.selectItem(at: selectedIndexPath, animated: false, scrollPosition: UICollectionViewScrollPosition())
         
         let searchBar = UISearchBar()
-        searchBar.tintColor = UIColor.green
-        searchBar.barTintColor = UIColor.green
+        searchBar.placeholder = "Search for gif"
+        searchBar.backgroundColor = UIColor.init(r: 216, g: 216, b: 216)
         searchBar.delegate = self
         addSubview(searchBar)
         searchBar.bottomAnchor.constraint(equalTo: collectionView.topAnchor).isActive = true
@@ -156,8 +156,7 @@ class GifGrid : UIView, UISearchBarDelegate, UICollectionViewDataSource, UIColle
             viewController?.content = content
             // edit the image
             
-            viewController?.isGif = true
-            viewController?.setPreview(content: UIImage.gif(data: content.data!)!)
+            viewController?.setPreview(content: content)
             viewController?.showPreview()
             viewController?.contentStack.isHidden = true
         }

@@ -18,6 +18,10 @@ extension ViewController {
         
         cubeUpdateRef = Database.database().reference().child("/cubes/sproul/")
         
+        let group = DispatchGroup()
+        group.enter()
+        
+        var count = 0
         for i in 1...4 {
             for j in 1...16 {
                 let sideName = "side" + String(i)
@@ -32,14 +36,34 @@ extension ViewController {
                         let nodeName = pixName + sideName
                         self.updatePic(nodeName: nodeName, picName: dbCubePicture)
                     }
+                    count += 1
+                    if count == 64 {
+                        self.dismissCubeLoadingScreen()
+                    }
                 })
                 cubeUpdateHandlerArr.append(pixUpdateHandler)
             }
         }
+        
+        group.notify(queue: .main) {
+            self.dismissCubeLoadingScreen()
+        }
     }
     
-    private func createPixObserver() {
+    func showCubeLoadingScreen() {
+        let alert = UIAlertController(title: nil, message: "Loading Cube...", preferredStyle: .alert)
         
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
+        loadingIndicator.startAnimating();
+        
+        alert.view.addSubview(loadingIndicator)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func dismissCubeLoadingScreen() {
+        dismiss(animated: false, completion: nil)
     }
     
     private func updatePic(nodeName: String, picName: String) {
@@ -72,8 +96,10 @@ extension ViewController {
     }
     
     func stopUpdatingCubeImages() {
-        for i in 0...(cubeUpdateHandlerArr.count - 1) {
-            cubeUpdateRef.removeObserver(withHandle: cubeUpdateHandlerArr[i])
+        if cubeUpdateHandlerArr.count != 0 {
+            for i in 0...(cubeUpdateHandlerArr.count - 1) {
+                cubeUpdateRef.removeObserver(withHandle: cubeUpdateHandlerArr[i])
+            }
         }
     }
     

@@ -10,13 +10,9 @@ import Firebase
 import FBSDKCoreKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, LoginFlowHandler {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    
-    // to match protocol
-    func handleLogout() {}
-    func handleLogin() {}
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Initialize Firebase & Facebook
@@ -26,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, LoginFlowHandler {
         window = UIWindow.init(frame: UIScreen.main.bounds)
         let group = DispatchGroup()
         group.enter()
-        handleLogin(withWindow: window)
+        LoginFlowHandler().handleLogin(withWindow: window)
         group.leave()
         
         return true

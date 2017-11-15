@@ -38,6 +38,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     /// Properties that keeps track of the location where the drop operation was performed & the transform
     var dropPoint = CGPoint.zero
     var dropPointTransform = CGAffineTransform.identity
+    
+    let profButton : UIButton = {
+        let button = UIButton(frame: CGRect(x: 100, y: 100, width: 300, height: 300))
+//        let button = UIButton()
+        button.setBackgroundImage(UIImage.init(named: "prof"), for: UIControlState.normal)
+        button.contentMode = .scaleAspectFit
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(clickProf), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc func clickProf() {
+        let profileStoryboard: UIStoryboard = UIStoryboard(name: "Profile", bundle: nil)
+        let profileViewController = profileStoryboard.instantiateViewController(withIdentifier: "ProfileViewController")
+        present(profileViewController, animated: true, completion: nil)
+    }
 
     // MARK: - Main Setup & View Controller methods
     override func viewDidLoad() {
@@ -53,20 +69,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         setupMenuBar()
         setupGestures()
         setupPreview()
+        
+        view.addSubview(profButton)
+        profButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 15).isActive = true
+        profButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 15).isActive = true
 
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         // ---
         settingsButton.isHidden = true
-        restartExperienceButton.isHidden = true
+//        restartExperienceButton.isHidden = true
 //        screenshotButton.isHidden = true
         
         // ---
     }
 
     let preview = UIImageView()
-    var isGif = false
     func setupPreview() {
         preview.backgroundColor = UIColor.black
         view.addSubview(preview)
@@ -88,7 +107,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         // edit the image
         let data = UIImagePNGRepresentation(preview.image!)!
-        if !isGif {
+        if content?.type == .image {
             openPhotoEditor(data: data)
         }
         
@@ -225,6 +244,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         }
     }
 
+    let minimumZoom: CGFloat = 1.0
+    let maximumZoom: CGFloat = 3.0
+    var lastZoomFactor: CGFloat = 1.0
     func setupGestures() {
         // Add drop interaction
         let dropInteraction = UIDropInteraction(delegate: self)
@@ -235,10 +257,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         dragInteraction.isEnabled = true
         preview.addInteraction(dragInteraction)
         
+        // Add cube rotation
         let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         rotationGesture.delegate = self
         sceneView.addGestureRecognizer(rotationGesture)
 
+        // Add zoom to camera
+        let zoomGesture = UIPinchGestureRecognizer(target: self, action: #selector(didPinch(_:)))
+        zoomGesture.delegate = self
+        sceneView.addGestureRecognizer(zoomGesture)
+        
         tapDismissContentStack = UITapGestureRecognizer(target: self, action: #selector(self.dismissContentStack(gestureRecognize:)))
         view.addGestureRecognizer(tapDismissContentStack!)
         tapDismissContentStack!.cancelsTouchesInView = false
@@ -265,32 +293,38 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // Load Prev Obj
     func loadImage(_ itemProvider: NSItemProvider, nodeName: String) {
         itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
-            DispatchQueue.main.async {
-                let image = object as! UIImage
-                self.newPictureView(image: image, nodeName: nodeName)
+            DispatchQueue.global(qos: .background).async {
+                //let image = object as! UIImage
+                let content = self.content!
+                self.newPictureView(content: content, nodeName: nodeName)
             }
         }
     }
     
-    func newPictureView(image: UIImage, nodeName: String) {
+    func newPictureView(content: Content, nodeName: String) {
         
         // Set content and for now no gif
-//        if (image.type == .gif) { // content is gif
-//            guard let data = image.data else {return}
-//            let content = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-//            createNode(content: content)
-//        } else {
-        // content is picture
-        let data = UIImagePNGRepresentation(image)!
-        let content = SKScene.makeSKSceneFromImage(data: data,
-                                                       size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
-        editNode(content: content, nodeName: nodeName)
-        
-        DispatchQueue.main.async {
-            // save node in backend
-            self.saveNode(nodeName: nodeName)
+        if (content.type == .gif) { // content is gif
+            guard let data = content.data else {return}
+            let sk = SKScene.makeSKSceneFromGif(data: data, size:  CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+            editNode(content: sk, nodeName: nodeName)
+            
+            DispatchQueue.global(qos: .background).async {
+                // save node in backend
+                self.saveNode(nodeName: nodeName)
+            }
+        } else {
+            // content is picture
+            guard let data = content.data else {return}
+            let sk = SKScene.makeSKSceneFromImage(data: data,
+                                                           size: CGSize(width: sceneView.frame.width, height: sceneView.frame.height))
+            editNode(content: sk, nodeName: nodeName)
+            
+            DispatchQueue.global(qos: .background).async {
+                // save node in backend
+                self.saveNode(nodeName: nodeName)
+            }
         }
-//        }
     }
     
     // fading objects on dragging and dropping
@@ -316,7 +350,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func saveNode(nodeName: String) {
 
         // Save Node and Pictures to Database
-        let data = UIImagePNGRepresentation(preview.image!)!
+        let data = content?.data
         
         var databaseRef: DatabaseReference!
         databaseRef = Database.database().reference()
@@ -324,7 +358,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let storageRef = Storage.storage().reference()
 
         let metaData = StorageMetadata()
-        let input : NSData = NSData(data: data)
+        let input : NSData = NSData(data: data!)
         if input.imageFormat == .JPEG {
             metaData.contentType = "image/jpeg"
         } else if input.imageFormat == .PNG {
@@ -346,7 +380,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         
         let picturesRef = storageRef.child("/pictures/\(picID)")
 
-        picturesRef.putData(data, metadata: metaData) { (metadata, error) in
+        picturesRef.putData(data!, metadata: metaData) { (metadata, error) in
             if let error = error {
                 // Uh-oh, an error occurred!
                 print(error)
@@ -363,7 +397,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 
                 //store downloadURL at database
                 let picture: [String: Any] = ["url": downloadURL, "timestamp": timestamp]
-                let picChildUpdates: [String: Any] = ["/pictures/\(picID)": picture, "/users/\(userID)/lastPicture": picID]
+                let picChildUpdates: [String: Any] = ["/pictures/\(picID)": picture,
+                                                      "/users/\(userID)/lastPicture": picID,
+                                                      "/users/\(userID)/pictures/\(picID)": true]
                 databaseRef.updateChildValues(picChildUpdates)
                 databaseRef.child("/pictures/\(picID)/nodes/\(nodeID)").setValue(true);
                 databaseRef.child("/pictures/\(picID)/users/\(userID)").setValue(true);
@@ -442,7 +478,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        DispatchQueue.global().async {
+        DispatchQueue.main.async {
             self.stopUpdatingCubeImages()
         }
     }
@@ -506,7 +542,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         box.materials = [material]
         let cubeNode = SCNNode(geometry: box)
         cubeNode.name = "distinct_cube"
-        cubeNode.position = SCNVector3(0, 0, -2.0)
+        // place the cube askew to show 3D
+        cubeNode.rotation = SCNVector4(0, 1, 0, (Float.pi * 1/4))
+        cubeNode.position = SCNVector3(0, 0, -4.0)
         sceneView.scene.rootNode.addChildNode(cubeNode)
         
         // add four side of children (image planes?, skscnenes?)
@@ -680,8 +718,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 sessionConfig = ARWorldTrackingConfiguration()
             }
             sessionConfig.isLightEstimationEnabled = UserDefaults.standard.bool(for: .ambientLightEstimation)
-            sessionConfig.worldAlignment = .gravityAndHeading
-            sessionConfig.worldAlignment = ARConfiguration.WorldAlignment.gravityAndHeading
+//            sessionConfig.worldAlignment = .gravityAndHeading
             session.run(sessionConfig)
 
         }
@@ -786,6 +823,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             // Add cube to scene
             DispatchQueue.global(qos: .background).async {
                 if self.cubeNotSetup {
+                    self.showCubeLoadingScreen()
                     self.startUpdatingCubeImages()
                     self.cubeNotSetup = false
                 }

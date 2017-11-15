@@ -9,12 +9,7 @@
 import UIKit
 import FirebaseAuth
 
-protocol LoginFlowHandler {
-    func handleLogin()
-    func handleLogout()
-}
-
-extension LoginFlowHandler {
+class LoginFlowHandler {
     
     func handleLogin(withWindow window: UIWindow?) {
         
@@ -28,17 +23,20 @@ extension LoginFlowHandler {
         }
 //        self.showRegister(withWindow: window)
     }
-    
-    func handleLogout(withWindow window: UIWindow?) {
-        do {
-            try Auth.auth().signOut();
-            print("signed out")
-        } catch {
-            print("Error signing out")
-        }
-        
-        showLogin(withWindow: window)
-    }
+
+    // fix this function
+//    func handleLogout(withWindow window: UIWindow?) {
+//        do {
+//            try Auth.auth().signOut();
+//            print("signed out")
+//        } catch {
+//            print("Error signing out")
+//        }
+//
+//        let loginStoryboard: UIStoryboard = UIStoryboard(name: "Login", bundle: nil)
+//        let loginViewController = loginStoryboard.instantiateViewController(withIdentifier: "LoginViewController")
+//
+//    }
     
     func showLogin(withWindow window: UIWindow?) {
         window?.subviews.forEach { $0.removeFromSuperview() }
@@ -52,8 +50,8 @@ extension LoginFlowHandler {
 //    func showRegister(withWindow window: UIWindow?) {
 //        window?.subviews.forEach { $0.removeFromSuperview() }
 //        window?.rootViewController = nil
-//        let loginStoryboard: UIStoryboard = UIStoryboard(name: "Login", bundle: nil)
-//        window?.rootViewController = loginStoryboard.instantiateViewController(withIdentifier: "WelcomeViewController")
+//        let loginStoryboard: UIStoryboard = UIStoryboard(name: "Profile", bundle: nil)
+//        window?.rootViewController = loginStoryboard.instantiateViewController(withIdentifier: "ProfileViewController")
 //        window?.makeKeyAndVisible()
 //    }
     

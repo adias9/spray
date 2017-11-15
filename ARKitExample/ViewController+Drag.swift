@@ -14,13 +14,16 @@ extension ViewController : UIDragInteractionDelegate {
     
     func dragInteraction(_ interaction: UIDragInteraction, itemsForBeginning session: UIDragSession) -> [UIDragItem] {
         
-        
-        guard let image = preview.image else {
-            return []
+        var image = UIImage()
+        if content?.type == .gif {
+            if let data = content?.data {
+                image = UIImage.gif(data: data)!
+            }
+        } else {
+            if let data = content?.data {
+                image = UIImage(data: data)!
+            }
         }
-
-        print("draggin")
-
         let provider = NSItemProvider(object: image)
         let item = UIDragItem(itemProvider: provider)
         item.localObject = image
