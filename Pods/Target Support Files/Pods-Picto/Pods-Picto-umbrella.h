@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_ARKitExampleVersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_ARKitExampleVersionString[];
+FOUNDATION_EXPORT double Pods_PictoVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_PictoVersionString[];
 

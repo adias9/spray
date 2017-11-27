@@ -52,7 +52,7 @@ class WelcomeViewController2: UIViewController {
         view.addSubview(gif)
         
         let message = UILabel()
-        message.text = "Drag and drop it onto the virtual cube in Sproul"
+        message.text = "Drag and drop it onto the virtual cube in Frist"
         message.numberOfLines = 0
         message.lineBreakMode = .byWordWrapping
         message.textColor = UIColor.black

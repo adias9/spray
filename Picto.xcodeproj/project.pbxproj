@@ -18,7 +18,7 @@
 		39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9581E9C6B1F003FCA0C /* Utilities.swift */; };
 		39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */; };
 		39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */; };
-		59292F8EEC3432BFBD2D18B6 /* Pods_ARKitExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */; };
+		6338D685C2EAF1AF967729BD /* Pods_Picto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6382F6FD4ACD155B3D1BFAC1 /* Pods_Picto.framework */; };
 		6A25DA4E1F159D3F00DD7AFC /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A25DA4D1F159D3F00DD7AFC /* Location.swift */; };
 		6A3F5A271F3242860013A67D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3F5A261F3242860013A67D /* Extensions.swift */; };
 		6A3F5A2D1F3244DA0013A67D /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */; };
@@ -42,6 +42,7 @@
 		B91911801FBA6163005BE2CE /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B919117F1FBA6163005BE2CE /* PreferencesViewController.swift */; };
 		B91911831FBA8593005BE2CE /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91911821FBA8593005BE2CE /* ImageCell.swift */; };
 		B91FA0F01F438C5C00FE1D73 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */; };
+		B921EDB51FC7436A004369AD /* Cube.swift in Sources */ = {isa = PBXBuildFile; fileRef = B921EDB41FC7436A004369AD /* Cube.swift */; };
 		B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */; };
 		B92632321F45189A00894CA7 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B92632311F45189A00894CA7 /* Login.storyboard */; };
 		B92632351F451AC200894CA7 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92632341F451AC200894CA7 /* RegisterViewController.swift */; };
@@ -66,7 +67,7 @@
 
 /* Begin PBXFileReference section */
 		11063F3B1EBE651B0033EE6D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		3929C4881E89EC2C00E00B60 /* ARKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ARKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3929C4881E89EC2C00E00B60 /* Picto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Picto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3929C48B1E89EC2C00E00B60 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3929C48D1E89EC2C00E00B60 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		3929C4901E89EC2C00E00B60 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -79,7 +80,7 @@
 		39C0B9581E9C6B1F003FCA0C /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneDebugVisualization.swift; sourceTree = "<group>"; };
 		39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ARKitExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6382F6FD4ACD155B3D1BFAC1 /* Pods_Picto.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Picto.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A25DA4D1F159D3F00DD7AFC /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		6A3F5A261F3242860013A67D /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		6A3F5A2C1F3244DA0013A67D /* MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
@@ -93,7 +94,8 @@
 		6AD0869B1F338BFF0035B6BC /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../Library/Developer/Xcode/DerivedData/ARKitExample-gcladahytrxtuzgdrkqbdipyvwtm/Build/Products/Debug-iphoneos/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
 		6AD0869D1F339FC10035B6BC /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = "../../Library/Developer/Xcode/DerivedData/ARKitExample-gcladahytrxtuzgdrkqbdipyvwtm/Build/Products/Debug-iphoneos/SwiftyJSON/SwiftyJSON.framework"; sourceTree = "<group>"; };
 		6AD086A01F33E1210035B6BC /* GifGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifGrid.swift; sourceTree = "<group>"; };
-		6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.debug.xcconfig"; sourceTree = "<group>"; };
+		728B45F1746998C74EDE3AC1 /* Pods-Picto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Picto.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Picto/Pods-Picto.debug.xcconfig"; sourceTree = "<group>"; };
+		785093E225056465736F643F /* Pods-Picto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Picto.release.xcconfig"; path = "Pods/Target Support Files/Pods-Picto/Pods-Picto.release.xcconfig"; sourceTree = "<group>"; };
 		B90A8E131F2BCE7B00064CDA /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
 		B919116E1FB42A0C005BE2CE /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		B91911701FB4CCA7005BE2CE /* VC+CubeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VC+CubeManager.swift"; sourceTree = "<group>"; };
@@ -106,7 +108,8 @@
 		B919117F1FBA6163005BE2CE /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		B91911821FBA8593005BE2CE /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		B91FA0EF1F438C5C00FE1D73 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		B91FA0F11F43A5E800FE1D73 /* ARKitExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ARKitExample.entitlements; sourceTree = "<group>"; };
+		B91FA0F11F43A5E800FE1D73 /* Picto.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Picto.entitlements; sourceTree = "<group>"; };
+		B921EDB41FC7436A004369AD /* Cube.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cube.swift; sourceTree = "<group>"; };
 		B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginFlowHandler.swift; sourceTree = "<group>"; };
 		B92632311F45189A00894CA7 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		B92632341F451AC200894CA7 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
@@ -129,7 +132,6 @@
 		C41366B81EB80DD400EC054A /* TextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextManager.swift; sourceTree = "<group>"; };
 		C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARCameraTrackingState.swift; sourceTree = "<group>"; };
 		C7F76951F8992F473202F831 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
-		D6297B48C7926B95F793A435 /* Pods-ARKitExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ARKitExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,7 +143,7 @@
 				6AD0869E1F339FC10035B6BC /* SwiftyJSON.framework in Frameworks */,
 				6A61055C1F2A5597009C852E /* AudioToolbox.framework in Frameworks */,
 				6A6159AE1F1540B800715603 /* CoreLocation.framework in Frameworks */,
-				59292F8EEC3432BFBD2D18B6 /* Pods_ARKitExample.framework in Frameworks */,
+				6338D685C2EAF1AF967729BD /* Pods_Picto.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,7 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				11063F3B1EBE651B0033EE6D /* README.md */,
-				3929C48A1E89EC2C00E00B60 /* ARKitExample */,
+				3929C48A1E89EC2C00E00B60 /* Picto */,
 				3929C4891E89EC2C00E00B60 /* Products */,
 				CC6CF3D48B06681D66F6DE20 /* Configuration */,
 				9C8A8E986AF37F2203F141AB /* LICENSE */,
@@ -175,15 +177,15 @@
 		3929C4891E89EC2C00E00B60 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3929C4881E89EC2C00E00B60 /* ARKitExample.app */,
+				3929C4881E89EC2C00E00B60 /* Picto.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		3929C48A1E89EC2C00E00B60 /* ARKitExample */ = {
+		3929C48A1E89EC2C00E00B60 /* Picto */ = {
 			isa = PBXGroup;
 			children = (
-				B91FA0F11F43A5E800FE1D73 /* ARKitExample.entitlements */,
+				B91FA0F11F43A5E800FE1D73 /* Picto.entitlements */,
 				6A3F5A2A1F3244160013A67D /* Model */,
 				6A3F5A281F3243B40013A67D /* View */,
 				6A3F5A291F3243C40013A67D /* Controller */,
@@ -210,14 +212,14 @@
 				39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */,
 				B9E9DF4F1FB0F9A00062EC1C /* Images */,
 			);
-			path = ARKitExample;
+			path = Picto;
 			sourceTree = "<group>";
 		};
 		5B688EC4F4AEBC95C78C501B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */,
-				D6297B48C7926B95F793A435 /* Pods-ARKitExample.release.xcconfig */,
+				728B45F1746998C74EDE3AC1 /* Pods-Picto.debug.xcconfig */,
+				785093E225056465736F643F /* Pods-Picto.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -251,6 +253,7 @@
 			isa = PBXGroup;
 			children = (
 				6ABA87591F38EDEA00D7782C /* Content.swift */,
+				B921EDB41FC7436A004369AD /* Cube.swift */,
 				B91911791FBA340D005BE2CE /* Node.swift */,
 				B919117B1FBA3701005BE2CE /* dbPicture.swift */,
 			);
@@ -334,7 +337,7 @@
 				6AD0869B1F338BFF0035B6BC /* Alamofire.framework */,
 				6A61055B1F2A5589009C852E /* AudioToolbox.framework */,
 				6A6159AD1F1540AC00715603 /* CoreLocation.framework */,
-				65C8E78F9939908831A93F6C /* Pods_ARKitExample.framework */,
+				6382F6FD4ACD155B3D1BFAC1 /* Pods_Picto.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -342,9 +345,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3929C4871E89EC2C00E00B60 /* ARKitExample */ = {
+		3929C4871E89EC2C00E00B60 /* Picto */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3929C49A1E89EC2C00E00B60 /* Build configuration list for PBXNativeTarget "ARKitExample" */;
+			buildConfigurationList = 3929C49A1E89EC2C00E00B60 /* Build configuration list for PBXNativeTarget "Picto" */;
 			buildPhases = (
 				FA5FBB375C3EBB085BE73247 /* [CP] Check Pods Manifest.lock */,
 				3929C4841E89EC2C00E00B60 /* Sources */,
@@ -357,9 +360,9 @@
 			);
 			dependencies = (
 			);
-			name = ARKitExample;
+			name = Picto;
 			productName = ARKitExample;
-			productReference = 3929C4881E89EC2C00E00B60 /* ARKitExample.app */;
+			productReference = 3929C4881E89EC2C00E00B60 /* Picto.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -385,7 +388,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 3929C4831E89EC2C00E00B60 /* Build configuration list for PBXProject "ARKitExample" */;
+			buildConfigurationList = 3929C4831E89EC2C00E00B60 /* Build configuration list for PBXProject "Picto" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -398,7 +401,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3929C4871E89EC2C00E00B60 /* ARKitExample */,
+				3929C4871E89EC2C00E00B60 /* Picto */,
 			);
 		};
 /* End PBXProject section */
@@ -439,7 +442,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Picto/Pods-Picto-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9134AE337F1FB5007E88E0B8 /* [CP] Embed Pods Frameworks */ = {
@@ -454,7 +457,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ARKitExample/Pods-ARKitExample-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Picto/Pods-Picto-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FA5FBB375C3EBB085BE73247 /* [CP] Check Pods Manifest.lock */ = {
@@ -487,6 +490,7 @@
 				3929C48E1E89EC2C00E00B60 /* ViewController.swift in Sources */,
 				C41366B91EB80DD400EC054A /* TextManager.swift in Sources */,
 				39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */,
+				B921EDB51FC7436A004369AD /* Cube.swift in Sources */,
 				6AB764D01F1C2AEA002975A7 /* UIImage+Gif.swift in Sources */,
 				6ABA875A1F38EDEA00D7782C /* Content.swift in Sources */,
 				392BB82C1EA19A7C00FBBAC8 /* Plane.swift in Sources */,
@@ -644,18 +648,18 @@
 		};
 		3929C49B1E89EC2C00E00B60 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6B8934468F0B50F9E4D0A08A /* Pods-ARKitExample.debug.xcconfig */;
+			baseConfigurationReference = 728B45F1746998C74EDE3AC1 /* Pods-Picto.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_ENTITLEMENTS = ARKitExample/ARKitExample.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Picto/Picto.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3JQ473334H;
-				INFOPLIST_FILE = ARKitExample/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Picto/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias9.Picto;
+				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias.Picto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -666,18 +670,18 @@
 		};
 		3929C49C1E89EC2C00E00B60 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6297B48C7926B95F793A435 /* Pods-ARKitExample.release.xcconfig */;
+			baseConfigurationReference = 785093E225056465736F643F /* Pods-Picto.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_ENTITLEMENTS = ARKitExample/ARKitExample.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Picto/Picto.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3JQ473334H;
-				INFOPLIST_FILE = ARKitExample/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Picto/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias9.Picto;
+				PRODUCT_BUNDLE_IDENTIFIER = com.andreasdias.Picto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -689,7 +693,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3929C4831E89EC2C00E00B60 /* Build configuration list for PBXProject "ARKitExample" */ = {
+		3929C4831E89EC2C00E00B60 /* Build configuration list for PBXProject "Picto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3929C4981E89EC2C00E00B60 /* Debug */,
@@ -698,7 +702,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3929C49A1E89EC2C00E00B60 /* Build configuration list for PBXNativeTarget "ARKitExample" */ = {
+		3929C49A1E89EC2C00E00B60 /* Build configuration list for PBXNativeTarget "Picto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3929C49B1E89EC2C00E00B60 /* Debug */,

@@ -15,37 +15,33 @@ extension ViewController {
     
     // update this later to only update square that gets changed and not the whole cube each time
     func startUpdatingCubeImages() {
-        
-        cubeUpdateRef = Database.database().reference().child("/cubes/sproul/")
-        
-        let group = DispatchGroup()
-        group.enter()
-        
-        var count = 0
-        for i in 1...4 {
-            for j in 1...16 {
-                let sideName = "side" + String(i)
-                let pixName = "pix" + String(j)
-                let pixUpdateHandler = cubeUpdateRef.child("\(sideName)/\(pixName)").observe(.value, with: { (snapshot) in
-                    if snapshot.exists() {
-                        
-                        // fetch the side and individual pictures needing to be changed
-                        let picDict = snapshot.valueInExportFormat() as! NSDictionary
-                        
-                        let dbCubePicture = picDict.value(forKey: "picture") as! String
-                        let nodeName = pixName + sideName
-                        self.updatePic(nodeName: nodeName, picName: dbCubePicture)
-                    }
-                    count += 1
-                    if count == 64 {
-                        self.dismissCubeLoadingScreen()
-                    }
-                })
-                cubeUpdateHandlerArr.append(pixUpdateHandler)
+        if let school = cube?.school, let sub_cube = cube?.sub_cube {
+            cubeUpdateRef = Database.database().reference().child("/cubes/\(school)/\(sub_cube)")
+            
+            var count = 0
+            for i in 1...4 {
+                for j in 1...16 {
+                    let sideName = "side" + String(i)
+                    let pixName = "pix" + String(j)
+                    let pixUpdateHandler = cubeUpdateRef.child("\(sideName)/\(pixName)").observe(.value, with: { (snapshot) in
+                        if snapshot.exists() {
+                            
+                            // fetch the side and individual pictures needing to be changed
+                            let picDict = snapshot.valueInExportFormat() as! NSDictionary
+                            
+                            let dbCubePicture = picDict.value(forKey: "picture") as! String
+                            let nodeName = pixName + sideName
+                            self.updatePic(nodeName: nodeName, picName: dbCubePicture)
+                        }
+                        count += 1
+                        if count == 64 {
+                            self.dismissCubeLoadingScreen()
+                        }
+                    })
+                    cubeUpdateHandlerArr.append(pixUpdateHandler)
+                }
             }
-        }
-        
-        group.notify(queue: .main) {
+        } else {
             self.dismissCubeLoadingScreen()
         }
     }

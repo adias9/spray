@@ -23,8 +23,12 @@ extension ViewController {
          */
         let postObject = sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true)
         if let object = objectInteracting(with: gesture, in: sceneView) {
+//            let init_pos = view.center
             if let interactObject = postObject?.childNode(withName: object, recursively: true) {
+//                let res_mag = gesture.center(in: view).distanceTo(init_pos)
+//                postObject?.eulerAngles.y -= Float(res_mag)
                 postObject?.eulerAngles.y -= Float(gesture.rotation)
+
                 
                 gesture.rotation = 0
             }

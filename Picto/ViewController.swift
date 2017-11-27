@@ -31,6 +31,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     var longPressDarken: UILongPressGestureRecognizer?
     var tapPreviewToStack : UITapGestureRecognizer?
     var content : Content?
+    var cube: Cube?
     lazy var stdLen: CGFloat = {
         let len = self.sceneView.bounds.height / 3000
         return len
@@ -258,6 +259,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         preview.addInteraction(dragInteraction)
         
         // Add cube rotation
+//        let rotationGesture = UISwipeGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         rotationGesture.delegate = self
         sceneView.addGestureRecognizer(rotationGesture)
@@ -423,8 +425,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                     pix = String(nodeName[pixIndex])
                 }
                 let pixPic : [String: Any] = ["picture": picID]
-                let cubeChildUpdates: [String: Any] = ["/cubes/sproul/side\(side)/pix\(pix)": pixPic]
-                databaseRef.updateChildValues(cubeChildUpdates)
+                if let school = self.cube?.school, let sub_cube = self.cube?.sub_cube {
+                    let cubeChildUpdates: [String: Any] = ["/cubes/\(school)/\(sub_cube)/side\(side)/pix\(pix)": pixPic]
+                    databaseRef.updateChildValues(cubeChildUpdates)
+                }
             }
         }
     }
@@ -503,6 +507,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
         dateFormatter.locale = Locale(identifier: "en_US")
         let timestamp = dateFormatter.string(from:rootTime as Date)
+        
+        determineSchool(coordinate: rootNodeLocation)
 
         // Add root to Roots
         let dbRoot: [String: Any] = [
@@ -521,6 +527,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let userChildUpdates: [String: Any] = ["/users/\(Auth.auth().currentUser!.uid)/lastRoot": currentRootID]
         databaseRef.updateChildValues(userChildUpdates)
         self.locationManager.stopUpdatingLocation()
+    }
+    
+    func determineSchool(coordinate: CLLocation) {
+        let berkeleyLOC = CLLocation.init(latitude: 37.8719, longitude: -122.2585)
+        let stanfordLOC = CLLocation.init(latitude: 37.4275, longitude: -122.1697)
+        let princetonLOC = CLLocation.init(latitude: 40.3440, longitude: -74.6514)
+        
+        if (coordinate.distance(from: berkeleyLOC) / 1609.344) <= 3 {
+            cube = Cube()
+            cube?.school = "Berkeley"
+            cube?.sub_cube = "sproul"
+        } else if (coordinate.distance(from: stanfordLOC) / 1609.344) <= 3 {
+            cube = Cube()
+            cube?.school = "Stanford"
+            cube?.sub_cube = "tresidder"
+        } else if (coordinate.distance(from: princetonLOC) / 1609.344) <= 3 {
+            cube = Cube()
+            cube?.school = "Princeton"
+            cube?.sub_cube = "frist"
+        } else {
+            
+        }
     }
     
     // MARK: - Add Object to Post Images To
