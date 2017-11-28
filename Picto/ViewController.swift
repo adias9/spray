@@ -259,9 +259,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         preview.addInteraction(dragInteraction)
         
         // Add cube rotation
-//        let rotationGesture = UISwipeGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         rotationGesture.delegate = self
+        rotationGesture.isEnabled = true
         sceneView.addGestureRecognizer(rotationGesture)
 
         // Add zoom to camera

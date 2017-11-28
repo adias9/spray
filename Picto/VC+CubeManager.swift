@@ -18,6 +18,9 @@ extension ViewController {
         if let school = cube?.school, let sub_cube = cube?.sub_cube {
             cubeUpdateRef = Database.database().reference().child("/cubes/\(school)/\(sub_cube)")
             
+//            let group = DispatchGroup()
+//            group.enter()
+            
             var count = 0
             for i in 1...4 {
                 for j in 1...16 {
@@ -41,8 +44,9 @@ extension ViewController {
                     cubeUpdateHandlerArr.append(pixUpdateHandler)
                 }
             }
-        } else {
-            self.dismissCubeLoadingScreen()
+//            group.notify(queue: .main) {
+//                self.dismissCubeLoadingScreen()
+//            }
         }
     }
     
@@ -59,7 +63,10 @@ extension ViewController {
     }
     
     func dismissCubeLoadingScreen() {
-        dismiss(animated: false, completion: nil)
+        print("dismissed loading screen")
+        DispatchQueue.main.async {
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     
     private func updatePic(nodeName: String, picName: String) {
