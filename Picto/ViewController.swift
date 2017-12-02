@@ -53,6 +53,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     @objc func clickProf() {
         let profileStoryboard: UIStoryboard = UIStoryboard(name: "Profile", bundle: nil)
         let profileViewController = profileStoryboard.instantiateViewController(withIdentifier: "ProfileViewController")
+        
+        profileViewController.modalPresentationStyle = .popover
+        let popover = profileViewController.popoverPresentationController
+        profileViewController.preferredContentSize = CGSize(width: sceneView.bounds.size.width - 20, height: sceneView.bounds.size.height - 50)
+        popover?.delegate = self
+        popover?.sourceView = self.view
+        popover?.permittedArrowDirections = UIPopoverArrowDirection.init(rawValue: 0)
+        popover?.sourceRect = CGRect.init(x: 10, y: 10, width: 100, height: 100)
+        
         present(profileViewController, animated: true, completion: nil)
     }
 
@@ -1340,7 +1349,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
 		navigationController.modalPresentationStyle = .popover
 		navigationController.popoverPresentationController?.delegate = self
 		navigationController.preferredContentSize = CGSize(width: sceneView.bounds.size.width - 20, height: sceneView.bounds.size.height - 50)
-		self.present(navigationController, animated: true, completion: nil)
+//        self.present(navigationController, animated: true, completion: nil)
 
 		navigationController.popoverPresentationController?.sourceView = settingsButton
 		navigationController.popoverPresentationController?.sourceRect = settingsButton.bounds

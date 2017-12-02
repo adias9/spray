@@ -48,9 +48,6 @@ class TextManager {
 	}
 	
 	func showDebugMessage(_ message: String) {
-		guard viewController.showDebugVisuals else {
-			return
-		}
 		
 		// cancel any previous hide timer
 		debugMessageHideTimer?.invalidate()

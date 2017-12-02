@@ -14,7 +14,6 @@
 		3929C49F1E89EE4400E00B60 /* Models.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 3929C49E1E89EE4400E00B60 /* Models.scnassets */; };
 		392BB82C1EA19A7C00FBBAC8 /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392BB82B1EA19A7C00FBBAC8 /* Plane.swift */; };
 		39C0B9511E9C63CB003FCA0C /* HitTestVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9501E9C63CB003FCA0C /* HitTestVisualization.swift */; };
-		39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */; };
 		39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C0B9581E9C6B1F003FCA0C /* Utilities.swift */; };
 		39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */; };
 		39D8DC1B1E8ADAE600386B05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */; };
@@ -52,6 +51,7 @@
 		B92F516F1F972D55008EA2F6 /* MemeGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92F516E1F972D55008EA2F6 /* MemeGrid.swift */; };
 		B92F51711F972FED008EA2F6 /* memes in Resources */ = {isa = PBXBuildFile; fileRef = B92F51701F972FEC008EA2F6 /* memes */; };
 		B95313761F4C1D0B00D760E0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9C88E8E1F4C1BA100B1C084 /* GoogleService-Info.plist */; };
+		B9A2D0B31FD244CF00DBD39C /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A2D0B21FD244CF00DBD39C /* SettingsViewController.swift */; };
 		B9B1F89D1F9708AF001AC14E /* PlainGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B1F89C1F9708AE001AC14E /* PlainGrid.swift */; };
 		B9B1F89F1F971A42001AC14E /* gradients in Resources */ = {isa = PBXBuildFile; fileRef = B9B1F89E1F971A40001AC14E /* gradients */; };
 		B9E9DF4E1FB0F9920062EC1C /* picto.png in Resources */ = {isa = PBXBuildFile; fileRef = B9E9DF4D1FB0F9920062EC1C /* picto.png */; };
@@ -76,7 +76,6 @@
 		3929C49E1E89EE4400E00B60 /* Models.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Models.scnassets; sourceTree = "<group>"; };
 		392BB82B1EA19A7C00FBBAC8 /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plane.swift; sourceTree = "<group>"; };
 		39C0B9501E9C63CB003FCA0C /* HitTestVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HitTestVisualization.swift; sourceTree = "<group>"; };
-		39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		39C0B9581E9C6B1F003FCA0C /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		39D4A8BD1EA1AF530006EC65 /* PlaneDebugVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneDebugVisualization.swift; sourceTree = "<group>"; };
 		39D8DC1A1E8ADAE600386B05 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -118,6 +117,7 @@
 		B92A276E1F993DE500865B85 /* ViewController+Drop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Drop.swift"; sourceTree = "<group>"; };
 		B92F516E1F972D55008EA2F6 /* MemeGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeGrid.swift; sourceTree = "<group>"; };
 		B92F51701F972FEC008EA2F6 /* memes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = memes; sourceTree = "<group>"; };
+		B9A2D0B21FD244CF00DBD39C /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		B9B1F89C1F9708AE001AC14E /* PlainGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlainGrid.swift; sourceTree = "<group>"; };
 		B9B1F89E1F971A40001AC14E /* gradients */ = {isa = PBXFileReference; lastKnownFileType = folder; path = gradients; sourceTree = "<group>"; };
 		B9C7210C1F8E7EE6006BB31D /* brick.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = brick.jpg; sourceTree = "<group>"; };
@@ -194,6 +194,7 @@
 				B926322F1F44B6A400894CA7 /* LoginFlowHandler.swift */,
 				6A3F5A2B1F3244240013A67D /* Helper */,
 				113B64D01ECA81CA0071CBD1 /* UI Elements */,
+				B9A2D0B21FD244CF00DBD39C /* SettingsViewController.swift */,
 				C41366B81EB80DD400EC054A /* TextManager.swift */,
 				6A6159351F105E7200715603 /* Picture.swift */,
 				C4FBC02A1EC6438B003F7864 /* ARCameraTrackingState.swift */,
@@ -243,7 +244,6 @@
 				B92632331F451A6C00894CA7 /* LoginControllers */,
 				3929C48D1E89EC2C00E00B60 /* ViewController.swift */,
 				B91911781FB7A801005BE2CE /* VC+s */,
-				39C0B9571E9C6B1F003FCA0C /* SettingsViewController.swift */,
 				B91911811FBA6169005BE2CE /* ProfileControllers */,
 			);
 			name = Controller;
@@ -487,6 +487,7 @@
 				B91FA0F01F438C5C00FE1D73 /* LoginViewController.swift in Sources */,
 				B92632301F44B6A400894CA7 /* LoginFlowHandler.swift in Sources */,
 				39C0B9511E9C63CB003FCA0C /* HitTestVisualization.swift in Sources */,
+				B9A2D0B31FD244CF00DBD39C /* SettingsViewController.swift in Sources */,
 				3929C48E1E89EC2C00E00B60 /* ViewController.swift in Sources */,
 				C41366B91EB80DD400EC054A /* TextManager.swift in Sources */,
 				39C0B95A1E9C6B1F003FCA0C /* Utilities.swift in Sources */,
@@ -506,7 +507,6 @@
 				B92F516F1F972D55008EA2F6 /* MemeGrid.swift in Sources */,
 				39D4A8BE1EA1AF530006EC65 /* PlaneDebugVisualization.swift in Sources */,
 				B91911771FB6C863005BE2CE /* RegisterViewController2.swift in Sources */,
-				39C0B9591E9C6B1F003FCA0C /* SettingsViewController.swift in Sources */,
 				6AD086991F3273110035B6BC /* LibraryGrid.swift in Sources */,
 				6A6159361F105E7200715603 /* Picture.swift in Sources */,
 				B9E9DF511FB2D5100062EC1C /* WelcomeViewController.swift in Sources */,

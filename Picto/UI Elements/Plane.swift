@@ -25,9 +25,6 @@ class Plane: SCNNode {
 		
 		self.showDebugVisualization(showDebugVisualization)
 		
-		if UserDefaults.standard.bool(for: .useOcclusionPlanes) {
-			createOcclusionNode()
-		}
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -37,9 +34,6 @@ class Plane: SCNNode {
 	func update(_ anchor: ARPlaneAnchor) {
 		self.anchor = anchor
 		debugVisualization?.update(anchor)
-		if UserDefaults.standard.bool(for: .useOcclusionPlanes) {
-			updateOcclusionNode()
-		}
 	}
 	
 	func showDebugVisualization(_ show: Bool) {
@@ -55,17 +49,6 @@ class Plane: SCNNode {
 		} else {
 			debugVisualization?.removeFromParentNode()
 			debugVisualization = nil
-		}
-	}
-	
-	func updateOcclusionSetting() {
-		if UserDefaults.standard.bool(for: .useOcclusionPlanes) {
-			if occlusionNode == nil {
-				createOcclusionNode()
-			}
-		} else {
-			occlusionNode?.removeFromParentNode()
-			occlusionNode = nil
 		}
 	}
 	

@@ -69,7 +69,6 @@ public final class PhotoEditorViewController: UIViewController {
     var imageViewToPan: UIImageView?
     var isTyping: Bool = false
     
-    
     var stickersViewController: StickersViewController!
 
     //Register Custom font before we load XIB
