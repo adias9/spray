@@ -15,6 +15,8 @@ target 'Picto' do
   pod 'SwiftyJSON'
   pod 'Alamofire', '~> 4.4'
   pod 'iOSPhotoEditor'
+  pod 'SDWebImage'
+  pod 'SDWebImage/GIF'
   # FB SDK pods
   
   pod 'Bolts'

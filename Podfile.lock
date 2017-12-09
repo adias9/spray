@@ -42,6 +42,7 @@ PODS:
     - FirebaseAnalytics (~> 4.0)
     - FirebaseCore (~> 4.0)
     - GTMSessionFetcher/Core (~> 1.1)
+  - FLAnimatedImage (1.0.12)
   - GoogleToolboxForMac/DebugUtils (2.1.1):
     - GoogleToolboxForMac/Defines (= 2.1.1)
   - GoogleToolboxForMac/Defines (2.1.1)
@@ -54,6 +55,12 @@ PODS:
   - GoogleToolboxForMac/NSString+URLArguments (2.1.1)
   - GTMSessionFetcher/Core (1.1.10)
   - iOSPhotoEditor (0.5)
+  - SDWebImage (4.1.2):
+    - SDWebImage/Core (= 4.1.2)
+  - SDWebImage/Core (4.1.2)
+  - SDWebImage/GIF (4.1.2):
+    - FLAnimatedImage (~> 1.0)
+    - SDWebImage/Core
   - SwiftGifOrigin (1.6.1)
   - SwiftyJSON (3.1.4)
 
@@ -68,6 +75,8 @@ DEPENDENCIES:
   - Firebase/Database
   - Firebase/Storage
   - iOSPhotoEditor
+  - SDWebImage
+  - SDWebImage/GIF
   - SwiftGifOrigin (~> 1.6.1)
   - SwiftyJSON
 
@@ -84,12 +93,14 @@ SPEC CHECKSUMS:
   FirebaseDatabase: d829b3a8c3e2ac7a16773c5df226966b0805dfc2
   FirebaseInstanceID: 9fbf536668f4d3f0880e7438456dabd1376e294b
   FirebaseStorage: 8110a1ed2034c8fbfd83890d2acc9cdbbd99afec
+  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
   GTMSessionFetcher: 30d874b96d0d76028f61fbd122801e3f030d47db
   iOSPhotoEditor: 0ddc84bcef9fe73fe8cc45ac999b89e0aa207aea
+  SDWebImage: cb6f9f266a9977741efcbc21e618e8be3734c774
   SwiftGifOrigin: d6679d3ebe9df2e049a84bc52582635107b581f6
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: 33b7170318c95fa0a282b7b76f5132ac43f6a81e
+PODFILE CHECKSUM: d746798638b31ea4e9a20514e51c786f5c8a22ba
 
 COCOAPODS: 1.2.1

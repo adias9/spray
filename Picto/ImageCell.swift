@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class ImageCell: UICollectionViewCell {
     
@@ -20,7 +21,8 @@ class ImageCell: UICollectionViewCell {
         if let imageURL = image?.url {
             
             DispatchQueue.main.async {
-                self.thumbnailImageView.loadImageUsingUrlString(urlString: imageURL)
+                self.thumbnailImageView.sd_setImage(with: URL(string: imageURL))
+//                self.thumbnailImageView.loadImageUsingUrlString(urlString: imageURL)
             }
         }
     }

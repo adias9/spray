@@ -10,16 +10,14 @@ import Foundation
 import FirebaseDatabase
 import FirebaseStorage
 import SpriteKit
+import FLAnimatedImage
+import SDWebImage
 
 extension ViewController {
     
-    // update this later to only update square that gets changed and not the whole cube each time
     func startUpdatingCubeImages() {
         if let school = cube?.school, let sub_cube = cube?.sub_cube {
             cubeUpdateRef = Database.database().reference().child("/cubes/\(school)/\(sub_cube)")
-            
-//            let group = DispatchGroup()
-//            group.enter()
             
             var count = 0
             for i in 1...4 {
@@ -28,25 +26,25 @@ extension ViewController {
                     let pixName = "pix" + String(j)
                     let pixUpdateHandler = cubeUpdateRef.child("\(sideName)/\(pixName)").observe(.value, with: { (snapshot) in
                         if snapshot.exists() {
-                            
                             // fetch the side and individual pictures needing to be changed
                             let picDict = snapshot.valueInExportFormat() as! NSDictionary
                             
                             let dbCubePicture = picDict.value(forKey: "picture") as! String
+                            let dbCubeUrl = picDict.value(forKey: "url") as! String
                             let nodeName = pixName + sideName
-                            self.updatePic(nodeName: nodeName, picName: dbCubePicture)
-                        }
-                        count += 1
-                        if count == 64 {
-                            self.dismissCubeLoadingScreen()
+                            self.updatePic(nodeName: nodeName, picID: dbCubePicture, picURL: dbCubeUrl)
                         }
                     })
+                    count += 1
+                    if count == 64 {
+                        self.dismissCubeLoadingScreen()
+                    }
                     cubeUpdateHandlerArr.append(pixUpdateHandler)
                 }
             }
-//            group.notify(queue: .main) {
-//                self.dismissCubeLoadingScreen()
-//            }
+        } else {
+            // this happens when school or sub_cube not initialized
+            dismissCubeLoadingScreen()
         }
     }
     
@@ -63,39 +61,84 @@ extension ViewController {
     }
     
     func dismissCubeLoadingScreen() {
-        print("dismissed loading screen")
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
     }
     
-    private func updatePic(nodeName: String, picName: String) {
-        let databaseRef = Database.database().reference()
-        let picRef = databaseRef.child("/pictures/\(picName)/url")
-        picRef.observeSingleEvent(of: .value, with :{ (snapshot) in
-            if snapshot.exists() {
-                // need to get actual pic not just db rep get picture from database ref
-                let picUrl = snapshot.valueInExportFormat() as! String
+    private func updatePic(nodeName: String, picID: String, picURL: String) {
         
-                var skimage = SKScene()
-                do {
-                    let input : NSData = try NSData(contentsOf: URL(string: picUrl)!)
-                    if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
-                        skimage = SKScene.makeSKSceneFromImage(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                    } else if input.imageFormat == .GIF {
-                        skimage = SKScene.makeSKSceneFromGif(url: NSURL(string: picUrl)!, size: CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                    } else {
-                        print("not acceptable format of image")
-                    }
-                } catch {
-                    print("Error in converting picurl to NSData")
-                }
-                
-                DispatchQueue.global().async {
-                    self.editNode(content: skimage, nodeName: nodeName)
+        let reference = Storage.storage().reference().child("pictures/\(picID)")
+        
+        reference.getMetadata { metadata, error in
+            if let error = error {
+                // Uh-oh, an error occurred!
+                print("Error: \(error)")
+            } else {
+                let type = metadata?.contentType
+                if type == "image/gif" {
+                    print("this is gif")
+                    let imageView = FLAnimatedImageView.init()
+                    imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), progress: { (receivedSize, expectedSize, imageURL) in
+                        print("in progress")
+                        print("receivedSize: \(receivedSize)")
+                        print("expectedSize: \(expectedSize)")
+                    }, completed: { (image, error, cacheType, imageURL) in
+                        print("image:")
+                        DispatchQueue.main.async {
+                            print("image: \(image)")
+                            let temp_data = image?.sd_imageData()
+                            let gifIm = UIImage.gif(data: temp_data!)
+                            self.editImageNode(image: image!, nodeName: nodeName)
+                        }
+                    })
+//                    imageView.sd_setImage(with: URL(string: picURL) , completed: { (image, error, cacheType, imageURL) in
+//                        DispatchQueue.main.async {
+//                            print("image:")
+//                            let temp_data = image?.sd_imageData()
+//                            let gifIm = UIImage.gif(data: temp_data!)
+//                            self.editImageNode(image: image!, nodeName: nodeName)
+//                        }
+//                    })
+                } else {
+                    let imageView = UIImageView.init()
+                    imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
+                        DispatchQueue.main.async {
+                            self.editImageNode(content: imageView, nodeName: nodeName)
+                        }
+                    })
                 }
             }
-        })
+        }
+        
+//        do {
+//            let input : NSData = try NSData(contentsOf: URL(string: picURL)!)
+//            if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
+//                let imageView = UIImageView.init()
+//                imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
+//                    DispatchQueue.main.async {
+//                        self.editImageNode(content: imageView, nodeName: nodeName)
+//                    }
+//                })
+//            } else if input.imageFormat == .GIF {
+//                print("this is gif")
+//                let imageView = FLAnimatedImageView.init()
+//                imageView.sd_setImage(with: URL(string: picURL), completed: { (image, error, cacheType, imageURL) in
+//                    DispatchQueue.main.async {
+//                        print("image:")
+//                        let temp_data = image?.sd_imageData()
+//                        let gifIm = UIImage.gif(data: temp_data!)
+//                        self.editImageNode(image: image!, nodeName: nodeName)
+//                    }
+//                })
+//            } else {
+//                print("not acceptable format of image")
+//            }
+//        } catch {
+//            print("Error in converting picurl to NSData")
+//        }
+        
+//        let picUrl = picURL
     }
     
     func stopUpdatingCubeImages() {

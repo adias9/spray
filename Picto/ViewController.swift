@@ -17,6 +17,7 @@ import FirebaseAuth
 import FirebaseDatabase
 import FirebaseStorage
 import MobileCoreServices
+import FLAnimatedImage
 
 class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentationControllerDelegate,  CLLocationManagerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
@@ -304,7 +305,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     // Load Prev Obj
     func loadImage(_ itemProvider: NSItemProvider, nodeName: String) {
         itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.main.async {
                 //let image = object as! UIImage
                 let content = self.content!
                 self.newPictureView(content: content, nodeName: nodeName)
@@ -352,6 +353,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     func editNode(content: SKScene, nodeName: String) {
         let pix = SCNPlane(width: 2/4, height: 2/4)
         pix.firstMaterial?.diffuse.contents = content
+        pix.firstMaterial?.lightingModel = .constant
+        
+        let targetNode = sceneView.scene.rootNode.childNode(withName: nodeName, recursively: true)
+        targetNode?.geometry = pix
+    }
+    
+    func editImageNode(content: UIImageView, nodeName: String) {
+        let pix = SCNPlane(width: 2/4, height: 2/4)
+        pix.firstMaterial?.diffuse.contents = content.image
+        pix.firstMaterial?.lightingModel = .constant
+        
+        let targetNode = sceneView.scene.rootNode.childNode(withName: nodeName, recursively: true)
+        targetNode?.geometry = pix
+    }
+    
+    func editImageNode(image: UIImage, nodeName: String) {
+        let pix = SCNPlane(width: 2/4, height: 2/4)
+        print(image.isGIF())
+        //UIImage.gif(data: content.animatedImage.data)
+
+        pix.firstMaterial?.diffuse.contents = image
         pix.firstMaterial?.lightingModel = .constant
         
         let targetNode = sceneView.scene.rootNode.childNode(withName: nodeName, recursively: true)
@@ -433,7 +455,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 if pix.contains("s") {
                     pix = String(nodeName[pixIndex])
                 }
-                let pixPic : [String: Any] = ["picture": picID]
+                let pixPic : [String: Any] = ["picture": picID, "url": downloadURL]
                 if let school = self.cube?.school, let sub_cube = self.cube?.sub_cube {
                     let cubeChildUpdates: [String: Any] = ["/cubes/\(school)/\(sub_cube)/side\(side)/pix\(pix)": pixPic]
                     databaseRef.updateChildValues(cubeChildUpdates)
@@ -858,16 +880,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
                 trackingFallbackTimer = nil
             }
             // Add cube to scene
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.main.async {
+                if self.sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true) == nil {
+                    self.addPostObjectToScene()
+                }
                 if self.cubeNotSetup {
                     self.showCubeLoadingScreen()
                     self.startUpdatingCubeImages()
                     self.cubeNotSetup = false
-                }
-                DispatchQueue.global().async {
-                    if self.sceneView.scene.rootNode.childNode(withName: "distinct_cube", recursively: true) == nil {
-                        self.addPostObjectToScene()
-                    }
                 }
             }
         }
