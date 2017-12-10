@@ -10,7 +10,6 @@ import Foundation
 import FirebaseDatabase
 import FirebaseStorage
 import SpriteKit
-import FLAnimatedImage
 import SDWebImage
 
 extension ViewController {
@@ -78,28 +77,34 @@ extension ViewController {
                 let type = metadata?.contentType
                 if type == "image/gif" {
                     print("this is gif")
-                    let imageView = FLAnimatedImageView.init()
-                    imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), progress: { (receivedSize, expectedSize, imageURL) in
-                        print("in progress")
-                        print("receivedSize: \(receivedSize)")
-                        print("expectedSize: \(expectedSize)")
-                    }, completed: { (image, error, cacheType, imageURL) in
-                        print("image:")
-                        DispatchQueue.main.async {
-                            print("image: \(image)")
-                            let temp_data = image?.sd_imageData()
-                            let gifIm = UIImage.gif(data: temp_data!)
-                            self.editImageNode(image: image!, nodeName: nodeName)
-                        }
-                    })
-//                    imageView.sd_setImage(with: URL(string: picURL) , completed: { (image, error, cacheType, imageURL) in
+//                    let imageView = FLAnimatedImageView.init()
+                    let imageView = UIImageView.init()
+//                    imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), progress: { (receivedSize, expectedSize, imageURL) in
+//                        print("in progress")
+//                        print("receivedSize: \(receivedSize)")
+//                        print("expectedSize: \(expectedSize)")
+//                    }, completed: { (image, error, cacheType, imageURL) in
+//                        print("image:")
 //                        DispatchQueue.main.async {
-//                            print("image:")
+//                            print("image: \(image)")
 //                            let temp_data = image?.sd_imageData()
 //                            let gifIm = UIImage.gif(data: temp_data!)
 //                            self.editImageNode(image: image!, nodeName: nodeName)
 //                        }
 //                    })
+//                    imageView.sd_setImage(with: URL(string: picURL) , completed: { (image, error, cacheType, imageURL) in
+//                        DispatchQueue.main.async {
+//                            print("image:")
+////                            let temp_data = image?.sd_imageData()
+////                            let gifIm = UIImage.gif(data: temp_data!)
+//                            self.editUIImageNode(image: imageView, nodeName: nodeName)
+//                        }
+//                    })
+                    DispatchQueue.main.async {
+                        print("image:")
+                        let sk = SKScene.makeSKSceneFromGif(url: NSURL(string: picURL)!, size:  CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+                        self.editGIFImageNode(skscene: sk, nodeName: nodeName)
+                    }
                 } else {
                     let imageView = UIImageView.init()
                     imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
