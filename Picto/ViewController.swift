@@ -1201,7 +1201,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             trackingFallbackTimer = nil
         }
 
-        textManager.scheduleMessage("FIND A SURFACE TO PLACE AN OBJECT",
+        textManager.scheduleMessage("FIND THE CUBE TO ADD A CREATION",
                                     inSeconds: 7.5,
                                     messageType: .planeEstimation)
     }

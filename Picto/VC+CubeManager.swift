@@ -75,75 +75,20 @@ extension ViewController {
                 print("Error: \(error)")
             } else {
                 let type = metadata?.contentType
-                if type == "image/gif" {
-                    print("this is gif")
-//                    let imageView = FLAnimatedImageView.init()
-                    let imageView = UIImageView.init()
-//                    imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), progress: { (receivedSize, expectedSize, imageURL) in
-//                        print("in progress")
-//                        print("receivedSize: \(receivedSize)")
-//                        print("expectedSize: \(expectedSize)")
-//                    }, completed: { (image, error, cacheType, imageURL) in
-//                        print("image:")
-//                        DispatchQueue.main.async {
-//                            print("image: \(image)")
-//                            let temp_data = image?.sd_imageData()
-//                            let gifIm = UIImage.gif(data: temp_data!)
-//                            self.editImageNode(image: image!, nodeName: nodeName)
-//                        }
-//                    })
-//                    imageView.sd_setImage(with: URL(string: picURL) , completed: { (image, error, cacheType, imageURL) in
-//                        DispatchQueue.main.async {
-//                            print("image:")
-////                            let temp_data = image?.sd_imageData()
-////                            let gifIm = UIImage.gif(data: temp_data!)
-//                            self.editUIImageNode(image: imageView, nodeName: nodeName)
-//                        }
-//                    })
+                let imageView = UIImageView.init()
+                imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
                     DispatchQueue.main.async {
-                        print("image:")
-                        let sk = SKScene.makeSKSceneFromGif(url: NSURL(string: picURL)!, size:  CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
-                        self.editGIFImageNode(skscene: sk, nodeName: nodeName)
-                    }
-                } else {
-                    let imageView = UIImageView.init()
-                    imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
-                        DispatchQueue.main.async {
+                        print("in dat")
+                        if type == "image/gif" {
+                            let sk = SKScene.makeSKSceneFromGif(url: NSURL(string: picURL)!, size:  CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
+                            self.editGIFImageNode(skscene: sk, nodeName: nodeName)
+                        } else {
                             self.editImageNode(content: imageView, nodeName: nodeName)
                         }
-                    })
-                }
+                    }
+                })
             }
         }
-        
-//        do {
-//            let input : NSData = try NSData(contentsOf: URL(string: picURL)!)
-//            if input.imageFormat == .JPEG || input.imageFormat == .PNG || input.imageFormat == .TIFF {
-//                let imageView = UIImageView.init()
-//                imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
-//                    DispatchQueue.main.async {
-//                        self.editImageNode(content: imageView, nodeName: nodeName)
-//                    }
-//                })
-//            } else if input.imageFormat == .GIF {
-//                print("this is gif")
-//                let imageView = FLAnimatedImageView.init()
-//                imageView.sd_setImage(with: URL(string: picURL), completed: { (image, error, cacheType, imageURL) in
-//                    DispatchQueue.main.async {
-//                        print("image:")
-//                        let temp_data = image?.sd_imageData()
-//                        let gifIm = UIImage.gif(data: temp_data!)
-//                        self.editImageNode(image: image!, nodeName: nodeName)
-//                    }
-//                })
-//            } else {
-//                print("not acceptable format of image")
-//            }
-//        } catch {
-//            print("Error in converting picurl to NSData")
-//        }
-        
-//        let picUrl = picURL
     }
     
     func stopUpdatingCubeImages() {
