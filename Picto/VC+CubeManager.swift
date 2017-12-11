@@ -78,8 +78,8 @@ extension ViewController {
                 let imageView = UIImageView.init()
                 imageView.sd_setImage(with: URL(string: picURL), placeholderImage: UIImage(named: "picto.png"), completed: { (image, error, cacheType, imageURL) in
                     DispatchQueue.main.async {
-                        print("in dat")
                         if type == "image/gif" {
+                            // in the future should use URL here instead of image returned from SD_SETIMAGE
                             let sk = SKScene.makeSKSceneFromGif(url: NSURL(string: picURL)!, size:  CGSize(width: self.sceneView.frame.width, height: self.sceneView.frame.height))
                             self.editGIFImageNode(skscene: sk, nodeName: nodeName)
                         } else {

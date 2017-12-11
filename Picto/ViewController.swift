@@ -370,7 +370,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
     
     func editGIFImageNode(skscene: SKScene, nodeName: String) {
         let pix = SCNPlane(width: 2/4, height: 2/4)
-        print("isGIF: ")
         pix.firstMaterial?.diffuse.contents = skscene
         pix.firstMaterial?.lightingModel = .constant
         
@@ -562,7 +561,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
         let berkeleyLOC = CLLocation.init(latitude: 37.8719, longitude: -122.2585)
         let stanfordLOC = CLLocation.init(latitude: 37.4275, longitude: -122.1697)
         let princetonLOC = CLLocation.init(latitude: 40.3440, longitude: -74.6514)
-        let christmasLOC = CLLocation.init(latitude: 37.781143, longitude: -122.391516)
+        let ycLOC = CLLocation.init(latitude: 37.386537, longitude: -122.066849)
         
         if (coordinate.distance(from: berkeleyLOC) / 1609.344) <= 3 {
             cube = Cube()
@@ -576,10 +575,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, UIPopoverPresentation
             cube = Cube()
             cube?.school = "Princeton"
             cube?.sub_cube = "frist"
-        } else if (coordinate.distance(from: princetonLOC) / 1609.344) <= 1 {
+        } else if (coordinate.distance(from: ycLOC) / 1609.344) <= 1 {
             cube = Cube()
-            cube?.school = "SF"
-            cube?.sub_cube = "soma"
+            cube?.school = "YC"
+            cube?.sub_cube = "office"
         } else {
             
         }
